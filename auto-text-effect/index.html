@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Text Effect</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Auto Text Effect</h1>
+        
+        <div class="text-display">
+            <div class="text-container">
+                <span id="displayText"></span>
+                <span class="cursor" id="cursor">|</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="textInput">Text to Type:</label>
+                <textarea id="textInput" class="input" placeholder="Enter text to display with typing effect..." rows="4">Welcome to the Auto Text Effect! This is a beautiful typing animation that you can customize. Try changing the speed, effects, and text to create your own unique typing experience.</textarea>
+            </div>
+            
+            <div class="control-group">
+                <label for="typingSpeed">Typing Speed (ms):</label>
+                <input type="range" id="typingSpeed" min="50" max="500" value="100" class="slider">
+                <span id="speedValue">100ms</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="effectType">Effect Type:</label>
+                <select id="effectType" class="input">
+                    <option value="typewriter" selected>Typewriter</option>
+                    <option value="matrix">Matrix</option>
+                    <option value="glitch">Glitch</option>
+                    <option value="rainbow">Rainbow</option>
+                    <option value="bounce">Bounce</option>
+                    <option value="fade">Fade</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="cursorStyle">Cursor Style:</label>
+                <select id="cursorStyle" class="input">
+                    <option value="|" selected>Vertical Line</option>
+                    <option value="_">Underscore</option>
+                    <option value="█">Block</option>
+                    <option value="▋">Half Block</option>
+                    <option value="●">Circle</option>
+                    <option value="none">None</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="advanced-controls">
+            <div class="control-group">
+                <label for="autoRepeat">Auto Repeat:</label>
+                <select id="autoRepeat" class="input">
+                    <option value="false" selected>Disabled</option>
+                    <option value="true">Enabled</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="pauseDuration">Pause Duration (ms):</label>
+                <input type="range" id="pauseDuration" min="500" max="5000" value="2000" class="slider">
+                <span id="pauseValue">2000ms</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="textColor">Text Color:</label>
+                <input type="color" id="textColor" value="#ffffff" class="color-picker">
+            </div>
+            
+            <div class="control-group">
+                <label for="fontSize">Font Size:</label>
+                <input type="range" id="fontSize" min="12" max="72" value="24" class="slider">
+                <span id="fontSizeValue">24px</span>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="startBtn" class="btn">Start Typing</button>
+                <button id="pauseBtn" class="btn">Pause</button>
+                <button id="resetBtn" class="btn">Reset</button>
+                <button id="clearBtn" class="btn">Clear</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="saveBtn" class="btn">Save Settings</button>
+                <button id="loadBtn" class="btn">Load Settings</button>
+                <button id="exportBtn" class="btn">Export Text</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="challenge-1/index.html" class="btn">Challenge 1</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+        
+        <!-- Preset texts -->
+        <div class="presets">
+            <h3>Text Presets</h3>
+            <div class="preset-buttons">
+                <button class="preset-btn" data-text="Hello, World! Welcome to the amazing world of typing effects.">Greeting</button>
+                <button class="preset-btn" data-text="The quick brown fox jumps over the lazy dog. This pangram contains every letter of the alphabet at least once.">Pangram</button>
+                <button class="preset-btn" data-text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Lorem Ipsum</button>
+                <button class="preset-btn" data-text="🎉 Welcome to the party! 🎊 Let's celebrate with some amazing typing effects! ✨">Emoji Text</button>
+                <button class="preset-btn" data-text="In a world where technology evolves rapidly, we must adapt and learn continuously. The future belongs to those who embrace change.">Inspirational</button>
+                <button class="preset-btn" data-text="Coding is like writing a story. Each line is a sentence, each function is a chapter, and the program is the complete novel.">Programming</button>
+            </div>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="statistics">
+            <h3>Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Characters Typed:</span>
+                    <span class="stat-value" id="charactersTyped">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Words Typed:</span>
+                    <span class="stat-value" id="wordsTyped">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Typing Time:</span>
+                    <span class="stat-value" id="typingTime">0s</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">WPM:</span>
+                    <span class="stat-value" id="wpm">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- History -->
+        <div class="history">
+            <h3>Typing History</h3>
+            <div class="history-list" id="historyList">
+                <!-- History items will be displayed here -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

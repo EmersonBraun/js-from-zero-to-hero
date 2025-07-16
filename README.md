@@ -24,28 +24,28 @@ The project is still in development and as it is updated it will be changed here
 - [X] [Matrix effect](matrix/README.md)
 - [x] [Memory game](memory/README.md)
 - [x] [Binary to decimal](binary_to_decimal/README.md)
-- [ ] QR Code Generator
-- [ ] Hangman game
-- [ ] Paint
-- [ ] Mario Jump
-- [ ] Star Wars Intro
-- [ ] Sound Board
-- [ ] Progress Steps
-- [ ] Event Keycodes
-- [ ] Drink Water
-- [ ] Background Slider
-- [ ] Theme Clock
-- [ ] Drag and Drop
-- [ ] Drawing
-- [ ] Auto Text Effect
-- [ ] Github profiles
-- [ ] Password Generator
-- [ ] Quiz App
-- [ ] TODO List
-- [ ] Insect Catch Game
-- [ ] Url shortener
-- [ ] Pokedex
-- [ ] Random image feed
+- [x] [QR Code Generator](qr-code-generator/README.md)
+- [x] [Hangman game](hangman/README.md)
+- [x] [Paint](paint/README.md)
+- [x] [Mario Jump](mario_jump/README.md)
+- [x] [Star Wars Intro](star-wars-intro/README.md)
+- [x] [Sound Board](sound-board/README.md)
+- [x] [Progress Steps](progress-steps/README.md)
+- [x] [Event Keycodes](event-keycodes/README.md)
+- [x] [Drink Water](drink-water/README.md)
+- [x] [Background Slider](background-slider/README.md)
+- [x] [Theme Clock](theme-clock/README.md)
+- [x] [Drag and Drop](drag-drop/README.md)
+- [x] [Drawing](drawing/README.md)
+- [x] [Auto Text Effect](auto-text-effect/README.md)
+- [x] [Github profiles](github-profiles/README.md)
+- [x] [Password Generator](password-generator/README.md)
+- [x] [Quiz App](quiz-app/README.md)
+- [x] [TODO List](todo-list/README.md)
+- [x] [Insect Catch Game](insect-catch-game/README.md)
+- [x] [Url shortener](url-shortener/README.md)
+- [x] [Pokedex](pokedex/README.md)
+- [x] [Random image feed](random-image-feed/README.md)
 
 
 ## 💻 Prerequisites

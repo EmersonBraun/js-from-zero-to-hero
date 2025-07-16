@@ -1,0 +1,142 @@
+# JS Dev Course - Cursor Rules
+
+## Estrutura do Projeto
+
+Cada projeto deve seguir esta estrutura padrão:
+```
+project-name/
+├── index.html          # Versão principal do projeto
+├── index.js            # JavaScript principal
+├── style.css           # Estilos CSS
+├── README.md           # Documentação em inglês
+├── README-PTBR.md      # Documentação em português
+├── challenge-1/        # Primeiro desafio
+│   ├── index.html
+│   ├── index.js
+│   ├── style.css
+│   ├── README.md
+│   └── README-PTBR.md
+├── challenge-2/        # Segundo desafio
+│   ├── index.html
+│   ├── index.js
+│   ├── style.css
+│   ├── README.md
+│   └── README-PTBR.md
+└── gifs/               # GIFs demonstrativos (se aplicável)
+    ├── class.gif
+    ├── challenge-1.gif
+    └── challenge-2.gif
+```
+
+## Padrões de Código
+
+### HTML
+- Use `<!DOCTYPE html>` e estrutura HTML5 semântica
+- Inclua meta tags para charset, viewport e compatibilidade
+- Use fonte Roboto do Google Fonts: `<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">`
+- Estrutura básica:
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Project Name</title>
+      <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+      <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+      <!-- Conteúdo -->
+      <script src="index.js"></script>
+  </body>
+  </html>
+  ```
+
+### CSS
+- Use reset CSS básico com `box-sizing: border-box`
+- Implemente gradientes modernos como background
+- Use sistema de cores consistente:
+  - Background: gradiente `#0f2027` → `#2c5364` → `#203a43`
+  - Botões: `#2e647a` com hover effects
+  - Texto: branco (`#fff`)
+- Estrutura de classes:
+  - `.row` para containers
+  - `.input` para campos de entrada
+  - `.btn` para botões
+  - `.btn-group` para grupos de botões
+- Use unidades rem para responsividade
+- Implemente transições suaves (`transition: all 0.3s`)
+
+### JavaScript
+- Use ES6+ features quando apropriado
+- Implemente event listeners para interatividade
+- Use `document.getElementById()` e `document.querySelector()` para manipulação do DOM
+- Mantenha funções simples e focadas
+- Use template literals para strings dinâmicas
+- Implemente validação de entrada quando necessário
+
+## Padrões de Documentação
+
+### README.md (Inglês)
+- Título do projeto
+- Link para versão em português
+- Seção "CLASS" com instruções básicas
+- Seção "CHALLENGE 01" com requisitos específicos
+- Seção "CHALLENGE 02" com requisitos avançados
+- GIFs demonstrativos para cada versão
+- Links de navegação entre desafios
+
+### README-PTBR.md (Português)
+- Tradução completa do README.md
+- Manter mesma estrutura e formatação
+- Adaptar linguagem técnica para português quando necessário
+
+## Convenções de Nomenclatura
+
+- **Arquivos**: lowercase com hífens (ex: `switch-light`, `tic-tac-toe`)
+- **IDs**: camelCase (ex: `calculateBtn`, `resultDisplay`)
+- **Classes**: kebab-case (ex: `btn-group`, `input-field`)
+- **Funções**: camelCase (ex: `calculateBMI`, `clearInputs`)
+
+## Funcionalidades Comuns
+
+### Botões
+- Sempre implemente botões "Calculate" e "Clear"
+- Use `.btn-group` para agrupar botões relacionados
+- Implemente hover effects consistentes
+
+### Inputs
+- Use `type="number"` para valores numéricos
+- Defina `min` e `max` apropriados
+- Use placeholders descritivos
+- Implemente validação de entrada
+
+### Output
+- Use elementos semânticos para exibir resultados
+- Implemente formatação adequada (decimais, unidades)
+- Considere cores para diferentes estados (sucesso, erro, etc.)
+
+## Progression Pattern
+
+1. **CLASS**: Implementação básica funcional
+2. **CHALLENGE 01**: Adicionar lógica de negócio e categorização
+3. **CHALLENGE 02**: Melhorar UX com cores, informações adicionais e feedback visual
+
+## Boas Práticas
+
+- Mantenha código limpo e bem comentado
+- Use nomes descritivos para variáveis e funções
+- Implemente tratamento de erros básico
+- Teste funcionalidades em diferentes navegadores
+- Mantenha responsividade para diferentes tamanhos de tela
+- Use acessibilidade básica (labels, alt text, etc.)
+
+## Exemplo de Implementação
+
+Siga sempre o padrão estabelecido no projeto BMI:
+- Estrutura HTML consistente
+- CSS com gradientes e design moderno
+- JavaScript funcional e bem estruturado
+- Documentação clara e completa
+- Progressão lógica dos desafios 

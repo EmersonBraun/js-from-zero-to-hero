@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Password Generator</h1>
+        
+        <div class="password-display">
+            <input type="text" id="passwordOutput" class="password-output" readonly>
+            <button id="copyBtn" class="copy-btn" title="Copy to clipboard">📋</button>
+        </div>
+        
+        <div class="options">
+            <div class="option-group">
+                <label for="passwordLength">Password Length:</label>
+                <div class="length-control">
+                    <input type="range" id="passwordLength" min="4" max="50" value="12" class="slider">
+                    <span id="lengthValue">12</span>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <label>Include:</label>
+                <div class="checkbox-group">
+                    <label class="checkbox">
+                        <input type="checkbox" id="uppercase" checked>
+                        <span class="checkmark"></span>
+                        Uppercase Letters (A-Z)
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="lowercase" checked>
+                        <span class="checkmark"></span>
+                        Lowercase Letters (a-z)
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="numbers" checked>
+                        <span class="checkmark"></span>
+                        Numbers (0-9)
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="symbols">
+                        <span class="checkmark"></span>
+                        Symbols (!@#$%^&*)
+                    </label>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <label class="checkbox">
+                    <input type="checkbox" id="excludeSimilar">
+                    <span class="checkmark"></span>
+                    Exclude similar characters (l, 1, I, O, 0)
+                </label>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="generateBtn" class="btn">Generate Password</button>
+                <button id="clearBtn" class="btn">Clear</button>
+            </div>
+        </div>
+        
+        <div class="strength-meter">
+            <label>Password Strength:</label>
+            <div class="strength-bar">
+                <div id="strengthFill" class="strength-fill"></div>
+            </div>
+            <span id="strengthText">Medium</span>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="challenge-1/index.html" class="btn">Challenge 1</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

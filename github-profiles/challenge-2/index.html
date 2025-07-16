@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced GitHub Profiles - Challenge 2</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced GitHub Profiles</h1>
+        <p class="subtitle">Compare Users, Analyze Activity, and Explore Repositories</p>
+        
+        <div class="search-section">
+            <div class="search-container">
+                <div class="search-group">
+                    <label for="user1Input">User 1:</label>
+                    <input type="text" id="user1Input" class="search-input" placeholder="Enter GitHub username...">
+                    <button id="searchUser1Btn" class="search-btn">Search</button>
+                </div>
+                <div class="search-group">
+                    <label for="user2Input">User 2:</label>
+                    <input type="text" id="user2Input" class="search-input" placeholder="Enter GitHub username...">
+                    <button id="searchUser2Btn" class="search-btn">Search</button>
+                </div>
+            </div>
+            <div class="search-actions">
+                <button id="compareBtn" class="btn">Compare Users</button>
+                <button id="clearBtn" class="btn clear">Clear All</button>
+                <button id="saveComparisonBtn" class="btn save">Save Comparison</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="profiles-grid">
+                <div class="profile-card" id="profile1Card">
+                    <div class="profile-header">
+                        <img id="profile1Avatar" class="profile-avatar" src="" alt="">
+                        <div class="profile-info">
+                            <h2 id="profile1Name" class="profile-name">User 1</h2>
+                            <p id="profile1Username" class="profile-username">@username</p>
+                            <p id="profile1Bio" class="profile-bio">No bio available</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-stats" id="profile1Stats">
+                        <!-- Stats will be populated here -->
+                    </div>
+                    
+                    <div class="profile-links" id="profile1Links">
+                        <!-- Links will be populated here -->
+                    </div>
+                    
+                    <div class="activity-section">
+                        <h3>Recent Activity</h3>
+                        <div id="profile1Activity" class="activity-list">
+                            <!-- Activity will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="repos-section">
+                        <h3>Top Repositories</h3>
+                        <div id="profile1Repos" class="repos-grid">
+                            <!-- Repositories will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comparison-panel">
+                    <h3>Comparison</h3>
+                    <div class="comparison-stats">
+                        <div class="comparison-item">
+                            <span class="comparison-label">Repositories</span>
+                            <div class="comparison-bars">
+                                <div class="bar user1-bar" id="repoBar1"></div>
+                                <div class="bar user2-bar" id="repoBar2"></div>
+                            </div>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="comparison-label">Followers</span>
+                            <div class="comparison-bars">
+                                <div class="bar user1-bar" id="followersBar1"></div>
+                                <div class="bar user2-bar" id="followersBar2"></div>
+                            </div>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="comparison-label">Stars</span>
+                            <div class="comparison-bars">
+                                <div class="bar user1-bar" id="starsBar1"></div>
+                                <div class="bar user2-bar" id="starsBar2"></div>
+                            </div>
+                        </div>
+                        <div class="comparison-item">
+                            <span class="comparison-label">Contributions</span>
+                            <div class="comparison-bars">
+                                <div class="bar user1-bar" id="contributionsBar1"></div>
+                                <div class="bar user2-bar" id="contributionsBar2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-chart">
+                        <canvas id="comparisonChart" width="300" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <div class="profile-card" id="profile2Card">
+                    <div class="profile-header">
+                        <img id="profile2Avatar" class="profile-avatar" src="" alt="">
+                        <div class="profile-info">
+                            <h2 id="profile2Name" class="profile-name">User 2</h2>
+                            <p id="profile2Username" class="profile-username">@username</p>
+                            <p id="profile2Bio" class="profile-bio">No bio available</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-stats" id="profile2Stats">
+                        <!-- Stats will be populated here -->
+                    </div>
+                    
+                    <div class="profile-links" id="profile2Links">
+                        <!-- Links will be populated here -->
+                    </div>
+                    
+                    <div class="activity-section">
+                        <h3>Recent Activity</h3>
+                        <div id="profile2Activity" class="activity-list">
+                            <!-- Activity will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="repos-section">
+                        <h3>Top Repositories</h3>
+                        <div id="profile2Repos" class="repos-grid">
+                            <!-- Repositories will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="analytics-section">
+            <div class="analytics-tabs">
+                <button class="tab-btn active" data-tab="languages">Languages</button>
+                <button class="tab-btn" data-tab="activity">Activity</button>
+                <button class="tab-btn" data-tab="contributions">Contributions</button>
+                <button class="tab-btn" data-tab="repositories">Repositories</button>
+            </div>
+            
+            <div class="analytics-content">
+                <div class="tab-content active" id="languagesTab">
+                    <h3>Programming Languages</h3>
+                    <div class="languages-chart">
+                        <canvas id="languagesChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="languages-list" id="languagesList">
+                        <!-- Languages will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="activityTab">
+                    <h3>Activity Timeline</h3>
+                    <div class="activity-chart">
+                        <canvas id="activityChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="activity-filters">
+                        <button class="filter-btn active" data-period="week">Week</button>
+                        <button class="filter-btn" data-period="month">Month</button>
+                        <button class="filter-btn" data-period="year">Year</button>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="contributionsTab">
+                    <h3>Contribution Graph</h3>
+                    <div class="contribution-graph" id="contributionGraph">
+                        <!-- Contribution graph will be populated here -->
+                    </div>
+                    <div class="contribution-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalContributions">0</span>
+                            <span class="stat-label">Total Contributions</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="streakDays">0</span>
+                            <span class="stat-label">Current Streak</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="longestStreak">0</span>
+                            <span class="stat-label">Longest Streak</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="repositoriesTab">
+                    <h3>Repository Analysis</h3>
+                    <div class="repo-filters">
+                        <select id="repoSortBy" class="select">
+                            <option value="stars">Sort by Stars</option>
+                            <option value="forks">Sort by Forks</option>
+                            <option value="updated">Sort by Updated</option>
+                            <option value="name">Sort by Name</option>
+                        </select>
+                        <input type="text" id="repoSearch" class="input" placeholder="Search repositories...">
+                    </div>
+                    <div class="repos-analysis" id="reposAnalysis">
+                        <!-- Repository analysis will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="saved-comparisons">
+            <h3>Saved Comparisons</h3>
+            <div id="savedComparisonsList" class="saved-list">
+                <!-- Saved comparisons will be populated here -->
+            </div>
+        </div>
+        
+        <div class="stats-overview">
+            <div class="stat-item">
+                <span class="stat-number" id="totalUsers">0</span>
+                <span class="stat-label">Users Searched</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="totalComparisons">0</span>
+                <span class="stat-label">Comparisons Made</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="totalRepos">0</span>
+                <span class="stat-label">Repositories Analyzed</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="apiCalls">0</span>
+                <span class="stat-label">API Calls</span>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

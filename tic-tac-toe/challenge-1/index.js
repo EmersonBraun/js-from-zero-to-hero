@@ -31,8 +31,8 @@ function handlePCPlay() {
 
     let pcPlay
     while (!pcPlay) {
-        play = Math.floor(Math.random() * gameState.length)
-        if(gameState[play] == "") pcPlay = play
+        const play = Math.floor(Math.random() * gameState.length)
+        if(gameState[play] === "") pcPlay = play
     }
 
     handleCellPlayed(pcPlay)

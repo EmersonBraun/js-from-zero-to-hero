@@ -2,7 +2,7 @@
 
 # CHALLENGE 01
 
-- 
+- Add match tracking with `updateRight()` and `updateWrong()` functions. Display a game-over evaluation ('Perfect', 'Good', or 'Bad') based on the number of wrong attempts.
 
 ![](../gifs/challenge-1.gif)
 

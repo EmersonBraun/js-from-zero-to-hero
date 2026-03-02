@@ -2,7 +2,7 @@
 
 # CHALLENGE 01
 
-- 
+- Add a score counter that increments every 10ms while the game is running and displays the points on screen.
 
 ![](../gifs/challenge-1.gif)
 

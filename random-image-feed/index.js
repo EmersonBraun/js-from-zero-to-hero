@@ -153,6 +153,8 @@ class RandomImageFeed {
         await this.fetchImages();
     }
 
+    // NOTE: innerHTML is used here with data from external APIs. In production,
+    // always sanitize external content to prevent XSS attacks.
     displaySingleImage(image) {
         this.imageDisplay.innerHTML = this.createImageCard(image, true);
         this.imageGrid.style.display = 'none';

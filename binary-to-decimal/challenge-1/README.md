@@ -2,7 +2,7 @@
 
 # CHALLENGE 01
 
-- 
+- Refactor the UI to use unified input/output elements (`#input` and `#output`) instead of separate fields for each conversion direction.
 
 ![](../gifs/challenge-1.gif)
 

@@ -29,7 +29,7 @@ function handleSelectPlayer(option) {
     document.getElementById('game').style.display = 'block'
     document.getElementById('selection').style.display = 'none'
     playerSelected = option
-    if(option == 'O') handlePCPlay()
+    if(option === 'O') handlePCPlay()
 }
 
 function handlePCPlay() {
@@ -39,8 +39,8 @@ function handlePCPlay() {
 
     let pcPlay
     while (!pcPlay) {
-        play = Math.floor(Math.random() * gameState.length)
-        if(gameState[play] == "") pcPlay = play
+        const play = Math.floor(Math.random() * gameState.length)
+        if(gameState[play] === "") pcPlay = play
     }
 
     handleCellPlayed(pcPlay)

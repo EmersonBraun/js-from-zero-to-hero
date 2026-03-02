@@ -189,23 +189,8 @@ async function copyPassword() {
         
         showMessage('Password copied to clipboard!', 'success');
     } catch (err) {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = currentPassword;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        copyBtn.textContent = 'Copied!';
-        copyBtn.classList.add('copied');
-        
-        setTimeout(() => {
-            copyBtn.textContent = 'Copy';
-            copyBtn.classList.remove('copied');
-        }, 2000);
-        
-        showMessage('Password copied to clipboard!', 'success');
+        console.error('Failed to copy password:', err);
+        showMessage('Failed to copy password', 'error');
     }
 }
 
@@ -255,14 +240,8 @@ async function copyHistoryPassword(password) {
         await navigator.clipboard.writeText(password);
         showMessage('Password copied from history!', 'success');
     } catch (err) {
-        // Fallback
-        const textArea = document.createElement('textarea');
-        textArea.value = password;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        showMessage('Password copied from history!', 'success');
+        console.error('Failed to copy password from history:', err);
+        showMessage('Failed to copy password', 'error');
     }
 }
 

@@ -2,7 +2,7 @@
 
 # DESAFIO 01
 
-- 
+- Adicionar rastreamento de acertos e erros com funções `updateRight()` e `updateWrong()`. Exibir uma avaliação ao final do jogo ('Perfeito', 'Bom' ou 'Ruim') baseada no número de tentativas erradas.
 
 ![](../gifs/challenge-1.gif)
 

@@ -6,7 +6,7 @@ let firstCard, secondCard;
 function flipCard(e) {
     if (finishedGame) return;
     
-    const card = e.path[1]
+    const card = e.currentTarget
 
     card.classList.add('flip');
 

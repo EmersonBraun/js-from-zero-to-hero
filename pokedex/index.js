@@ -185,6 +185,9 @@ class Pokedex {
         }
     }
 
+    // NOTE: innerHTML is used here with data from the PokeAPI. While this API returns
+    // controlled data, in production always sanitize external content to prevent XSS.
+    // Prefer textContent for plain text or use a sanitization library for HTML content.
     displayPokemon(pokemon) {
         this.currentPokemon = pokemon;
         this.pokemonDisplay.innerHTML = this.createPokemonCard(pokemon);

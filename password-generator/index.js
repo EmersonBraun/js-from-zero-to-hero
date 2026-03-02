@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Copy password to clipboard
     async function copyToClipboard() {
         if (!passwordOutput.value) {
-            alert('Generate a password first!');
+            passwordOutput.placeholder = 'Generate a password first!';
             return;
         }
 
@@ -142,22 +142,13 @@ document.addEventListener('DOMContentLoaded', function() {
             await navigator.clipboard.writeText(passwordOutput.value);
             copyBtn.classList.add('copied');
             copyBtn.textContent = '✓';
-            
+
             setTimeout(() => {
                 copyBtn.classList.remove('copied');
                 copyBtn.textContent = '📋';
             }, 2000);
         } catch (err) {
-            // Fallback for older browsers
-            passwordOutput.select();
-            document.execCommand('copy');
-            copyBtn.classList.add('copied');
-            copyBtn.textContent = '✓';
-            
-            setTimeout(() => {
-                copyBtn.classList.remove('copied');
-                copyBtn.textContent = '📋';
-            }, 2000);
+            console.error('Failed to copy password:', err);
         }
     }
 

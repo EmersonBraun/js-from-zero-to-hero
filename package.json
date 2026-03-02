@@ -1,0 +1,18 @@
+{
+  "name": "js-dev-course",
+  "version": "1.0.0",
+  "description": "Course designed to teach JavaScript through projects",
+  "private": true,
+  "scripts": {
+    "lint": "eslint '**/*.js' --ignore-pattern node_modules --ignore-pattern dist",
+    "lint:fix": "eslint '**/*.js' --fix --ignore-pattern node_modules --ignore-pattern dist",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "vitest": "^3.0.0"
+  },
+  "license": "MIT",
+  "author": "EmersonBraun"
+}

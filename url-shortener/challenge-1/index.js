@@ -126,19 +126,22 @@ class URLShortener {
     }
 
     copyToClipboard() {
-        this.shortUrlInput.select();
-        this.shortUrlInput.setSelectionRange(0, 99999);
-        document.execCommand('copy');
-        
-        // Visual feedback
+        const url = this.shortUrlInput.value;
         const originalText = this.copyBtn.textContent;
-        this.copyBtn.textContent = '✓ Copied!';
-        this.copyBtn.style.background = '#28a745';
-        
-        setTimeout(() => {
-            this.copyBtn.textContent = originalText;
+        navigator.clipboard.writeText(url).then(() => {
+            this.copyBtn.textContent = '✓ Copied!';
             this.copyBtn.style.background = '#28a745';
-        }, 2000);
+
+            setTimeout(() => {
+                this.copyBtn.textContent = originalText;
+                this.copyBtn.style.background = '#28a745';
+            }, 2000);
+        }).catch(() => {
+            this.copyBtn.textContent = 'Failed to copy';
+            setTimeout(() => {
+                this.copyBtn.textContent = originalText;
+            }, 2000);
+        });
     }
 
     clearForm() {

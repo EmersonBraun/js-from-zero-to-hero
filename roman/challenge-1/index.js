@@ -1,4 +1,4 @@
-var romanMap = [
+const romanMap = [
     ['M', 1000],
     ['CM', 900],
     ['D', 500],
@@ -27,7 +27,7 @@ function toRoman(integer) {
 }
 
 function fromRoman(romanString) {
-    var integer = 0;
+    let integer = 0;
     romanMap.forEach((roman) => {
         while (romanString.substring(0, roman[0].length) === roman[0]) {
             romanString = romanString.substring(roman[0].length);

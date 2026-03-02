@@ -14,11 +14,11 @@
         
         <div class="toolbar">
             <div class="tool-group">
-                <button id="brushTool" class="tool-btn active" title="Brush">🖌️</button>
-                <button id="eraserTool" class="tool-btn" title="Eraser">🧽</button>
-                <button id="lineTool" class="tool-btn" title="Line">📏</button>
-                <button id="rectTool" class="tool-btn" title="Rectangle">⬜</button>
-                <button id="circleTool" class="tool-btn" title="Circle">⭕</button>
+                <button id="brushTool" class="tool-btn active" title="Brush" aria-label="Brush">🖌️</button>
+                <button id="eraserTool" class="tool-btn" title="Eraser" aria-label="Eraser">🧽</button>
+                <button id="lineTool" class="tool-btn" title="Line" aria-label="Line">📏</button>
+                <button id="rectTool" class="tool-btn" title="Rectangle" aria-label="Rectangle">⬜</button>
+                <button id="circleTool" class="tool-btn" title="Circle" aria-label="Circle">⭕</button>
             </div>
             
             <div class="tool-group">
@@ -34,7 +34,7 @@
         </div>
         
         <div class="canvas-container">
-            <canvas id="canvas" width="800" height="600"></canvas>
+            <canvas id="canvas" width="800" height="600" role="application" aria-label="Paint canvas"></canvas>
         </div>
         
         <div class="row">

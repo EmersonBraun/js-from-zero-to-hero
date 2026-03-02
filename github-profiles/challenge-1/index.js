@@ -1,3 +1,7 @@
+// NOTE: innerHTML is used here for convenience. In production, user-generated content
+// (like repository descriptions) should be sanitized to prevent XSS attacks.
+// Consider using textContent for plain text or a library like DOMPurify for HTML content.
+
 // DOM Elements
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');

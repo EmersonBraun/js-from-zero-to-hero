@@ -27,7 +27,7 @@ function getBMIType(value) {
     if(value > 25 && value <= 30) return wrap('Overweight','red')
     if(value > 30 && value <= 35) return wrap('Obese Class I','red')
     if(value > 35 && value <= 40) return wrap('Obese Class II','red')
-    else 'Obese Class III'
+    else return wrap('Obese Class III','red')
 }
 
 function calculateBMIIdeal(height, weight) {

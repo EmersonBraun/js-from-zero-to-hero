@@ -23,7 +23,7 @@ O projeto ainda está em desenvolvimento e conforme for atualizado será alterad
 - [x] [Romano para decimal](roman/README-PTBR.md)
 - [X] [Efeito Matrix](matrix/README.md)
 - [x] [Jogo da memória](memory/README-PTBR.md)
-- [x] [Binário para decimal](binary_to_decimal/README-PTBR.md)
+- [x] [Binário para decimal](binary-to-decimal/README-PTBR.md)
 - [ ] Gerador de QR Code
 - [ ] jogo da forca
 - [ ] Paint

@@ -2,7 +2,7 @@
 
 # CHALLENGE 02
 
-- 
+- Add dynamic difficulty selection with a menu to choose the number of card pairs. Dynamically generate the game board based on the selected difficulty.
     
 ![](../gifs/challenge-2.gif)
 

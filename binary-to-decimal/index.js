@@ -15,21 +15,22 @@ function transformDecimalToBinary(value) {
 function transformBinaryToDecimal(value) {
   for (let i = 0; i < value.length; i++) {
     if (value.charAt(i) > 1) {
-      alert("please insert a binary number");
+      document.getElementById('decimal').innerHTML = '<span style="color: red">Please insert a binary number</span>';
+      return;
     }
   }
   return parseInt(value, 2);
 }
 
 function decimalToBinary() {
-  const decimal = document.getElementById("input").value;
+  const decimal = document.getElementById("decimalToBinary").value;
   const binary = transformDecimalToBinary(decimal);
-  document.getElementById("output").innerHTML = binary || "";
+  document.getElementById("binary").innerHTML = binary || "";
 }
 
 function binaryToDecimal() {
-  const value = document.getElementById("input").value;
+  const value = document.getElementById("binaryToDecimal").value;
 
   const decimal = decimalToBinary(value);
-  document.getElementById("output").innerHTML = parseInt(value, 2) || "";
+  document.getElementById("decimal").innerHTML = parseInt(value, 2) || "";
 }

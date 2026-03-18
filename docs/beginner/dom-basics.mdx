@@ -1,0 +1,341 @@
+---
+sidebar_position: 6
+---
+
+# DOM Basics
+
+The **DOM** (Document Object Model) is how JavaScript interacts with HTML. When a browser loads a page, it creates a tree-like structure of all the elements — that tree is the DOM. JavaScript can read, modify, add, and remove any part of it.
+
+## Selecting Elements
+
+### `getElementById`
+
+Select an element by its `id` attribute:
+
+```javascript
+const title = document.getElementById("title");
+console.log(title.textContent);  // The text inside the element
+```
+
+### `querySelector`
+
+Select the **first** element matching a CSS selector:
+
+```javascript
+const paragraph = document.querySelector("p");          // First <p>
+const box = document.querySelector(".box");             // First .box
+const btn = document.querySelector("#submit-btn");       // Element with id
+const nested = document.querySelector(".card > h2");     // Nested selector
+```
+
+### `querySelectorAll`
+
+Select **all** elements matching a CSS selector (returns a NodeList):
+
+```javascript
+const allButtons = document.querySelectorAll("button");
+allButtons.forEach(btn => console.log(btn.textContent));
+```
+
+> **MDN Reference:** [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector)
+
+## Modifying Elements
+
+### Text Content
+
+```javascript
+const heading = document.getElementById("title");
+heading.textContent = "New Title";  // Change the text
+```
+
+### CSS Styles
+
+```javascript
+const box = document.querySelector(".box");
+box.style.backgroundColor = "blue";
+box.style.color = "white";
+box.style.padding = "20px";
+```
+
+### CSS Classes
+
+```javascript
+const element = document.querySelector(".card");
+element.classList.add("active");     // Add a class
+element.classList.remove("hidden");  // Remove a class
+element.classList.toggle("open");    // Toggle a class on/off
+element.classList.contains("active"); // Check if class exists → true/false
+```
+
+### Attributes
+
+```javascript
+const link = document.querySelector("a");
+link.setAttribute("href", "https://example.com");
+link.getAttribute("href");  // "https://example.com"
+link.removeAttribute("target");
+```
+
+> **MDN Reference:** [Element](https://developer.mozilla.org/en-US/docs/Web/API/Element)
+
+## Event Listeners
+
+Events are things that happen in the browser: clicks, key presses, mouse movements, form submissions. You use `addEventListener` to react to them:
+
+```javascript
+const button = document.querySelector("#myBtn");
+
+button.addEventListener("click", function() {
+  console.log("Button clicked!");
+});
+```
+
+### Common Events
+
+| Event | Triggers When |
+|---|---|
+| `click` | Element is clicked |
+| `dblclick` | Element is double-clicked |
+| `mouseenter` | Mouse enters the element |
+| `mouseleave` | Mouse leaves the element |
+| `keydown` | A key is pressed |
+| `keyup` | A key is released |
+| `input` | Input value changes |
+| `submit` | Form is submitted |
+| `load` | Page finishes loading |
+
+### The Event Object
+
+Event listeners receive an **event object** with information about what happened:
+
+```javascript
+document.addEventListener("keydown", function(event) {
+  console.log(event.key);     // The key that was pressed ("a", "Enter", etc.)
+  console.log(event.code);    // Physical key code ("KeyA", "Enter")
+  console.log(event.keyCode); // Numeric key code (deprecated but common)
+});
+
+button.addEventListener("click", function(event) {
+  console.log(event.target);  // The element that was clicked
+});
+```
+
+> **MDN Reference:** [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
+
+## Creating and Removing Elements
+
+### Creating Elements
+
+```javascript
+const newParagraph = document.createElement("p");
+newParagraph.textContent = "I was created by JavaScript!";
+newParagraph.classList.add("highlight");
+
+document.body.appendChild(newParagraph);  // Add to end of body
+```
+
+### Removing Elements
+
+```javascript
+const element = document.querySelector("#old-element");
+element.remove();
+```
+
+## Exercises
+
+### Exercise 1: Tag Name
+
+<CodeRunner
+  title="Exercise 1: Get the tag name"
+  code={`// Given an element tag name, return it in uppercase
+// In the DOM, element.tagName returns uppercase (e.g., "DIV", "P")
+function getTagName(tag) {
+  return tag.toUpperCase();
+}
+`}
+  testCases={[
+    { input: "getTagName('div')", expected: "\"DIV\"", description: "div becomes DIV" },
+    { input: "getTagName('p')", expected: "\"P\"", description: "p becomes P" },
+    { input: "getTagName('span')", expected: "\"SPAN\"", description: "span becomes SPAN" }
+  ]}
+/>
+
+### Exercise 2: Class List Simulator
+
+<CodeRunner
+  title="Exercise 2: Toggle a class in a list"
+  code={`// Simulate classList.toggle: if the class exists, remove it; if not, add it
+// classes is an array of strings, className is the class to toggle
+// Return the new array
+function toggleClass(classes, className) {
+  if (classes.includes(className)) {
+    return classes.filter(c => c !== className);
+  }
+  return [...classes, className];
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(toggleClass(['active', 'open'], 'open'))", expected: "\"[\\\"active\\\"]\"", description: "Remove 'open'" },
+    { input: "JSON.stringify(toggleClass(['active'], 'open'))", expected: "\"[\\\"active\\\",\\\"open\\\"]\"", description: "Add 'open'" },
+    { input: "JSON.stringify(toggleClass([], 'active'))", expected: "\"[\\\"active\\\"]\"", description: "Add to empty" }
+  ]}
+/>
+
+### Exercise 3: Event Type Checker
+
+<CodeRunner
+  title="Exercise 3: Categorize event types"
+  code={`// Return "mouse" for mouse events, "keyboard" for key events, "other" for everything else
+function eventCategory(eventType) {
+  const mouseEvents = ["click", "dblclick", "mouseenter", "mouseleave", "mousemove"];
+  const keyEvents = ["keydown", "keyup", "keypress"];
+  if (mouseEvents.includes(eventType)) return "mouse";
+  if (keyEvents.includes(eventType)) return "keyboard";
+  return "other";
+}
+`}
+  testCases={[
+    { input: "eventCategory('click')", expected: "\"mouse\"", description: "click is a mouse event" },
+    { input: "eventCategory('keydown')", expected: "\"keyboard\"", description: "keydown is a keyboard event" },
+    { input: "eventCategory('submit')", expected: "\"other\"", description: "submit is other" }
+  ]}
+/>
+
+### Exercise 4: Style String Builder
+
+<CodeRunner
+  title="Exercise 4: Build a CSS style string from an object"
+  code={`// Convert {color: "red", fontSize: "16px"} to "color: red; fontSize: 16px"
+function buildStyleString(styles) {
+  let result = [];
+  for (const key in styles) {
+    result.push(key + ": " + styles[key]);
+  }
+  return result.join("; ");
+}
+`}
+  testCases={[
+    { input: "buildStyleString({color: 'red'})", expected: "\"color: red\"", description: "Single style" },
+    { input: "buildStyleString({color: 'blue', padding: '10px'})", expected: "\"color: blue; padding: 10px\"", description: "Multiple styles" }
+  ]}
+/>
+
+### Exercise 5: Parse Key Event
+
+<CodeRunner
+  title="Exercise 5: Format key event information"
+  code={`// Return a formatted string: "Key: <key>, Code: <code>"
+function formatKeyEvent(key, code) {
+  return \`Key: \${key}, Code: \${code}\`;
+}
+`}
+  testCases={[
+    { input: "formatKeyEvent('a', 'KeyA')", expected: "\"Key: a, Code: KeyA\"", description: "Format key 'a'" },
+    { input: "formatKeyEvent('Enter', 'Enter')", expected: "\"Key: Enter, Code: Enter\"", description: "Format Enter" },
+    { input: "formatKeyEvent(' ', 'Space')", expected: "\"Key:  , Code: Space\"", description: "Format Space" }
+  ]}
+/>
+
+### Exercise 6: Attribute Pairs
+
+<CodeRunner
+  title="Exercise 6: Create HTML attribute string"
+  code={`// Convert an object to HTML attributes: {id: "btn", class: "primary"} → 'id="btn" class="primary"'
+function toAttributes(obj) {
+  let parts = [];
+  for (const key in obj) {
+    parts.push(key + '="' + obj[key] + '"');
+  }
+  return parts.join(" ");
+}
+`}
+  testCases={[
+    { input: "toAttributes({id: 'btn'})", expected: "\"id=\\\"btn\\\"\"", description: "Single attribute" },
+    { input: "toAttributes({id: 'main', class: 'active'})", expected: "\"id=\\\"main\\\" class=\\\"active\\\"\"", description: "Multiple attributes" }
+  ]}
+/>
+
+## Project: Event Keycodes
+
+The **Event Keycodes** project is a keyboard event inspector that shows key information in real-time when you press any key. It demonstrates event listeners, the event object, and DOM manipulation.
+
+### Key Concepts
+
+```javascript
+document.addEventListener('keydown', function(e) {
+  e.preventDefault();
+
+  // Access event properties
+  const keyData = {
+    key: e.key,        // "a", "Enter", "Shift"
+    code: e.code,      // "KeyA", "Enter", "ShiftLeft"
+    keyCode: e.keyCode // 65, 13, 16 (numeric, deprecated)
+  };
+
+  // Update the DOM with the key information
+  document.getElementById('keyValue').textContent = keyData.key;
+  document.getElementById('keyCode').textContent = keyData.code;
+  document.getElementById('keyCodeNumber').textContent = keyData.keyCode;
+});
+```
+
+### Live Demo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/event-keycodes/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Event Keycodes Demo"
+/>
+
+## Project: Progress Steps
+
+The **Progress Steps** project demonstrates DOM manipulation with a multi-step form. It uses `classList`, style manipulation, and event listeners to create an interactive step-by-step wizard.
+
+### Key Concepts
+
+```javascript
+const circles = document.querySelectorAll('.circle');
+let currentActive = 1;
+
+// Update visual state of step circles
+function updateCircles() {
+  circles.forEach((circle, index) => {
+    if (index < currentActive) {
+      circle.classList.add('active');
+    } else {
+      circle.classList.remove('active');
+    }
+  });
+}
+
+// Update progress bar width
+function updateProgress() {
+  const progressPercent = ((currentActive - 1) / (circles.length - 1)) * 100;
+  document.getElementById('progress').style.width = progressPercent + '%';
+}
+```
+
+### Live Demo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/progress-steps/index.html"
+  width="100%"
+  height="600"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Progress Steps Demo"
+/>
+
+## Summary
+
+In this module you learned:
+
+- **Selecting elements** with `getElementById`, `querySelector`, `querySelectorAll`
+- **Modifying** text, styles, classes, and attributes
+- **Event listeners** with `addEventListener` and the event object
+- **Creating and removing** DOM elements
+- How keyboard events work (key, code, keyCode) in the Event Keycodes project
+- How to build interactive UI with class toggling and style manipulation in Progress Steps
+
+This completes the **Beginner** level! You now know the fundamentals of JavaScript. Next, we move to the **Intermediate** level, starting with **Arrays & Objects**.

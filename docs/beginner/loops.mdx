@@ -1,0 +1,275 @@
+---
+sidebar_position: 4
+---
+
+# Loops
+
+Loops allow you to repeat a block of code multiple times. They are essential for iterating over data, automating repetitive tasks, and building dynamic applications.
+
+## `for` Loop
+
+The most common loop. You control the **start**, **condition**, and **step**:
+
+```javascript
+for (let i = 0; i < 5; i++) {
+  console.log(i);  // 0, 1, 2, 3, 4
+}
+```
+
+The three parts:
+1. **Initialization:** `let i = 0` — runs once before the loop starts
+2. **Condition:** `i < 5` — checked before each iteration; loop stops when false
+3. **Update:** `i++` — runs after each iteration
+
+### Common patterns
+
+```javascript
+// Count backwards
+for (let i = 10; i > 0; i--) {
+  console.log(i);  // 10, 9, 8, ..., 1
+}
+
+// Step by 2
+for (let i = 0; i <= 10; i += 2) {
+  console.log(i);  // 0, 2, 4, 6, 8, 10
+}
+```
+
+> **MDN Reference:** [for](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for)
+
+## `while` Loop
+
+Repeats as long as a condition is `true`. Use when you don't know how many iterations you need:
+
+```javascript
+let count = 0;
+while (count < 5) {
+  console.log(count);  // 0, 1, 2, 3, 4
+  count++;
+}
+```
+
+**Warning:** If the condition never becomes false, you get an **infinite loop** that freezes your program!
+
+## `do...while` Loop
+
+Like `while`, but guarantees at least **one execution**:
+
+```javascript
+let num = 10;
+do {
+  console.log(num);  // 10 (runs once even though condition is false)
+  num++;
+} while (num < 5);
+```
+
+> **MDN Reference:** [while](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/while), [do...while](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/do...while)
+
+## `for...of` Loop
+
+Iterates over **values** of iterable objects (arrays, strings):
+
+```javascript
+const fruits = ["apple", "banana", "cherry"];
+for (const fruit of fruits) {
+  console.log(fruit);  // "apple", "banana", "cherry"
+}
+
+// Works with strings too
+for (const char of "Hello") {
+  console.log(char);  // "H", "e", "l", "l", "o"
+}
+```
+
+## `for...in` Loop
+
+Iterates over **keys** (property names) of an object:
+
+```javascript
+const person = { name: "Alice", age: 25, city: "NYC" };
+for (const key in person) {
+  console.log(`${key}: ${person[key]}`);
+}
+// "name: Alice", "age: 25", "city: NYC"
+```
+
+**Tip:** Use `for...of` for arrays, `for...in` for objects.
+
+> **MDN Reference:** [for...of](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of), [for...in](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...in)
+
+## `break` and `continue`
+
+- **`break`** — exits the loop immediately
+- **`continue`** — skips to the next iteration
+
+```javascript
+// break: stop when we find 3
+for (let i = 0; i < 10; i++) {
+  if (i === 3) break;
+  console.log(i);  // 0, 1, 2
+}
+
+// continue: skip even numbers
+for (let i = 0; i < 6; i++) {
+  if (i % 2 === 0) continue;
+  console.log(i);  // 1, 3, 5
+}
+```
+
+## Exercises
+
+### Exercise 1: Sum of Numbers
+
+<CodeRunner
+  title="Exercise 1: Sum numbers from 1 to n"
+  code={`// Return the sum of all numbers from 1 to n
+function sumTo(n) {
+  let sum = 0;
+  for (let i = 1; i <= n; i++) {
+    sum += i;
+  }
+  return sum;
+}
+`}
+  testCases={[
+    { input: "sumTo(5)", expected: "15", description: "1+2+3+4+5 = 15" },
+    { input: "sumTo(10)", expected: "55", description: "1+2+...+10 = 55" },
+    { input: "sumTo(1)", expected: "1", description: "sumTo(1) = 1" }
+  ]}
+/>
+
+### Exercise 2: Factorial
+
+<CodeRunner
+  title="Exercise 2: Calculate the factorial of n"
+  code={`// Return n! (n factorial = n * (n-1) * ... * 1)
+function factorial(n) {
+  let result = 1;
+  for (let i = 2; i <= n; i++) {
+    result *= i;
+  }
+  return result;
+}
+`}
+  testCases={[
+    { input: "factorial(5)", expected: "120", description: "5! = 120" },
+    { input: "factorial(3)", expected: "6", description: "3! = 6" },
+    { input: "factorial(0)", expected: "1", description: "0! = 1" },
+    { input: "factorial(1)", expected: "1", description: "1! = 1" }
+  ]}
+/>
+
+### Exercise 3: Reverse a String
+
+<CodeRunner
+  title="Exercise 3: Reverse a string using a loop"
+  code={`// Return the string reversed
+function reverseString(str) {
+  let result = "";
+  for (let i = str.length - 1; i >= 0; i--) {
+    result += str[i];
+  }
+  return result;
+}
+`}
+  testCases={[
+    { input: "reverseString('hello')", expected: "\"olleh\"", description: "hello → olleh" },
+    { input: "reverseString('abc')", expected: "\"cba\"", description: "abc → cba" },
+    { input: "reverseString('a')", expected: "\"a\"", description: "single char stays" }
+  ]}
+/>
+
+### Exercise 4: Count Vowels
+
+<CodeRunner
+  title="Exercise 4: Count the vowels in a string"
+  code={`// Return the number of vowels (a, e, i, o, u) in the string
+function countVowels(str) {
+  let count = 0;
+  const vowels = "aeiouAEIOU";
+  for (const char of str) {
+    if (vowels.includes(char)) count++;
+  }
+  return count;
+}
+`}
+  testCases={[
+    { input: "countVowels('hello')", expected: "2", description: "hello has 2 vowels" },
+    { input: "countVowels('AEIOU')", expected: "5", description: "AEIOU has 5 vowels" },
+    { input: "countVowels('xyz')", expected: "0", description: "xyz has 0 vowels" }
+  ]}
+/>
+
+### Exercise 5: Find the Minimum
+
+<CodeRunner
+  title="Exercise 5: Find the smallest number in an array"
+  code={`// Return the smallest number in the array
+function findMin(arr) {
+  let min = arr[0];
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i] < min) min = arr[i];
+  }
+  return min;
+}
+`}
+  testCases={[
+    { input: "findMin([3, 1, 4, 1, 5])", expected: "1", description: "min of [3,1,4,1,5] is 1" },
+    { input: "findMin([10, 20, 5])", expected: "5", description: "min of [10,20,5] is 5" },
+    { input: "findMin([-3, -1, -7])", expected: "-7", description: "min of [-3,-1,-7] is -7" }
+  ]}
+/>
+
+### Exercise 6: Power Function
+
+<CodeRunner
+  title="Exercise 6: Calculate base raised to exponent using a loop"
+  code={`// Return base raised to the power of exp (without using **)
+function power(base, exp) {
+  let result = 1;
+  for (let i = 0; i < exp; i++) {
+    result *= base;
+  }
+  return result;
+}
+`}
+  testCases={[
+    { input: "power(2, 3)", expected: "8", description: "2^3 = 8" },
+    { input: "power(5, 2)", expected: "25", description: "5^2 = 25" },
+    { input: "power(10, 0)", expected: "1", description: "10^0 = 1" }
+  ]}
+/>
+
+### Exercise 7: Is Palindrome
+
+<CodeRunner
+  title="Exercise 7: Check if a string is a palindrome"
+  code={`// Return true if the string reads the same forwards and backwards
+function isPalindrome(str) {
+  const lower = str.toLowerCase();
+  for (let i = 0; i < Math.floor(lower.length / 2); i++) {
+    if (lower[i] !== lower[lower.length - 1 - i]) return false;
+  }
+  return true;
+}
+`}
+  testCases={[
+    { input: "isPalindrome('racecar')", expected: "true", description: "racecar is a palindrome" },
+    { input: "isPalindrome('hello')", expected: "false", description: "hello is not a palindrome" },
+    { input: "isPalindrome('Madam')", expected: "true", description: "Madam is a palindrome (case insensitive)" }
+  ]}
+/>
+
+## Summary
+
+In this module you learned:
+
+- **`for`** loop — when you know the number of iterations
+- **`while`** loop — when you need to loop until a condition is met
+- **`do...while`** — guarantees at least one execution
+- **`for...of`** — iterates over values (arrays, strings)
+- **`for...in`** — iterates over keys (objects)
+- **`break`** exits the loop, **`continue`** skips to the next iteration
+- How to solve common problems with loops: sums, reversals, searches
+
+Next up: **Functions** — reusable blocks of code.

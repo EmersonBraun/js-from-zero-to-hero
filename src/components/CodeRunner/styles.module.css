@@ -55,17 +55,28 @@
   background: var(--ifm-color-emphasis-50);
 }
 
-.codeBlock {
-  margin: 0;
+.codeEditor {
+  display: block;
+  width: 100%;
+  min-height: 120px;
   padding: 1rem;
   background: var(--ifm-background-color);
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: calc(var(--button-border-radius) * 0.75);
-  overflow-x: auto;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   font-size: 0.9rem;
   line-height: 1.5;
   color: var(--ifm-color-emphasis-900);
+  resize: vertical;
+  tab-size: 2;
+  white-space: pre;
+  overflow-x: auto;
+  box-sizing: border-box;
+}
+
+.codeEditor:focus {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
 }
 
 .controls {

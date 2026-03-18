@@ -17,9 +17,11 @@ describe('CodeRunner', () => {
     expect(screen.getByText('Test Exercise')).toBeInTheDocument();
   });
 
-  it('renders the code', () => {
+  it('renders the code in an editable textarea', () => {
     render(<CodeRunner {...defaultProps} />);
-    expect(screen.getByText(defaultProps.code)).toBeInTheDocument();
+    const textarea = screen.getByDisplayValue(defaultProps.code);
+    expect(textarea).toBeInTheDocument();
+    expect(textarea.tagName).toBe('TEXTAREA');
   });
 
   it('renders the Run Code button', () => {
@@ -58,10 +60,26 @@ describe('CodeRunner', () => {
     expect(screen.getByText(/Error/)).toBeInTheDocument();
   });
 
-  it('renders copy and clear buttons', () => {
+  it('renders copy, reset, and clear buttons', () => {
     render(<CodeRunner {...defaultProps} />);
     expect(screen.getByTitle('Copy code')).toBeInTheDocument();
+    expect(screen.getByTitle('Reset code')).toBeInTheDocument();
     expect(screen.getByTitle('Clear output')).toBeInTheDocument();
+  });
+
+  it('allows editing the code', () => {
+    render(<CodeRunner {...defaultProps} />);
+    const textarea = screen.getByDisplayValue(defaultProps.code);
+    fireEvent.change(textarea, {target: {value: 'function add(a, b) { return a * b; }'}});
+    expect(screen.getByDisplayValue('function add(a, b) { return a * b; }')).toBeInTheDocument();
+  });
+
+  it('resets code when reset button is clicked', () => {
+    render(<CodeRunner {...defaultProps} />);
+    const textarea = screen.getByDisplayValue(defaultProps.code);
+    fireEvent.change(textarea, {target: {value: 'modified code'}});
+    fireEvent.click(screen.getByTitle('Reset code'));
+    expect(screen.getByDisplayValue(defaultProps.code)).toBeInTheDocument();
   });
 
   it('clears output when clear button is clicked', () => {

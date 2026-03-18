@@ -13,6 +13,7 @@ interface CodeRunnerProps {
 }
 
 export default function CodeRunner({code, testCases, title}: CodeRunnerProps) {
+  const [currentCode, setCurrentCode] = useState<string>(code);
   const [output, setOutput] = useState<string>('');
   const [isRunning, setIsRunning] = useState(false);
   const outputRef = useRef<HTMLDivElement>(null);
@@ -47,7 +48,7 @@ export default function CodeRunner({code, testCases, title}: CodeRunnerProps) {
           }
         };
 
-        ${code}
+        ${currentCode}
 
         // Test with test cases
         output += '\\nTest Results:\\n';
@@ -92,7 +93,11 @@ export default function CodeRunner({code, testCases, title}: CodeRunnerProps) {
   };
 
   const copyCode = () => {
-    navigator.clipboard.writeText(code);
+    navigator.clipboard.writeText(currentCode);
+  };
+
+  const resetCode = () => {
+    setCurrentCode(code);
   };
 
   return (
@@ -108,6 +113,13 @@ export default function CodeRunner({code, testCases, title}: CodeRunnerProps) {
             📋
           </button>
           <button
+            onClick={resetCode}
+            className={styles.actionButton}
+            title="Reset code"
+          >
+            🔄
+          </button>
+          <button
             onClick={clearOutput}
             className={styles.actionButton}
             title="Clear output"
@@ -118,9 +130,12 @@ export default function CodeRunner({code, testCases, title}: CodeRunnerProps) {
       </div>
 
       <div className={styles.codeContainer}>
-        <pre className={styles.codeBlock}>
-          <code className="language-javascript">{code}</code>
-        </pre>
+        <textarea
+          className={styles.codeEditor}
+          value={currentCode}
+          onChange={(e) => setCurrentCode(e.target.value)}
+          spellCheck={false}
+        />
       </div>
 
       <div className={styles.controls}>

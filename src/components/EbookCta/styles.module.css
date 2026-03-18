@@ -1,8 +1,8 @@
 .wrapper {
   margin-top: 3rem;
   padding: 1.75rem;
-  background: linear-gradient(to right, #3b82f6, #1d4ed8);
-  border-radius: 12px;
+  background: linear-gradient(to right, var(--ifm-color-primary), var(--ifm-color-primary-darkest));
+  border-radius: var(--card-border-radius);
   text-align: center;
 }
 
@@ -17,17 +17,17 @@
   margin: 0 0 1.25rem;
   font-size: 0.875rem;
   line-height: 1.5;
-  color: #dbeafe;
+  color: var(--ifm-color-primary-lightest);
 }
 
 .cta {
   display: inline-block;
   background-color: #ffffff;
-  color: #1d4ed8;
+  color: var(--ifm-color-primary-darkest);
   font-size: 0.875rem;
   font-weight: 600;
   padding: 0.75rem 1.75rem;
-  border-radius: 24px;
+  border-radius: calc(var(--card-border-radius) * 2);
   text-decoration: none;
   letter-spacing: 0.3px;
   transition: opacity 0.2s ease, transform 0.15s ease;
@@ -36,7 +36,7 @@
 .cta:hover {
   opacity: 0.95;
   transform: translateY(-1px);
-  color: #1d4ed8;
+  color: var(--ifm-color-primary-darkest);
   text-decoration: none;
 }
 
@@ -46,4 +46,5 @@
   opacity: 0.8;
   text-align: center;
   font-weight: 500;
+  color: var(--ifm-color-primary-lightest);
 }

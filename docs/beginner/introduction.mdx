@@ -1,0 +1,310 @@
+---
+sidebar_position: 1
+---
+
+# Introduction to JavaScript
+
+Welcome to your first step into the world of JavaScript! This module will teach you what JavaScript is, how it runs in the browser, and how to write your very first lines of code.
+
+## What is JavaScript?
+
+**JavaScript** (often abbreviated as **JS**) is a lightweight, interpreted programming language that is one of the three core technologies of the World Wide Web, alongside HTML and CSS.
+
+- **HTML** defines the structure of a web page (headings, paragraphs, buttons)
+- **CSS** defines the presentation and styling (colors, fonts, layout)
+- **JavaScript** defines the behavior (what happens when you click a button, how data is validated, animations)
+
+JavaScript was created in 1995 by Brendan Eich in just 10 days while he was working at Netscape. Despite its name, JavaScript has no relation to the Java programming language — the name was a marketing decision.
+
+Today, JavaScript is the most widely used programming language in the world. It runs in every web browser, on servers (via Node.js), in mobile apps, desktop apps, and even IoT devices.
+
+> **MDN Reference:** [What is JavaScript?](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/What_is_JavaScript)
+
+## How JavaScript Runs in the Browser
+
+Every modern web browser (Chrome, Firefox, Safari, Edge) has a built-in **JavaScript engine** that can execute JavaScript code:
+
+| Browser | Engine |
+|---|---|
+| Chrome | V8 |
+| Firefox | SpiderMonkey |
+| Safari | JavaScriptCore |
+| Edge | V8 |
+
+When a browser loads a web page, it:
+1. Parses the **HTML** to build the DOM (Document Object Model)
+2. Applies **CSS** styles
+3. Executes any **JavaScript** code it finds
+
+## The Browser Console
+
+The **browser console** is a developer tool built into every browser where you can type and execute JavaScript code immediately. It is your best friend for learning and debugging.
+
+### How to open it:
+- **Chrome/Edge:** Press `F12` or `Ctrl+Shift+J` (Windows/Linux) or `Cmd+Option+J` (Mac)
+- **Firefox:** Press `F12` or `Ctrl+Shift+K` (Windows/Linux) or `Cmd+Option+K` (Mac)
+- **Safari:** Enable Developer menu in Preferences, then press `Cmd+Option+C`
+
+Try opening your browser console right now and typing:
+
+```javascript
+2 + 2
+```
+
+You should see `4` as the result. The console **evaluates** the expression and shows the result.
+
+## `console.log()` — Your First Tool
+
+`console.log()` is a function that prints (logs) a message to the browser console. It is the most basic and most used debugging tool in JavaScript.
+
+```javascript
+console.log("Hello, World!");
+```
+
+This will print `Hello, World!` in the console.
+
+You can log multiple values separated by commas:
+
+```javascript
+console.log("My name is", "Emerson");
+console.log("2 + 2 =", 2 + 2);
+```
+
+You can also log numbers, booleans, and expressions:
+
+```javascript
+console.log(42);
+console.log(true);
+console.log(10 > 5);
+```
+
+> **MDN Reference:** [console.log()](https://developer.mozilla.org/en-US/docs/Web/API/console/log_static)
+
+## Adding JavaScript to an HTML Page
+
+There are two main ways to add JavaScript to a web page:
+
+### 1. Inline Script (inside the HTML file)
+
+Use the `<script>` tag directly in your HTML:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My First JS Page</title>
+</head>
+<body>
+  <h1>Hello!</h1>
+
+  <script>
+    console.log("This script runs when the page loads!");
+    document.querySelector("h1").textContent = "Hello from JavaScript!";
+  </script>
+</body>
+</html>
+```
+
+**Important:** Place the `<script>` tag at the **bottom of the `<body>`** so that the HTML elements are loaded before the script tries to access them.
+
+### 2. External Script (separate `.js` file)
+
+Create a separate file (e.g., `index.js`) and link it:
+
+```html
+<!-- index.html -->
+<body>
+  <h1>Hello!</h1>
+  <script src="index.js"></script>
+</body>
+```
+
+```javascript
+// index.js
+console.log("This comes from an external file!");
+```
+
+**This is the preferred approach** for real projects because it keeps your code organized and reusable.
+
+> **MDN Reference:** [What went wrong? Troubleshooting JavaScript](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/What_went_wrong)
+
+## Comments
+
+Comments are notes in your code that JavaScript ignores. They help you (and others) understand what the code does.
+
+```javascript
+// This is a single-line comment
+
+/*
+  This is a
+  multi-line comment
+*/
+
+console.log("This runs"); // You can also comment at the end of a line
+```
+
+## Your First Program
+
+Let's put it all together. Here is a simple program that greets the user:
+
+```javascript
+// My first JavaScript program
+let name = "World";
+console.log("Hello, " + name + "!");
+console.log("Welcome to JavaScript!");
+```
+
+This program:
+1. Creates a **variable** called `name` with the value `"World"`
+2. **Concatenates** (joins) strings together using `+`
+3. Prints two messages to the console
+
+Don't worry if you don't fully understand variables and string concatenation yet — we will cover them in detail in the next module!
+
+## Exercises
+
+Now it's your turn! Try the interactive exercises below. Click **"Run Code"** to execute the code and check if your solution passes the test cases.
+
+### Exercise 1: Hello World
+
+<CodeRunner
+  title="Exercise 1: Write your first console.log"
+  code={`// Write a console.log that prints "Hello, World!"
+function hello() {
+  return "Hello, World!";
+}
+`}
+  testCases={[
+    { input: "hello()", expected: "\"Hello, World!\"", description: "Should return Hello, World!" }
+  ]}
+/>
+
+### Exercise 2: Simple Math
+
+<CodeRunner
+  title="Exercise 2: Return the sum of two numbers"
+  code={`// Write a function that returns the sum of a and b
+function add(a, b) {
+  return a + b;
+}
+`}
+  testCases={[
+    { input: "add(2, 3)", expected: "5", description: "2 + 3 should be 5" },
+    { input: "add(10, 20)", expected: "30", description: "10 + 20 should be 30" },
+    { input: "add(-1, 1)", expected: "0", description: "-1 + 1 should be 0" }
+  ]}
+/>
+
+### Exercise 3: String Concatenation
+
+<CodeRunner
+  title="Exercise 3: Create a greeting message"
+  code={`// Write a function that returns "Hello, <name>!"
+// For example, greet("Alice") should return "Hello, Alice!"
+function greet(name) {
+  return "Hello, " + name + "!";
+}
+`}
+  testCases={[
+    { input: "greet('Alice')", expected: "\"Hello, Alice!\"", description: "Should greet Alice" },
+    { input: "greet('JavaScript')", expected: "\"Hello, JavaScript!\"", description: "Should greet JavaScript" },
+    { input: "greet('World')", expected: "\"Hello, World!\"", description: "Should greet World" }
+  ]}
+/>
+
+### Exercise 4: Basic Comparison
+
+<CodeRunner
+  title="Exercise 4: Check if a number is positive"
+  code={`// Write a function that returns true if the number is positive, false otherwise
+function isPositive(num) {
+  return num > 0;
+}
+`}
+  testCases={[
+    { input: "isPositive(5)", expected: "true", description: "5 is positive" },
+    { input: "isPositive(-3)", expected: "false", description: "-3 is not positive" },
+    { input: "isPositive(0)", expected: "false", description: "0 is not positive" }
+  ]}
+/>
+
+### Exercise 5: String Length
+
+<CodeRunner
+  title="Exercise 5: Return the length of a string"
+  code={`// Write a function that returns how many characters are in a string
+// Hint: use the .length property
+function getLength(str) {
+  return str.length;
+}
+`}
+  testCases={[
+    { input: "getLength('hello')", expected: "5", description: "hello has 5 characters" },
+    { input: "getLength('')", expected: "0", description: "empty string has 0 characters" },
+    { input: "getLength('JavaScript')", expected: "10", description: "JavaScript has 10 characters" }
+  ]}
+/>
+
+### Exercise 6: Multiply Two Numbers
+
+<CodeRunner
+  title="Exercise 6: Return the product of two numbers"
+  code={`// Write a function that returns a * b
+function multiply(a, b) {
+  return a * b;
+}
+`}
+  testCases={[
+    { input: "multiply(3, 4)", expected: "12", description: "3 * 4 = 12" },
+    { input: "multiply(0, 100)", expected: "0", description: "0 * 100 = 0" },
+    { input: "multiply(-2, 5)", expected: "-10", description: "-2 * 5 = -10" }
+  ]}
+/>
+
+### Exercise 7: Even or Odd
+
+<CodeRunner
+  title="Exercise 7: Check if a number is even"
+  code={`// Write a function that returns true if the number is even, false if odd
+// Hint: use the modulo operator (%)
+function isEven(num) {
+  return num % 2 === 0;
+}
+`}
+  testCases={[
+    { input: "isEven(4)", expected: "true", description: "4 is even" },
+    { input: "isEven(7)", expected: "false", description: "7 is odd" },
+    { input: "isEven(0)", expected: "true", description: "0 is even" }
+  ]}
+/>
+
+### Exercise 8: Convert to Uppercase
+
+<CodeRunner
+  title="Exercise 8: Convert a string to uppercase"
+  code={`// Write a function that returns the string in ALL CAPS
+// Hint: use the .toUpperCase() method
+function shout(str) {
+  return str.toUpperCase();
+}
+`}
+  testCases={[
+    { input: "shout('hello')", expected: "\"HELLO\"", description: "hello becomes HELLO" },
+    { input: "shout('javascript')", expected: "\"JAVASCRIPT\"", description: "javascript becomes JAVASCRIPT" },
+    { input: "shout('Hi There')", expected: "\"HI THERE\"", description: "Hi There becomes HI THERE" }
+  ]}
+/>
+
+## Summary
+
+In this module you learned:
+
+- **JavaScript** is the programming language of the web, running in every browser
+- The **browser console** lets you execute JS code directly
+- **`console.log()`** prints messages to the console
+- The **`<script>`** tag adds JavaScript to an HTML page
+- **Comments** help document your code (`//` for single-line, `/* */` for multi-line)
+- You can use **operators** like `+`, `*`, `%`, `>` to work with values
+- **Strings** have useful properties and methods like `.length` and `.toUpperCase()`
+
+In the next module, we will dive deep into **Variables & Types** — the building blocks of every JavaScript program.

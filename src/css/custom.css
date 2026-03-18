@@ -1,0 +1,191 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* Main Variables & Design System */
+:root {
+  /* Core Colors */
+  --ifm-color-primary: #1a73e8;
+  --ifm-color-primary-dark: #1568d1;
+  --ifm-color-primary-darker: #1462c5;
+  --ifm-color-primary-darkest: #1051a2;
+  --ifm-color-primary-light: #3584eb;
+  --ifm-color-primary-lighter: #418cec;
+  --ifm-color-primary-lightest: #6ba7f1;
+
+  /* Typography */
+  --ifm-font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.05);
+
+  /* Modern Spacing & Radius */
+  --card-border-radius: 12px;
+  --button-border-radius: 8px;
+
+  /* Shadows */
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-button-hover: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark Mode Overrides */
+[data-theme='dark'] {
+  --ifm-color-primary: #4285f4;
+  --ifm-color-primary-dark: #2b78f3;
+  --ifm-color-primary-darker: #1d6ff2;
+  --ifm-color-primary-darkest: #0b5ad9;
+  --ifm-color-primary-light: #5d92f5;
+  --ifm-color-primary-lighter: #6b9cf6;
+  --ifm-color-primary-lightest: #94b7f8;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* Global Typography Improvements */
+.markdown h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, var(--ifm-color-primary) 0%, var(--ifm-color-primary-darker) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.markdown h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--ifm-color-primary-dark);
+}
+
+.markdown h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Improved List Styles */
+.markdown ul, .markdown ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.markdown li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+/* Strong Text Emphasis */
+.markdown strong {
+  color: var(--ifm-color-primary);
+  font-weight: 600;
+}
+
+/* Enhanced Tables */
+.markdown table {
+  margin: 2rem 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  border-radius: var(--card-border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.markdown th {
+  background-color: var(--ifm-color-primary);
+  color: white;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  border: none;
+}
+
+.markdown td {
+  padding: 1rem;
+  border: none;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.markdown tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown tr:hover td {
+  background-color: var(--ifm-color-emphasis-100);
+}
+
+/* Code Blocks */
+.markdown pre {
+  border-radius: var(--card-border-radius);
+  margin: 1.5rem 0;
+  box-shadow: var(--shadow-card-hover);
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+/* Utility Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}
+
+.float-hover {
+  transition: transform 0.3s ease;
+}
+
+.float-hover:hover {
+  transform: translateY(-5px);
+}
+
+/* Glassmorphism Utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-theme='dark'] .glass {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Footer Connect column: icons in a row */
+.footer__items--connect {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.footer__item--icon {
+  margin-bottom: 0;
+}
+
+.footer__link-item--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: calc(var(--button-border-radius) * 0.75);
+  color: var(--ifm-footer-link-color);
+  transition: color 0.2s, background 0.2s;
+}
+
+.footer__link-item--icon:hover {
+  color: var(--ifm-footer-link-hover-color);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.footer__link-item--icon svg {
+  display: block;
+}

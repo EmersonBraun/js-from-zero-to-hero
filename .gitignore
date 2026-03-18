@@ -1,7 +1,16 @@
-_pattern
+# Dependencies
 node_modules/
+
+# Production
+build/
+.docusaurus/
+
+# Environment
+.env
+
+# Misc
 .DS_Store
 *.log
-.env
+npm-debug.log*
 dist/
 .cache/

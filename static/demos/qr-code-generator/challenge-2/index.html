@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - Challenge 2</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Generator</h1>
+        <h2>Challenge 2</h2>
+        
+        <div class="row">
+            <input type="text" id="textInput" class="input" placeholder="Enter text or URL to generate QR code">
+        </div>
+        
+        <div class="row">
+            <div class="options-grid">
+                <div class="option-group">
+                    <label for="qrSize">Size:</label>
+                    <select id="qrSize" class="input">
+                        <option value="128">Small (128px)</option>
+                        <option value="200" selected>Medium (200px)</option>
+                        <option value="256">Large (256px)</option>
+                        <option value="320">Extra Large (320px)</option>
+                    </select>
+                </div>
+                
+                <div class="option-group">
+                    <label for="errorLevel">Error Correction:</label>
+                    <select id="errorLevel" class="input">
+                        <option value="L">Low (7%)</option>
+                        <option value="M" selected>Medium (15%)</option>
+                        <option value="Q">Quartile (25%)</option>
+                        <option value="H">High (30%)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="color-options">
+                <div class="color-group">
+                    <label for="foregroundColor">Foreground Color:</label>
+                    <input type="color" id="foregroundColor" value="#000000" class="color-input">
+                </div>
+                <div class="color-group">
+                    <label for="backgroundColor">Background Color:</label>
+                    <input type="color" id="backgroundColor" value="#FFFFFF" class="color-input">
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="generateBtn" class="btn">Generate QR Code</button>
+                <button id="downloadBtn" class="btn">Download QR Code</button>
+                <button id="copyBtn" class="btn">Copy to Clipboard</button>
+                <button id="clearBtn" class="btn">Clear</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div id="qrCodeContainer" class="qr-container">
+                <div id="qrCode" class="qr-code"></div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="../index.html" class="btn">Back to Class</a>
+                <a href="../challenge-1/index.html" class="btn">Challenge 1</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="index.js"></script>
+</body>
+</html> 

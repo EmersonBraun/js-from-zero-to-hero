@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insect Catch Game - Challenge 1</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Insect Catch Game</h1>
+        <p class="subtitle">Catch the insects before they escape!</p>
+        
+        <div class="game-info">
+            <div class="info-item">
+                <span class="info-label">Score:</span>
+                <span class="info-value" id="score">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Time:</span>
+                <span class="info-value" id="time">30</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Level:</span>
+                <span class="info-value" id="level">1</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Lives:</span>
+                <span class="info-value" id="lives">3</span>
+            </div>
+        </div>
+        
+        <div class="game-controls">
+            <button id="startBtn" class="btn">Start Game</button>
+            <button id="pauseBtn" class="btn" disabled>Pause</button>
+            <button id="resetBtn" class="btn">Reset</button>
+            <button id="settingsBtn" class="btn">Settings</button>
+        </div>
+        
+        <div class="game-container">
+            <div id="gameArea" class="game-area">
+                <!-- Insects will be spawned here -->
+            </div>
+            
+            <div class="game-overlay" id="gameOverlay">
+                <div class="overlay-content">
+                    <h2 id="overlayTitle">Ready to Play?</h2>
+                    <p id="overlayMessage">Click Start to begin catching insects!</p>
+                    <button id="overlayBtn" class="btn">Start Game</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-stats">
+            <div class="stat-item">
+                <span class="stat-number" id="insectsCaught">0</span>
+                <span class="stat-label">Caught</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="insectsEscaped">0</span>
+                <span class="stat-label">Escaped</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="accuracy">0%</span>
+                <span class="stat-label">Accuracy</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="highScore">0</span>
+                <span class="stat-label">High Score</span>
+            </div>
+        </div>
+        
+        <div class="settings-panel" id="settingsPanel">
+            <h3>Game Settings</h3>
+            <div class="setting-group">
+                <label for="gameTime">Game Time (seconds):</label>
+                <input type="range" id="gameTime" class="slider" min="10" max="120" value="30">
+                <span id="gameTimeValue">30s</span>
+            </div>
+            <div class="setting-group">
+                <label for="insectSpeed">Insect Speed:</label>
+                <input type="range" id="insectSpeed" class="slider" min="1" max="10" value="5">
+                <span id="insectSpeedValue">5</span>
+            </div>
+            <div class="setting-group">
+                <label for="insectSpawnRate">Spawn Rate:</label>
+                <input type="range" id="insectSpawnRate" class="slider" min="1" max="10" value="5">
+                <span id="insectSpawnRateValue">5</span>
+            </div>
+            <div class="setting-group">
+                <label for="soundEnabled">Sound:</label>
+                <input type="checkbox" id="soundEnabled" class="checkbox" checked>
+            </div>
+            <div class="setting-group">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty" class="select">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+            <button id="saveSettingsBtn" class="btn">Save Settings</button>
+        </div>
+        
+        <div class="leaderboard">
+            <h3>Leaderboard</h3>
+            <div id="leaderboardList" class="leaderboard-list">
+                <!-- Leaderboard entries will be populated here -->
+            </div>
+        </div>
+        
+        <div class="achievements">
+            <h3>Achievements</h3>
+            <div id="achievementsList" class="achievements-grid">
+                <!-- Achievements will be populated here -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

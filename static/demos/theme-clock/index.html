@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Clock</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Theme Clock</h1>
+        
+        <div class="clock-container">
+            <div class="clock">
+                <div class="needle hour"></div>
+                <div class="needle minute"></div>
+                <div class="needle second"></div>
+                <div class="center-point"></div>
+                <div class="time" id="time">12:00</div>
+                <div class="date" id="date">Monday, January 1</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="themeSelect">Theme:</label>
+                <select id="themeSelect" class="input">
+                    <option value="dark" selected>Dark</option>
+                    <option value="light">Light</option>
+                    <option value="sunset">Sunset</option>
+                    <option value="ocean">Ocean</option>
+                    <option value="forest">Forest</option>
+                    <option value="neon">Neon</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="clockType">Clock Type:</label>
+                <select id="clockType" class="input">
+                    <option value="analog" selected>Analog</option>
+                    <option value="digital">Digital</option>
+                    <option value="both">Both</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="timeFormat">Time Format:</label>
+                <select id="timeFormat" class="input">
+                    <option value="12" selected>12-hour</option>
+                    <option value="24">24-hour</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="digital-clock" id="digitalClock">
+            <div class="digital-time" id="digitalTime">12:00:00</div>
+            <div class="digital-date" id="digitalDate">Monday, January 1, 2024</div>
+            <div class="digital-timezone" id="digitalTimezone">UTC</div>
+        </div>
+        
+        <div class="clock-info">
+            <div class="info-item">
+                <span class="label">Day of Year:</span>
+                <span class="value" id="dayOfYear">1</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Week of Year:</span>
+                <span class="value" id="weekOfYear">1</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Timezone:</span>
+                <span class="value" id="timezone">UTC</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Unix Timestamp:</span>
+                <span class="value" id="unixTime">1704067200</span>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="freezeBtn" class="btn">Freeze Time</button>
+                <button id="syncBtn" class="btn">Sync Time</button>
+                <button id="alarmBtn" class="btn">Set Alarm</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="challenge-1/index.html" class="btn">Challenge 1</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alarm Modal -->
+    <div id="alarmModal" class="modal">
+        <div class="modal-content">
+            <h3>Set Alarm</h3>
+            <div class="alarm-form">
+                <div class="form-group">
+                    <label for="alarmTime">Time:</label>
+                    <input type="time" id="alarmTime" class="input">
+                </div>
+                <div class="form-group">
+                    <label for="alarmDays">Days:</label>
+                    <div class="day-selector">
+                        <label><input type="checkbox" value="0"> Sun</label>
+                        <label><input type="checkbox" value="1"> Mon</label>
+                        <label><input type="checkbox" value="2"> Tue</label>
+                        <label><input type="checkbox" value="3"> Wed</label>
+                        <label><input type="checkbox" value="4"> Thu</label>
+                        <label><input type="checkbox" value="5"> Fri</label>
+                        <label><input type="checkbox" value="6"> Sat</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="alarmMessage">Message:</label>
+                    <input type="text" id="alarmMessage" class="input" placeholder="Wake up!">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="saveAlarm" class="btn">Save Alarm</button>
+                <button id="cancelAlarm" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

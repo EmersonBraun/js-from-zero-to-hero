@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Tic Tac Toe</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,400;0,600;1,200;1,400;1,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <section>
+        <h1 class="title">Tic Tac Toe</h1>
+        <div class="container">
+            <div id="0" class="cell" onclick="handleCellClick(0)"></div>
+            <div id="1" class="cell" onclick="handleCellClick(1)"></div>
+            <div id="2" class="cell" onclick="handleCellClick(2)"></div>
+            <div id="3" class="cell" onclick="handleCellClick(3)"></div>
+            <div id="4" class="cell" onclick="handleCellClick(4)"></div>
+            <div id="5" class="cell" onclick="handleCellClick(5)"></div>
+            <div id="6" class="cell" onclick="handleCellClick(6)"></div>
+            <div id="7" class="cell" onclick="handleCellClick(7)"></div>
+            <div id="8" class="cell" onclick="handleCellClick(8)"></div>
+        </div>
+        <h2 class="status"></h2>
+        <button class="restart" onclick="handleRestartGame()">Restart Game</button>
+    </section>
+
+    <script src="index.js"></script>
+</body>
+</html>

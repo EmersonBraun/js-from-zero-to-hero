@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO List - Challenge 1</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 TODO List</h1>
+            <p>Organize your tasks with categories and priorities</p>
+        </div>
+
+        <div class="add-task-section">
+            <div class="task-input-group">
+                <input 
+                    type="text" 
+                    id="taskInput" 
+                    placeholder="Add a new task..."
+                    maxlength="100"
+                >
+                <button class="btn add-btn" id="addTaskBtn">Add</button>
+            </div>
+            
+            <div class="task-options">
+                <div class="option-group">
+                    <label for="taskCategory">Category:</label>
+                    <select id="taskCategory">
+                        <option value="personal">Personal</option>
+                        <option value="work">Work</option>
+                        <option value="shopping">Shopping</option>
+                        <option value="health">Health</option>
+                        <option value="study">Study</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="option-group">
+                    <label for="taskPriority">Priority:</label>
+                    <select id="taskPriority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                
+                <div class="option-group">
+                    <label for="taskDueDate">Due Date:</label>
+                    <input type="date" id="taskDueDate">
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-section">
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="categoryFilter">Filter by Category:</label>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="personal">Personal</option>
+                        <option value="work">Work</option>
+                        <option value="shopping">Shopping</option>
+                        <option value="health">Health</option>
+                        <option value="study">Study</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="priorityFilter">Filter by Priority:</label>
+                    <select id="priorityFilter">
+                        <option value="">All Priorities</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="statusFilter">Filter by Status:</label>
+                    <select id="statusFilter">
+                        <option value="">All Tasks</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="sort-controls">
+                <label for="sortBy">Sort by:</label>
+                <select id="sortBy">
+                    <option value="created">Created Date</option>
+                    <option value="due">Due Date</option>
+                    <option value="priority">Priority</option>
+                    <option value="category">Category</option>
+                    <option value="alphabetical">Alphabetical</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedTasks">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingTasks">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="overdueTasks">0</div>
+                <div class="stat-label">Overdue</div>
+            </div>
+        </div>
+
+        <div class="tasks-section">
+            <div class="tasks-header">
+                <h3>Your Tasks</h3>
+                <div class="bulk-actions">
+                    <button class="btn secondary-btn" id="selectAllBtn">Select All</button>
+                    <button class="btn secondary-btn" id="clearCompletedBtn">Clear Completed</button>
+                    <button class="btn secondary-btn" id="exportBtn">Export</button>
+                </div>
+            </div>
+            
+            <div class="tasks-list" id="tasksList">
+                <!-- Tasks will be populated here -->
+            </div>
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">📝</div>
+            <h3>No tasks yet!</h3>
+            <p>Add your first task to get started.</p>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html> 

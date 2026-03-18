@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Keycodes</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Event Keycodes</h1>
+        
+        <div class="key-display">
+            <div class="key-info">
+                <div class="key-number" id="keyNumber">Press any key</div>
+                <div class="key-details" id="keyDetails">
+                    <div class="detail-item">
+                        <span class="label">Key:</span>
+                        <span class="value" id="keyValue">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Code:</span>
+                        <span class="value" id="keyCode">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Key Code:</span>
+                        <span class="value" id="keyCodeNumber">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="eventType">Event Type:</label>
+                <select id="eventType" class="input">
+                    <option value="keydown" selected>Key Down</option>
+                    <option value="keyup">Key Up</option>
+                    <option value="keypress">Key Press</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="displayMode">Display Mode:</label>
+                <select id="displayMode" class="input">
+                    <option value="simple" selected>Simple</option>
+                    <option value="detailed">Detailed</option>
+                    <option value="history">History</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="key-history" id="keyHistory">
+            <h3>Key History</h3>
+            <div class="history-list" id="historyList">
+                <!-- History items will be added here -->
+            </div>
+            <button id="clearHistory" class="btn">Clear History</button>
+        </div>
+        
+        <div class="keyboard-layout">
+            <h3>Keyboard Layout</h3>
+            <div class="keyboard" id="keyboard">
+                <!-- Keyboard layout will be generated here -->
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="copyBtn" class="btn">Copy Last Key</button>
+                <button id="resetBtn" class="btn">Reset</button>
+                <button id="helpBtn" class="btn">Help</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="challenge-1/index.html" class="btn">Challenge 1</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

@@ -1,0 +1,374 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #0f2027 0%, #2c5364 50%, #203a43 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.upload-area {
+    border: 3px dashed #2e647a;
+    border-radius: 1rem;
+    padding: 3rem;
+    text-align: center;
+    background: rgba(46, 100, 122, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    border-color: #fff;
+    background: rgba(46, 100, 122, 0.2);
+}
+
+.upload-area.dragover {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.2);
+    transform: scale(1.02);
+}
+
+.upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.upload-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.upload-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.upload-content p {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+}
+
+.browse-btn {
+    background: #2e647a;
+    color: #fff;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.browse-btn:hover {
+    background: #1e4a5a;
+    transform: translateY(-2px);
+}
+
+.file-info, .preview-area {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.file-info h3, .preview-area h3 {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    color: #2e647a;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.file-item {
+    background: rgba(46, 100, 122, 0.2);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border-left: 4px solid #2e647a;
+}
+
+.file-item h4 {
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.file-item p {
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.preview-item {
+    background: rgba(46, 100, 122, 0.2);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.preview-item:hover {
+    background: rgba(46, 100, 122, 0.4);
+    transform: translateY(-2px);
+    border-color: #2e647a;
+}
+
+.preview-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 0.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.preview-item .file-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.preview-item .file-name {
+    font-size: 0.8rem;
+    word-break: break-word;
+    line-height: 1.2;
+}
+
+.btn-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    background: #2e647a;
+    color: #fff;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn:hover {
+    background: #1e4a5a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.navigation {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.status-messages {
+    margin-top: 2rem;
+}
+
+.status-message {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    animation: slideIn 0.3s ease;
+}
+
+.status-message.success {
+    background: rgba(76, 175, 80, 0.2);
+    border-left: 4px solid #4CAF50;
+}
+
+.status-message.error {
+    background: rgba(244, 67, 54, 0.2);
+    border-left: 4px solid #F44336;
+}
+
+.status-message.info {
+    background: rgba(33, 150, 243, 0.2);
+    border-left: 4px solid #2196F3;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #0f2027 0%, #2c5364 50%, #203a43 100%);
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 90%;
+    max-width: 800px;
+    position: relative;
+    animation: modalSlideIn 0.3s ease;
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+}
+
+.close-btn:hover {
+    color: #fff;
+}
+
+.modal-body {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.modal-body img {
+    max-width: 100%;
+    max-height: 60vh;
+    border-radius: 0.5rem;
+}
+
+.modal-body .file-content {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    text-align: left;
+    white-space: pre-wrap;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .upload-area {
+        padding: 2rem 1rem;
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .btn-group {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 200px;
+    }
+    
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .upload-content h3 {
+        font-size: 1.2rem;
+    }
+    
+    .preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+    
+    .file-info, .preview-area {
+        padding: 1rem;
+    }
+} 

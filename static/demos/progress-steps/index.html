@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Steps</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Progress Steps</h1>
+        
+        <div class="progress-container">
+            <div class="progress" id="progress"></div>
+            <div class="circle active">1</div>
+            <div class="circle">2</div>
+            <div class="circle">3</div>
+            <div class="circle">4</div>
+        </div>
+        
+        <div class="step-content">
+            <div class="step active" id="step1">
+                <h2>Step 1: Account Setup</h2>
+                <p>Create your account and set up your profile information. This is the first step in your journey.</p>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" class="input" placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" class="input" placeholder="Enter your email">
+                </div>
+            </div>
+            
+            <div class="step" id="step2">
+                <h2>Step 2: Personal Information</h2>
+                <p>Tell us more about yourself to personalize your experience.</p>
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" class="input" placeholder="Enter your first name">
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" class="input" placeholder="Enter your last name">
+                </div>
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" class="input" placeholder="Enter your age" min="1" max="120">
+                </div>
+            </div>
+            
+            <div class="step" id="step3">
+                <h2>Step 3: Preferences</h2>
+                <p>Customize your preferences and settings.</p>
+                <div class="form-group">
+                    <label for="theme">Theme:</label>
+                    <select id="theme" class="input">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="auto">Auto</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="language">Language:</label>
+                    <select id="language" class="input">
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notifications">
+                        <span class="checkmark"></span>
+                        Enable notifications
+                    </label>
+                </div>
+            </div>
+            
+            <div class="step" id="step4">
+                <h2>Step 4: Confirmation</h2>
+                <p>Review your information and complete the setup.</p>
+                <div class="summary" id="summary">
+                    <!-- Summary will be populated dynamically -->
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="terms">
+                        <span class="checkmark"></span>
+                        I agree to the terms and conditions
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button id="prevBtn" class="btn" disabled>Previous</button>
+            <button id="nextBtn" class="btn">Next</button>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="challenge-1/index.html" class="btn">Challenge 1</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

@@ -1,0 +1,166 @@
+.codeRunner {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--button-border-radius);
+  margin: 1rem 0;
+  background: var(--ifm-background-color);
+  box-shadow: var(--shadow-button);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.codeRunner:hover {
+  box-shadow: var(--shadow-button-hover);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.header h4 {
+  margin: 0;
+  color: var(--ifm-color-emphasis-900);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionButton {
+  background: var(--ifm-background-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: calc(var(--button-border-radius) * 0.75);
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.actionButton:hover {
+  background: var(--ifm-color-emphasis-100);
+  border-color: var(--ifm-color-emphasis-500);
+  color: var(--ifm-color-emphasis-900);
+}
+
+.codeContainer {
+  padding: 1rem;
+  background: var(--ifm-color-emphasis-50);
+}
+
+.codeBlock {
+  margin: 0;
+  padding: 1rem;
+  background: var(--ifm-background-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: calc(var(--button-border-radius) * 0.75);
+  overflow-x: auto;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ifm-color-emphasis-900);
+}
+
+.controls {
+  padding: 1rem;
+  border-top: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-color-emphasis-50);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.runButton {
+  background: var(--ifm-color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--button-border-radius);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.runButton:hover:not(:disabled) {
+  background: var(--ifm-color-primary-dark);
+}
+
+.runButton:disabled {
+  background: var(--ifm-color-emphasis-400);
+  cursor: not-allowed;
+}
+
+.outputContainer {
+  padding: 1rem;
+  border-top: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.outputContainer h5 {
+  margin: 0 0 0.5rem 0;
+  color: var(--ifm-color-emphasis-900);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.output {
+  background: var(--ifm-color-emphasis-50);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: calc(var(--button-border-radius) * 0.75);
+  padding: 1rem;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  min-height: 100px;
+  max-height: 400px;
+  overflow-y: auto;
+  color: var(--ifm-color-emphasis-900);
+}
+
+.output::-webkit-scrollbar {
+  width: 8px;
+}
+
+.output::-webkit-scrollbar-track {
+  background: var(--ifm-color-emphasis-200);
+  border-radius: 4px;
+}
+
+.output::-webkit-scrollbar-thumb {
+  background: var(--ifm-color-emphasis-400);
+  border-radius: 4px;
+}
+
+.output::-webkit-scrollbar-thumb:hover {
+  background: var(--ifm-color-emphasis-500);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .actions {
+    align-self: flex-end;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .runButton {
+    width: 100%;
+  }
+}

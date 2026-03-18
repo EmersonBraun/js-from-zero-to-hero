@@ -13,10 +13,10 @@ const config: Config = {
   },
 
   url: 'https://emersonbraun.github.io',
-  baseUrl: '/js-dev-course/',
+  baseUrl: '/js-from-zero-to-hero/',
 
   organizationName: 'EmersonBraun',
-  projectName: 'js-dev-course',
+  projectName: 'js-from-zero-to-hero',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',

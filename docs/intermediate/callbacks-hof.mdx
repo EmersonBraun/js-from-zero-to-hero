@@ -1,0 +1,397 @@
+---
+sidebar_position: 2
+---
+
+# Callbacks & Higher-Order Functions
+
+Functions are **first-class citizens** in JavaScript — they can be stored in variables, passed as arguments, and returned from other functions. This module explores that idea through callbacks and higher-order functions.
+
+## Theory
+
+### First-Class Functions
+
+JavaScript treats functions like any other value. You can:
+
+```js
+// Assign to a variable
+const greet = function(name) { return `Hello, ${name}!`; };
+
+// Store in an array
+const operations = [Math.sqrt, Math.abs, Math.ceil];
+
+// Pass as an argument
+setTimeout(() => console.log("delayed"), 1000);
+```
+
+MDN Reference: [First-class Function](https://developer.mozilla.org/en-US/docs/Glossary/First-class_Function)
+
+### Callbacks
+
+A **callback** is a function passed to another function to be called later — either synchronously or asynchronously.
+
+```js
+function doTwice(fn) {
+  fn();
+  fn();
+}
+
+doTwice(() => console.log("hello")); // "hello" printed twice
+```
+
+Common patterns where callbacks appear:
+
+- Array methods (`forEach`, `map`, `filter`, `sort`)
+- Event listeners (`addEventListener`)
+- Async operations (`setTimeout`, `fetch`)
+
+### Higher-Order Functions (HOF)
+
+A **higher-order function** either:
+1. Accepts a function as an argument, or
+2. Returns a function.
+
+```js
+// Accepts a function
+function applyToAll(arr, fn) {
+  return arr.map(fn);
+}
+
+// Returns a function
+function multiplier(factor) {
+  return (n) => n * factor;
+}
+const double = multiplier(2);
+double(5); // 10
+```
+
+MDN Reference: [Functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions)
+
+### map, filter, and reduce in Depth
+
+These three array methods are the foundation of declarative array processing.
+
+#### map
+
+Transforms every element; returns a new array of the same length.
+
+```js
+const prices = [10, 20, 30];
+const withTax = prices.map(p => p * 1.2); // [12, 24, 36]
+```
+
+#### filter
+
+Keeps only elements where the callback returns `true`.
+
+```js
+const ages = [12, 20, 17, 25];
+const adults = ages.filter(age => age >= 18); // [20, 25]
+```
+
+#### reduce
+
+Accumulates all elements into a single value. The callback receives `(accumulator, currentValue)`.
+
+```js
+const numbers = [1, 2, 3, 4];
+const sum = numbers.reduce((acc, n) => acc + n, 0); // 10
+
+// Build an object from an array
+const inventory = [
+  { name: "apple", qty: 5 },
+  { name: "banana", qty: 3 },
+];
+const totals = inventory.reduce((acc, item) => {
+  acc[item.name] = item.qty;
+  return acc;
+}, {});
+// { apple: 5, banana: 3 }
+```
+
+MDN References: [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) | [filter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) | [reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
+
+### Declarative vs Imperative Style
+
+**Imperative** — describe *how* to do something step by step:
+
+```js
+const result = [];
+for (let i = 0; i < numbers.length; i++) {
+  if (numbers[i] % 2 === 0) {
+    result.push(numbers[i] * 2);
+  }
+}
+```
+
+**Declarative** — describe *what* you want:
+
+```js
+const result = numbers.filter(n => n % 2 === 0).map(n => n * 2);
+```
+
+Declarative style is shorter, easier to test, and closer to how you think about the problem.
+
+### Function Composition
+
+Combining small functions into larger ones:
+
+```js
+const compose = (...fns) => (x) => fns.reduceRight((v, f) => f(v), x);
+
+const add1 = x => x + 1;
+const double = x => x * 2;
+const square = x => x * x;
+
+const transform = compose(square, double, add1);
+transform(3); // square(double(add1(3))) = square(double(4)) = square(8) = 64
+```
+
+---
+
+## Exercises
+
+<CodeRunner
+  title="Exercise 1 – Writing a callback"
+  code={`function repeat(times, callback) {
+  // Call callback 'times' times, passing the current index (0-based).
+  // Return an array of all return values from callback.
+  const results = [];
+  for (let i = 0; i < times; i++) {
+    results.push(callback(i));
+  }
+  return results;
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(repeat(3, i => i * 2))", expected: "[0,2,4]", description: "Calls callback 3 times with index" },
+    { input: "JSON.stringify(repeat(4, i => i + 1))", expected: "[1,2,3,4]", description: "1-indexed output" },
+    { input: "JSON.stringify(repeat(0, i => i))", expected: "[]", description: "Zero repetitions returns empty array" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2 – Higher-order function: multiplier"
+  code={`function multiplier(factor) {
+  // Return a function that multiplies its argument by factor.
+  return (n) => n * factor;
+}
+`}
+  testCases={[
+    { input: "multiplier(3)(7)", expected: "21", description: "3 times 7 is 21" },
+    { input: "multiplier(2)(0)", expected: "0", description: "Multiplying zero gives zero" },
+    { input: "multiplier(10)(5)", expected: "50", description: "10 times 5 is 50" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3 – map: transform an array of objects"
+  code={`function formatUsers(users) {
+  // Use map to return an array of strings in the format "Name (age)"
+  // Example: [{ name: "Alice", age: 30 }] => ["Alice (30)"]
+  return users.map(u => \`\${u.name} (\${u.age})\`);
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(formatUsers([{ name: 'Alice', age: 30 }, { name: 'Bob', age: 25 }]))", expected: '["Alice (30)","Bob (25)"]', description: "Formats two users correctly" },
+    { input: "JSON.stringify(formatUsers([]))", expected: "[]", description: "Empty array returns empty array" },
+    { input: "JSON.stringify(formatUsers([{ name: 'Carol', age: 22 }]))", expected: '["Carol (22)"]', description: "Single user formatted" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4 – filter: search by property"
+  code={`function filterByCategory(products, category) {
+  // Return only products whose category matches the given category (case-insensitive).
+  return products.filter(p => p.category.toLowerCase() === category.toLowerCase());
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(filterByCategory([{name:'apple',category:'fruit'},{name:'carrot',category:'vegetable'},{name:'mango',category:'Fruit'}], 'fruit').map(p=>p.name))", expected: '["apple","mango"]', description: "Case-insensitive category match" },
+    { input: "filterByCategory([{name:'pen',category:'stationery'}], 'fruit').length", expected: "0", description: "No match returns empty array" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5 – reduce: group by property"
+  code={`function groupBy(arr, key) {
+  // Use reduce to group array elements by the value of the given key.
+  // Return an object where each key maps to an array of matching items.
+  return arr.reduce((acc, item) => {
+    const group = item[key];
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(item);
+    return acc;
+  }, {});
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(Object.keys(groupBy([{type:'a'},{type:'b'},{type:'a'}], 'type')))", expected: '["a","b"]', description: "Groups by key — two groups" },
+    { input: "groupBy([{type:'x'},{type:'x'}], 'type').x.length", expected: "2", description: "Two items in same group" },
+    { input: "groupBy([], 'type')", expected: "[object Object]", description: "Empty array returns empty object" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6 – Function composition"
+  code={`function compose(...fns) {
+  // Return a function that applies fns right-to-left.
+  return (x) => fns.reduceRight((v, f) => f(v), x);
+}
+
+const add10 = x => x + 10;
+const triple = x => x * 3;
+const negate = x => -x;
+`}
+  testCases={[
+    { input: "compose(negate, triple, add10)(5)", expected: "-45", description: "negate(triple(add10(5))) = negate(45) = -45" },
+    { input: "compose(add10)(5)", expected: "15", description: "Single function composition" },
+    { input: "compose(triple, triple)(2)", expected: "18", description: "Apply same function twice" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 7 – Chaining map, filter, reduce"
+  code={`function totalEvenSquares(numbers) {
+  // 1. Filter even numbers
+  // 2. Square each one
+  // 3. Sum all squares
+  // Return the total.
+  return numbers
+    .filter(n => n % 2 === 0)
+    .map(n => n * n)
+    .reduce((sum, n) => sum + n, 0);
+}
+`}
+  testCases={[
+    { input: "totalEvenSquares([1, 2, 3, 4, 5])", expected: "20", description: "2²+4²=4+16=20" },
+    { input: "totalEvenSquares([1, 3, 5])", expected: "0", description: "No even numbers returns 0" },
+    { input: "totalEvenSquares([2, 4, 6])", expected: "56", description: "4+16+36=56" }
+  ]}
+/>
+
+---
+
+## Project 1: Roman Numeral Converter
+
+This project converts integers to Roman numerals using a lookup table and `reduce`.
+
+### Live Demo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/roman/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Roman Numeral Converter Demo"
+/>
+
+### Walkthrough
+
+```js
+const romanNumerals = [
+  [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"],
+  [100, "C"],  [90, "XC"],  [50, "L"],  [40, "XL"],
+  [10, "X"],   [9, "IX"],   [5, "V"],   [4, "IV"],
+  [1, "I"],
+];
+
+function toRoman(num) {
+  return romanNumerals.reduce((result, [value, symbol]) => {
+    while (num >= value) {
+      result += symbol;
+      num -= value;
+    }
+    return result;
+  }, "");
+}
+```
+
+The `reduce` callback here acts as an iterator over the lookup table — a classic higher-order pattern.
+
+### Challenge 1 – Roman to Integer
+
+<iframe
+  src="/js-from-zero-to-hero/demos/roman/challenge-1/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Roman Numeral Challenge 1 – Roman to Integer"
+/>
+
+Implement the reverse: given a Roman numeral string, convert it back to an integer.
+
+### Challenge 2 – Range Converter
+
+<iframe
+  src="/js-from-zero-to-hero/demos/roman/challenge-2/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Roman Numeral Challenge 2 – Range"
+/>
+
+Use `map` to convert an entire range of numbers (e.g., 1–20) to Roman numerals and display the results as a table.
+
+---
+
+## Project 2: Binary to Decimal Converter
+
+This project converts binary strings to decimal numbers, demonstrating `reduce` over a character array.
+
+### Live Demo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/binary_to_decimal/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Binary to Decimal Converter Demo"
+/>
+
+### Walkthrough
+
+```js
+function binaryToDecimal(binaryStr) {
+  return binaryStr
+    .split("")
+    .reverse()
+    .reduce((acc, bit, index) => acc + Number(bit) * Math.pow(2, index), 0);
+}
+```
+
+Notice how `reduce` replaces the manual `for` loop — the accumulator builds the decimal value bit by bit.
+
+### Challenge 1 – Decimal to Binary
+
+<iframe
+  src="/js-from-zero-to-hero/demos/binary_to_decimal/challenge-1/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Binary to Decimal Challenge 1 – Decimal to Binary"
+/>
+
+Write the reverse converter: take a decimal integer and return its binary string representation without using `toString(2)`.
+
+### Challenge 2 – Batch Converter
+
+<iframe
+  src="/js-from-zero-to-hero/demos/binary_to_decimal/challenge-2/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Binary to Decimal Challenge 2 – Batch"
+/>
+
+Accept a textarea of newline-separated binary strings, convert them all with `map`, and display a side-by-side comparison table.
+
+---
+
+## Summary
+
+- Functions are first-class values — store, pass, and return them freely.
+- A **callback** is simply a function you hand to another function to invoke at the right time.
+- A **higher-order function** is any function that takes or returns a function.
+- `map`, `filter`, and `reduce` form the core of declarative array processing — prefer them over `for` loops when transforming data.
+- **Function composition** lets you build powerful pipelines from small, reusable pieces.
+- Declarative style makes your intent clearer and your code easier to test.

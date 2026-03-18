@@ -1,0 +1,453 @@
+---
+sidebar_position: 3
+---
+
+# Timers & Animations
+
+JavaScript can schedule code to run in the future, repeat on an interval, and synchronize with the browser's rendering cycle. These capabilities are the foundation of countdowns, games, and smooth animations.
+
+## Theory
+
+### setTimeout
+
+`setTimeout` schedules a function to run **once** after a delay (in milliseconds).
+
+```js
+const id = setTimeout(() => {
+  console.log("This runs after 2 seconds");
+}, 2000);
+
+// Cancel before it fires:
+clearTimeout(id);
+```
+
+The callback is placed in the **task queue** after the delay and runs when the call stack is empty — so delays are minimum, not guaranteed, times.
+
+MDN Reference: [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout)
+
+### setInterval
+
+`setInterval` calls a function **repeatedly** at a fixed interval.
+
+```js
+let count = 0;
+const id = setInterval(() => {
+  count++;
+  console.log(`Tick ${count}`);
+  if (count === 5) clearInterval(id);
+}, 1000);
+```
+
+Always store the ID so you can stop the interval with `clearInterval` when done — forgetting to clear is a common memory-leak source.
+
+MDN Reference: [setInterval](https://developer.mozilla.org/en-US/docs/Web/API/setInterval)
+
+### clearTimeout and clearInterval
+
+Both `clearTimeout` and `clearInterval` accept the numeric ID returned by their respective scheduling functions.
+
+```js
+const timerId = setTimeout(fn, 5000);
+clearTimeout(timerId); // fn never runs
+
+const intervalId = setInterval(fn, 500);
+clearInterval(intervalId); // stops the repeating calls
+```
+
+### requestAnimationFrame
+
+`requestAnimationFrame` (rAF) schedules a callback to run **before the next repaint**, roughly 60 times per second (every ~16.7 ms). It is the preferred tool for animations because:
+
+- It pauses when the tab is hidden (saves CPU/battery).
+- It syncs with the display refresh rate.
+- It avoids the visual stutter that `setInterval` can cause.
+
+```js
+function animate(timestamp) {
+  // timestamp is a DOMHighResTimeStamp
+  draw(timestamp);
+  requestAnimationFrame(animate); // schedule the next frame
+}
+requestAnimationFrame(animate); // kick off the loop
+```
+
+To stop a rAF loop, call `cancelAnimationFrame(id)` with the returned ID.
+
+MDN Reference: [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame)
+
+### CSS Animations Triggered by JavaScript
+
+You can start CSS animations by toggling classes with JavaScript:
+
+```css
+/* style.css */
+.ball {
+  transition: transform 0.5s ease;
+}
+.ball.jump {
+  transform: translateY(-150px);
+}
+```
+
+```js
+const ball = document.querySelector(".ball");
+ball.classList.add("jump");
+
+setTimeout(() => ball.classList.remove("jump"), 500);
+```
+
+For more complex sequences, the **Web Animations API** lets you control animations entirely from JS:
+
+```js
+element.animate(
+  [{ transform: "translateY(0)" }, { transform: "translateY(-150px)" }],
+  { duration: 400, easing: "ease-out", fill: "forwards" }
+);
+```
+
+MDN Reference: [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)
+
+### Game Loops
+
+A game loop updates state and redraws the screen as fast as possible. Using `requestAnimationFrame` gives a smooth, battery-friendly loop:
+
+```js
+let lastTime = 0;
+
+function gameLoop(timestamp) {
+  const delta = timestamp - lastTime; // time since last frame (ms)
+  lastTime = timestamp;
+
+  update(delta); // move objects, check collisions
+  render();      // draw everything
+
+  requestAnimationFrame(gameLoop);
+}
+
+requestAnimationFrame(gameLoop);
+```
+
+Using `delta` (elapsed time) instead of a fixed step makes the game **frame-rate independent** — it runs at the same speed on a 60 Hz and a 120 Hz display.
+
+---
+
+## Exercises
+
+<CodeRunner
+  title="Exercise 1 – Delayed greeting"
+  code={`function delayedGreet(name, delayMs) {
+  // Return a Promise that resolves with "Hello, <name>!"
+  // after delayMs milliseconds using setTimeout.
+  return new Promise(resolve => {
+    setTimeout(() => resolve(\`Hello, \${name}!\`), delayMs);
+  });
+}
+`}
+  testCases={[
+    { input: "await delayedGreet('Alice', 0)", expected: "Hello, Alice!", description: "Resolves with greeting immediately (0 ms delay)" },
+    { input: "await delayedGreet('World', 0)", expected: "Hello, World!", description: "Works with different name" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2 – Count down with setInterval"
+  code={`function countdown(start) {
+  // Return a Promise that resolves with an array of numbers
+  // counting down from 'start' to 0 (inclusive), collected via setInterval.
+  // Use a 0ms interval so tests run instantly.
+  return new Promise(resolve => {
+    const ticks = [];
+    let current = start;
+    const id = setInterval(() => {
+      ticks.push(current);
+      if (current === 0) {
+        clearInterval(id);
+        resolve(ticks);
+      }
+      current--;
+    }, 0);
+  });
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(await countdown(3))", expected: "[3,2,1,0]", description: "Counts from 3 down to 0" },
+    { input: "JSON.stringify(await countdown(0))", expected: "[0]", description: "countdown(0) yields [0]" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3 – Cancel a timeout"
+  code={`function cancelableAction(shouldCancel) {
+  // Schedule a timeout to push 'fired' into results after 50ms.
+  // If shouldCancel is true, immediately clear the timeout.
+  // Return a Promise that resolves with the results array after 100ms.
+  return new Promise(resolve => {
+    const results = [];
+    const id = setTimeout(() => results.push('fired'), 50);
+    if (shouldCancel) clearTimeout(id);
+    setTimeout(() => resolve(results), 100);
+  });
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(await cancelableAction(false))", expected: '["fired"]', description: "Not cancelled — action fires" },
+    { input: "JSON.stringify(await cancelableAction(true))", expected: "[]", description: "Cancelled — nothing fires" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4 – requestAnimationFrame frame counter"
+  code={`function countFrames(targetFrames) {
+  // Use requestAnimationFrame to count frames until targetFrames is reached.
+  // Return a Promise that resolves with the frame count.
+  return new Promise(resolve => {
+    let count = 0;
+    function frame() {
+      count++;
+      if (count < targetFrames) {
+        requestAnimationFrame(frame);
+      } else {
+        resolve(count);
+      }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+`}
+  testCases={[
+    { input: "await countFrames(1)", expected: "1", description: "Resolves after 1 frame" },
+    { input: "await countFrames(5)", expected: "5", description: "Resolves after 5 frames" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5 – Debounce"
+  code={`function debounce(fn, delay) {
+  // Return a debounced version of fn.
+  // Each call resets the timer; fn runs only after 'delay' ms of silence.
+  let timerId;
+  return function(...args) {
+    clearTimeout(timerId);
+    timerId = setTimeout(() => fn(...args), delay);
+  };
+}
+`}
+  testCases={[
+    { input: "const results = []; const d = debounce(x => results.push(x), 50); d(1); d(2); d(3); await new Promise(r => setTimeout(r, 100)); JSON.stringify(results)", expected: "[3]", description: "Only the last call fires after the delay" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6 – Game loop delta time"
+  code={`function simulateFrames(frames) {
+  // Simulate a game loop by calling requestAnimationFrame 'frames' times.
+  // Accumulate the total elapsed time (delta between frames) and
+  // return a Promise that resolves with { frameCount, totalTime }
+  // where totalTime >= 0.
+  return new Promise(resolve => {
+    let frameCount = 0;
+    let lastTime = null;
+    let totalTime = 0;
+
+    function loop(timestamp) {
+      if (lastTime !== null) {
+        totalTime += timestamp - lastTime;
+      }
+      lastTime = timestamp;
+      frameCount++;
+
+      if (frameCount < frames) {
+        requestAnimationFrame(loop);
+      } else {
+        resolve({ frameCount, totalTime: Math.round(totalTime) });
+      }
+    }
+    requestAnimationFrame(loop);
+  });
+}
+`}
+  testCases={[
+    { input: "(await simulateFrames(3)).frameCount", expected: "3", description: "Runs exactly 3 frames" }
+  ]}
+/>
+
+---
+
+## Project 1: Countdown Timer
+
+A visual countdown timer that shows minutes and seconds, with start, pause, and reset controls.
+
+### Live Demo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/countdown/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Countdown Timer Demo"
+/>
+
+### Walkthrough
+
+The timer state is a plain object updated by `setInterval`:
+
+```js
+let intervalId = null;
+let remaining = 0; // seconds
+
+function start() {
+  if (intervalId) return; // already running
+  intervalId = setInterval(() => {
+    if (remaining <= 0) {
+      clearInterval(intervalId);
+      intervalId = null;
+      onFinish();
+      return;
+    }
+    remaining--;
+    render();
+  }, 1000);
+}
+
+function pause() {
+  clearInterval(intervalId);
+  intervalId = null;
+}
+
+function reset(seconds) {
+  pause();
+  remaining = seconds;
+  render();
+}
+
+function render() {
+  const m = String(Math.floor(remaining / 60)).padStart(2, "0");
+  const s = String(remaining % 60).padStart(2, "0");
+  display.textContent = `${m}:${s}`;
+}
+```
+
+Key points:
+
+- Store the interval ID so it can be cleared.
+- Track `remaining` separately from the display.
+- `padStart(2, "0")` ensures two-digit formatting.
+
+### Challenge 1 – Alarm Sound
+
+<iframe
+  src="/js-from-zero-to-hero/demos/countdown/challenge-1/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Countdown Challenge 1 – Alarm Sound"
+/>
+
+When the timer reaches zero, play a short beep using the Web Audio API instead of a static alert. Use `AudioContext` to generate a 440 Hz tone for 0.3 seconds.
+
+### Challenge 2 – Pomodoro Mode
+
+<iframe
+  src="/js-from-zero-to-hero/demos/countdown/challenge-2/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Countdown Challenge 2 – Pomodoro"
+/>
+
+Implement a Pomodoro timer: 25 minutes of work followed by a 5-minute break, cycling automatically. Track the number of completed Pomodoros.
+
+---
+
+## Project 2: Mario Jump
+
+A side-scrolling platformer in which Mario must jump over obstacles. Built with `requestAnimationFrame` and CSS class toggling.
+
+### Live Demo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/mario_jump/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Mario Jump Demo"
+/>
+
+### Walkthrough
+
+```js
+const mario = document.querySelector(".mario");
+const obstacle = document.querySelector(".obstacle");
+
+let gameOver = false;
+let animationId;
+
+function jump() {
+  if (mario.classList.contains("jump")) return;
+  mario.classList.add("jump");
+  setTimeout(() => mario.classList.remove("jump"), 500);
+}
+
+function checkCollision() {
+  const marioRect = mario.getBoundingClientRect();
+  const obstacleRect = obstacle.getBoundingClientRect();
+  return (
+    marioRect.right > obstacleRect.left &&
+    marioRect.left < obstacleRect.right &&
+    marioRect.bottom > obstacleRect.top &&
+    marioRect.top < obstacleRect.bottom
+  );
+}
+
+function gameLoop() {
+  if (checkCollision()) {
+    gameOver = true;
+    obstacle.style.animation = "none";
+    return;
+  }
+  animationId = requestAnimationFrame(gameLoop);
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space" && !gameOver) jump();
+});
+
+requestAnimationFrame(gameLoop);
+```
+
+The obstacle's horizontal movement is handled by a CSS keyframe animation, keeping the JS loop focused purely on collision detection.
+
+### Challenge 1 – Double Jump
+
+<iframe
+  src="/js-from-zero-to-hero/demos/mario_jump/challenge-1/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Mario Jump Challenge 1 – Double Jump"
+/>
+
+Allow Mario to jump a second time while in the air (double jump). Track jump count with a variable and reset it when Mario lands.
+
+### Challenge 2 – Score Counter
+
+<iframe
+  src="/js-from-zero-to-hero/demos/mario_jump/challenge-2/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Mario Jump Challenge 2 – Score Counter"
+/>
+
+Add a live score that increases every second the player survives. Show a high-score in `localStorage` so it persists between sessions.
+
+---
+
+## Summary
+
+- `setTimeout` runs code **once** after a delay; always store and clear the ID when done.
+- `setInterval` repeats code on a fixed schedule; **always** clear it to prevent memory leaks.
+- `requestAnimationFrame` is the right tool for animations and game loops — it syncs with the screen, is paused when the tab is hidden, and avoids stutter.
+- CSS class toggling is a clean way to trigger CSS transitions and keyframe animations from JavaScript.
+- **Delta time** makes game loops frame-rate independent: multiply speeds by the elapsed time instead of a fixed step.
+- The **debounce** pattern (built on `setTimeout`) prevents a fast-firing function from running until the user pauses.

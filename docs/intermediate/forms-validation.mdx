@@ -1,0 +1,472 @@
+---
+sidebar_position: 4
+---
+
+# Forms & Validation
+
+Forms are how users send data to your application. JavaScript lets you read values, respond to user input in real time, validate data before submission, and give clear feedback — all without a page reload.
+
+## Theory
+
+### Form Elements
+
+The main form elements and how to access them in JavaScript:
+
+| Element | How to get value |
+|---------|-----------------|
+| `<input type="text">` | `element.value` |
+| `<input type="number">` | `Number(element.value)` |
+| `<input type="checkbox">` | `element.checked` |
+| `<input type="radio">` | `element.checked` on each option |
+| `<select>` | `element.value` |
+| `<textarea>` | `element.value` |
+
+```js
+const nameInput = document.querySelector("#name");
+const ageInput  = document.querySelector("#age");
+const colorSelect = document.querySelector("#color");
+
+console.log(nameInput.value);   // current text
+console.log(Number(ageInput.value));
+console.log(colorSelect.value);
+```
+
+MDN Reference: [HTMLInputElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement) | [HTMLSelectElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLSelectElement)
+
+### Getting and Setting Form Values
+
+Read values with `.value`, set them the same way:
+
+```js
+// Read
+const text = input.value.trim(); // .trim() removes surrounding whitespace
+
+// Write (update the UI)
+input.value = "default text";
+checkbox.checked = true;
+select.value = "option2"; // selects matching <option>
+```
+
+To read all fields at once, use `FormData`:
+
+```js
+const form = document.querySelector("form");
+const data = new FormData(form);
+
+data.get("username"); // value of input[name="username"]
+Object.fromEntries(data); // convert all fields to a plain object
+```
+
+MDN Reference: [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
+
+### Form Events
+
+| Event | When it fires |
+|-------|--------------|
+| `input` | Every keystroke / value change |
+| `change` | When an element loses focus after its value changed |
+| `focus` | When an element gains focus |
+| `blur` | When an element loses focus |
+| `submit` | When the form is submitted |
+| `reset` | When the form is reset |
+
+```js
+input.addEventListener("input", (e) => {
+  console.log(e.target.value); // live value on every keystroke
+});
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault(); // stop the page from reloading
+  validate(new FormData(form));
+});
+```
+
+MDN Reference: [HTMLElement: input event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event) | [HTMLFormElement: submit event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/submit_event)
+
+### Basic Validation Patterns
+
+**Manual validation** — check values yourself and show error messages:
+
+```js
+function validate(fields) {
+  const errors = {};
+
+  if (!fields.name || fields.name.trim().length < 2) {
+    errors.name = "Name must be at least 2 characters.";
+  }
+
+  if (isNaN(fields.age) || fields.age < 0 || fields.age > 120) {
+    errors.age = "Age must be a number between 0 and 120.";
+  }
+
+  return errors; // empty object means valid
+}
+```
+
+**Constraint Validation API** — the browser validates using HTML attributes:
+
+```html
+<input type="email" required minlength="5" />
+```
+
+```js
+input.checkValidity();   // true / false
+input.validationMessage; // built-in error message
+form.checkValidity();    // true if all fields are valid
+```
+
+### Regular Expressions Basics
+
+A **regular expression** (regex) is a pattern for matching strings.
+
+```js
+// Test if a string matches the pattern
+/^\d{4}$/.test("2024");  // true — exactly 4 digits
+/^\d{4}$/.test("24");    // false
+
+// Common patterns
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phonePattern = /^\+?[\d\s\-()]{7,15}$/;
+const upperPattern = /[A-Z]/;
+const numberPattern = /[0-9]/;
+const specialPattern = /[!@#$%^&*]/;
+```
+
+MDN Reference: [Regular Expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions)
+
+### Showing Validation Feedback
+
+A common pattern is to add/remove CSS classes on the container element:
+
+```js
+function showError(input, message) {
+  const field = input.parentElement;
+  field.classList.add("error");
+  field.classList.remove("success");
+  field.querySelector(".error-msg").textContent = message;
+}
+
+function showSuccess(input) {
+  const field = input.parentElement;
+  field.classList.remove("error");
+  field.classList.add("success");
+  field.querySelector(".error-msg").textContent = "";
+}
+```
+
+---
+
+## Exercises
+
+<CodeRunner
+  title="Exercise 1 – Trim and validate a text field"
+  code={`function validateName(name) {
+  // Return an error message string if name is invalid, or null if valid.
+  // Rules: must be a non-empty string with at least 2 non-whitespace characters.
+  const trimmed = name.trim();
+  if (!trimmed) return "Name is required.";
+  if (trimmed.length < 2) return "Name must be at least 2 characters.";
+  return null;
+}
+`}
+  testCases={[
+    { input: "validateName('Alice')", expected: "null", description: "Valid name returns null" },
+    { input: "validateName('  ')", expected: "Name is required.", description: "Whitespace-only is invalid" },
+    { input: "validateName('A')", expected: "Name must be at least 2 characters.", description: "Single character is invalid" },
+    { input: "validateName('')", expected: "Name is required.", description: "Empty string is invalid" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2 – Email validation with regex"
+  code={`function isValidEmail(email) {
+  // Return true if email matches a basic email pattern, false otherwise.
+  // Pattern: at least one non-whitespace/@ char, then @, then domain, then dot, then TLD.
+  const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return pattern.test(email);
+}
+`}
+  testCases={[
+    { input: "isValidEmail('user@example.com')", expected: "true", description: "Valid email" },
+    { input: "isValidEmail('not-an-email')", expected: "false", description: "Missing @ and domain" },
+    { input: "isValidEmail('bad@')", expected: "false", description: "Missing domain" },
+    { input: "isValidEmail('user@domain.io')", expected: "true", description: "Valid email with .io TLD" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3 – Password strength checker"
+  code={`function checkPasswordStrength(password) {
+  // Return 'weak', 'medium', or 'strong' based on:
+  // weak   – less than 8 characters OR missing both uppercase and digit
+  // strong – at least 12 chars AND has uppercase, digit, AND special char (!@#$%^&*)
+  // medium – everything else
+  const hasUpper   = /[A-Z]/.test(password);
+  const hasDigit   = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*]/.test(password);
+  const len = password.length;
+
+  if (len < 8 || (!hasUpper && !hasDigit)) return 'weak';
+  if (len >= 12 && hasUpper && hasDigit && hasSpecial) return 'strong';
+  return 'medium';
+}
+`}
+  testCases={[
+    { input: "checkPasswordStrength('abc')", expected: "weak", description: "Too short — weak" },
+    { input: "checkPasswordStrength('Passw0rd')", expected: "medium", description: "8 chars, upper and digit but no special — medium" },
+    { input: "checkPasswordStrength('Str0ng!Pass#1')", expected: "strong", description: "12+ chars, upper, digit, special — strong" },
+    { input: "checkPasswordStrength('alllowercase')", expected: "weak", description: "No uppercase or digit — weak" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4 – FormData-style validation"
+  code={`function validateForm(fields) {
+  // fields is a plain object: { username, email, age }
+  // Return an errors object with a key for each invalid field.
+  // Rules:
+  //   username: required, min 3 chars
+  //   email: must contain @
+  //   age: must be a number between 1 and 120
+  const errors = {};
+
+  if (!fields.username || fields.username.trim().length < 3) {
+    errors.username = "Username must be at least 3 characters.";
+  }
+  if (!fields.email || !fields.email.includes("@")) {
+    errors.email = "Email must contain @.";
+  }
+  const age = Number(fields.age);
+  if (isNaN(age) || age < 1 || age > 120) {
+    errors.age = "Age must be between 1 and 120.";
+  }
+
+  return errors;
+}
+`}
+  testCases={[
+    { input: "Object.keys(validateForm({ username: 'Alice', email: 'a@b.com', age: 25 })).length", expected: "0", description: "All valid — no errors" },
+    { input: "validateForm({ username: 'Al', email: 'bad', age: 25 }).username", expected: "Username must be at least 3 characters.", description: "Short username triggers error" },
+    { input: "validateForm({ username: 'Alice', email: 'nodomain', age: 25 }).email", expected: "Email must contain @.", description: "Missing @ triggers error" },
+    { input: "validateForm({ username: 'Alice', email: 'a@b.com', age: 200 }).age", expected: "Age must be between 1 and 120.", description: "Age out of range triggers error" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5 – select value parsing"
+  code={`function parseSortOption(value) {
+  // Given a select value string like "price-asc", "price-desc",
+  // "name-asc", or "name-desc", return an object: { field, direction }.
+  // Example: "price-asc" => { field: "price", direction: "asc" }
+  const [field, direction] = value.split("-");
+  return { field, direction };
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(parseSortOption('price-asc'))", expected: '{"field":"price","direction":"asc"}', description: "Parses price-asc" },
+    { input: "JSON.stringify(parseSortOption('name-desc'))", expected: '{"field":"name","direction":"desc"}', description: "Parses name-desc" },
+    { input: "parseSortOption('date-asc').field", expected: "date", description: "Extracts field from date-asc" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6 – Real-time character counter"
+  code={`function getRemainingChars(currentValue, maxLength) {
+  // Return the number of characters remaining.
+  // Return a negative number if the limit is exceeded.
+  return maxLength - currentValue.length;
+}
+`}
+  testCases={[
+    { input: "getRemainingChars('hello', 10)", expected: "5", description: "5 of 10 chars used — 5 remaining" },
+    { input: "getRemainingChars('', 140)", expected: "140", description: "Empty input — all chars available" },
+    { input: "getRemainingChars('toolongtext', 5)", expected: "-6", description: "Exceeded limit returns negative" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 7 – Sanitize user input"
+  code={`function sanitizeInput(str) {
+  // Trim whitespace, collapse multiple spaces into one,
+  // and remove any characters that are not letters, digits, or spaces.
+  return str
+    .trim()
+    .replace(/\\s+/g, ' ')
+    .replace(/[^a-zA-Z0-9 ]/g, '');
+}
+`}
+  testCases={[
+    { input: "sanitizeInput('  Hello   World! ')", expected: "Hello World", description: "Trims, collapses spaces, removes !" },
+    { input: "sanitizeInput('abc123')", expected: "abc123", description: "Alphanumeric unchanged" },
+    { input: "sanitizeInput('  <script>alert(1)</script>  ')", expected: "scriptalert1script", description: "HTML tags stripped" }
+  ]}
+/>
+
+---
+
+## Project 1: Password Generator
+
+A tool that generates secure random passwords based on user-selected options (length, uppercase, numbers, symbols).
+
+### Live Demo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/password-generator/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Password Generator Demo"
+/>
+
+### Walkthrough
+
+The generator reads checkbox states and a range input to compose a character set:
+
+```js
+const CHARS = {
+  lowercase: "abcdefghijklmnopqrstuvwxyz",
+  uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  numbers:   "0123456789",
+  symbols:   "!@#$%^&*()_+-=[]{}|;:,.<>?",
+};
+
+function generatePassword(options) {
+  const { length, useLower, useUpper, useNumbers, useSymbols } = options;
+
+  let charset = "";
+  if (useLower)   charset += CHARS.lowercase;
+  if (useUpper)   charset += CHARS.uppercase;
+  if (useNumbers) charset += CHARS.numbers;
+  if (useSymbols) charset += CHARS.symbols;
+
+  if (!charset) return ""; // no options selected
+
+  return Array.from({ length }, () =>
+    charset[Math.floor(Math.random() * charset.length)]
+  ).join("");
+}
+```
+
+The form listens to `input` events on the length slider to update the display in real time:
+
+```js
+lengthSlider.addEventListener("input", () => {
+  lengthDisplay.textContent = lengthSlider.value;
+});
+
+generateBtn.addEventListener("click", () => {
+  const options = {
+    length:     Number(lengthSlider.value),
+    useLower:   lowercaseCheckbox.checked,
+    useUpper:   uppercaseCheckbox.checked,
+    useNumbers: numbersCheckbox.checked,
+    useSymbols: symbolsCheckbox.checked,
+  };
+  output.value = generatePassword(options);
+});
+```
+
+### Challenge 1 – Copy to Clipboard
+
+<iframe
+  src="/js-from-zero-to-hero/demos/password-generator/challenge-1/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Password Generator Challenge 1 – Copy to Clipboard"
+/>
+
+Add a "Copy" button that uses `navigator.clipboard.writeText()` to copy the generated password. Show a brief "Copied!" confirmation that disappears after 2 seconds using `setTimeout`.
+
+---
+
+## Project 2: Quiz App
+
+A multiple-choice quiz that tracks score, gives immediate feedback, and shows a results screen.
+
+### Live Demo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/quiz-app/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Quiz App Demo"
+/>
+
+### Walkthrough
+
+Questions are stored as an array of objects:
+
+```js
+const questions = [
+  {
+    question: "What does typeof null return?",
+    choices: ["null", "undefined", "object", "string"],
+    answer: "object",
+  },
+  {
+    question: "Which method adds an element to the end of an array?",
+    choices: ["push", "pop", "shift", "unshift"],
+    answer: "push",
+  },
+];
+```
+
+State is tracked in a simple object:
+
+```js
+let state = {
+  currentIndex: 0,
+  score: 0,
+  answers: [],
+};
+```
+
+The `submit` handler reads the checked radio button, checks it against the answer, and advances to the next question:
+
+```js
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const selected = form.querySelector("input[name='choice']:checked");
+  if (!selected) return; // nothing chosen
+
+  const answer = selected.value;
+  const correct = questions[state.currentIndex].answer;
+  const isCorrect = answer === correct;
+
+  state.answers.push({ answer, isCorrect });
+  if (isCorrect) state.score++;
+  state.currentIndex++;
+
+  if (state.currentIndex < questions.length) {
+    renderQuestion();
+  } else {
+    renderResults();
+  }
+});
+```
+
+### Challenge 1 – Timer per Question
+
+<iframe
+  src="/js-from-zero-to-hero/demos/quiz-app/challenge-1/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Quiz App Challenge 1 – Timer per Question"
+/>
+
+Add a 15-second countdown per question using `setInterval`. If the timer expires, automatically mark the question as incorrect and advance to the next one. Clear and restart the interval for each new question.
+
+---
+
+## Summary
+
+- Access form values with `.value` (text, number, select, textarea) and `.checked` (checkbox, radio).
+- Use `e.preventDefault()` on the `submit` event to handle forms without a page reload.
+- The `input` event fires on every keystroke — great for real-time feedback. The `change` event fires when focus leaves.
+- `FormData` converts a whole form to a key-value collection with one line.
+- Manual validation returns an errors object; show messages to the user and never assume input is safe.
+- Regular expressions are powerful for pattern matching (emails, passwords, phone numbers) — test them at [regex101.com](https://regex101.com).
+- Always sanitize user input before displaying it back to the page to prevent XSS.

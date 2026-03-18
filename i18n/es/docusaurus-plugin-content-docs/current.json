@@ -1,0 +1,18 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Beginner": {
+    "message": "Principiante",
+    "description": "The label for category Beginner in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Intermediate": {
+    "message": "Intermedio",
+    "description": "The label for category Intermediate in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Advanced": {
+    "message": "Avanzado",
+    "description": "The label for category Advanced in sidebar tutorialSidebar"
+  }
+}

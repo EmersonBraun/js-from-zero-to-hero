@@ -1,0 +1,38 @@
+{
+  "link.title.Docs": {
+    "message": "Documentación",
+    "description": "The title of the footer links column with title=Docs in the footer"
+  },
+  "link.title.Connect": {
+    "message": "Conexión",
+    "description": "The title of the footer links column with title=Connect in the footer"
+  },
+  "link.item.label.Course": {
+    "message": "Curso",
+    "description": "The label of footer link with label=Course linking to /docs/"
+  },
+  "link.item.label.Website": {
+    "message": "Website",
+    "description": "The label of footer link with label=Website linking to https://emersonbraun.dev/"
+  },
+  "link.item.label.LinkedIn": {
+    "message": "LinkedIn",
+    "description": "The label of footer link with label=LinkedIn linking to https://www.linkedin.com/in/emerson-braun/"
+  },
+  "link.item.label.X / Twitter": {
+    "message": "X / Twitter",
+    "description": "The label of footer link with label=X / Twitter linking to https://x.com/EmersonfBraun"
+  },
+  "link.item.label.Instagram": {
+    "message": "Instagram",
+    "description": "The label of footer link with label=Instagram linking to https://www.instagram.com/emerson.braun.dev/"
+  },
+  "link.item.label.YouTube": {
+    "message": "YouTube",
+    "description": "The label of footer link with label=YouTube linking to https://www.youtube.com/@emerson.braun_dev"
+  },
+  "copyright": {
+    "message": "JS From Zero to Hero. Created by <a href=\"https://www.linkedin.com/in/emerson-braun/\" target=\"_blank\">Emerson Braun</a>",
+    "description": "The footer copyright"
+  }
+}

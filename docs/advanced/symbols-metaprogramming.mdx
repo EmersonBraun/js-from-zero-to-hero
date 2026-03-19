@@ -383,7 +383,7 @@ function testAccount() {
   testCases={[
     { input: "testAccount().balance", expected: "120", description: "Deposit 50, withdraw 30 from 100 = 120" },
     { input: "JSON.stringify(testAccount().publicKeys)", expected: "[]", description: "Symbol keys don't appear in Object.keys()" },
-    { input: "testAccount().hasBalance", expected: "false", description: "Symbol 'balance' not found via string 'balance'" }
+    { input: "testAccount().hasBalance", expected: "true", description: "Getter 'balance' is found via 'in' operator (it lives on the prototype)" }
   ]}
 />
 

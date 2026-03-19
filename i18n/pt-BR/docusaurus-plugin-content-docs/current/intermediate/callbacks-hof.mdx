@@ -227,7 +227,7 @@ transform(3); // square(double(add1(3))) = square(double(4)) = square(8) = 64
   testCases={[
     { input: "JSON.stringify(Object.keys(groupBy([{type:'a'},{type:'b'},{type:'a'}], 'type')))", expected: '["a","b"]', description: "Groups by key — two groups" },
     { input: "groupBy([{type:'x'},{type:'x'}], 'type').x.length", expected: "2", description: "Two items in same group" },
-    { input: "groupBy([], 'type')", expected: "[object Object]", description: "Empty array returns empty object" }
+    { input: "JSON.stringify(groupBy([], 'type'))", expected: "{}", description: "Empty array returns empty object" }
   ]}
 />
 

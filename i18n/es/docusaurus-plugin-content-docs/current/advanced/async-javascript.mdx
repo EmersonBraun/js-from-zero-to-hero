@@ -632,8 +632,8 @@ parallel().then(r => console.log("Parallel ms:", r.ms, "results:", r.results));
 // Sequential takes ~150ms, Parallel takes ~50ms
 `}
   testCases={[
-    { input: `sequential().then(r => JSON.stringify(r.results))`, expected: `'["data-1","data-2","data-3"]'`, description: "Sequential returns all three results" },
-    { input: `parallel().then(r => JSON.stringify(r.results))`, expected: `'["data-1","data-2","data-3"]'`, description: "Parallel also returns all three results" }
+    { input: `sequential().then(r => r.results)`, expected: '["data-1","data-2","data-3"]', description: "Sequential returns all three results" },
+    { input: `parallel().then(r => r.results)`, expected: '["data-1","data-2","data-3"]', description: "Parallel also returns all three results" }
   ]}
 />
 

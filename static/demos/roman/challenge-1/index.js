@@ -16,6 +16,8 @@ var romanMap = [
 
 
 function toRoman(integer) {
+    if (typeof integer === 'string') integer = Number(integer);
+    if (typeof integer === 'number' && integer > 3999) return 'Number too large';
     let romanString = '';
     romanMap.forEach((roman) => {
         while (integer >= roman[1]) {
@@ -27,6 +29,7 @@ function toRoman(integer) {
 }
 
 function fromRoman(romanString) {
+    if (typeof romanString === 'string' && romanString.length > 15) return 'Input too long';
     var integer = 0;
     romanMap.forEach((roman) => {
         while (romanString.substring(0, roman[0].length) === roman[0]) {

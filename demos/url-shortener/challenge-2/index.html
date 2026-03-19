@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener - Challenge 2</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Advanced URL Shortener</h1>
+            <p>Professional URL shortening with analytics, QR codes, and API access</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="shortener">Shortener</button>
+            <button class="tab-btn" data-tab="analytics">Analytics</button>
+            <button class="tab-btn" data-tab="api">API</button>
+            <button class="tab-btn" data-tab="settings">Settings</button>
+        </div>
+
+        <!-- Shortener Tab -->
+        <div class="tab-content active" id="shortener">
+            <div class="shortener-form">
+                <div class="input-group">
+                    <label for="longUrl">Long URL:</label>
+                    <input 
+                        type="url" 
+                        id="longUrl" 
+                        placeholder="https://example.com/very-long-url-that-needs-shortening"
+                        required
+                    >
+                </div>
+
+                <div class="input-group">
+                    <label for="customAlias">Custom Alias (optional):</label>
+                    <div class="alias-input">
+                        <span class="domain">short.ly/</span>
+                        <input 
+                            type="text" 
+                            id="customAlias" 
+                            placeholder="my-custom-link"
+                            pattern="[a-zA-Z0-9-_]+"
+                        >
+                    </div>
+                </div>
+
+                <div class="advanced-options">
+                    <div class="option-group">
+                        <label for="expiryDate">Expiry Date:</label>
+                        <input type="datetime-local" id="expiryDate" min="">
+                    </div>
+                    <div class="option-group">
+                        <label for="maxClicks">Max Clicks:</label>
+                        <input type="number" id="maxClicks" min="1" placeholder="Unlimited">
+                    </div>
+                    <div class="option-group">
+                        <label for="password">Password Protection:</label>
+                        <input type="password" id="password" placeholder="Optional password">
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn primary-btn" id="shortenBtn">Shorten URL</button>
+                    <button class="btn secondary-btn" id="clearBtn">Clear</button>
+                </div>
+            </div>
+
+            <div class="result-section" id="resultSection" style="display: none;">
+                <h3>Your Shortened URL:</h3>
+                <div class="short-url-display">
+                    <input type="text" id="shortUrl" readonly>
+                    <button class="btn copy-btn" id="copyBtn">📋 Copy</button>
+                </div>
+                
+                <div class="qr-section">
+                    <h4>QR Code:</h4>
+                    <div class="qr-container" id="qrContainer"></div>
+                    <button class="btn secondary-btn" id="downloadQRBtn">Download QR</button>
+                </div>
+
+                <div class="url-info">
+                    <div class="info-item">
+                        <span class="label">Original URL:</span>
+                        <span class="value" id="originalUrl"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Created:</span>
+                        <span class="value" id="createdDate"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Expires:</span>
+                        <span class="value" id="expiryInfo">Never</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Clicks:</span>
+                        <span class="value" id="clickCount">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Status:</span>
+                        <span class="value status-active" id="urlStatus">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div class="tab-content" id="analytics">
+            <div class="analytics-header">
+                <h3>URL Analytics</h3>
+                <div class="date-filter">
+                    <label for="dateRange">Date Range:</label>
+                    <select id="dateRange">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="365">Last year</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="chart-container">
+                    <h4>Clicks Over Time</h4>
+                    <canvas id="clicksChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h4>Top URLs</h4>
+                    <canvas id="topUrlsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-table">
+                <h4>Detailed Analytics</h4>
+                <table id="analyticsTable">
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Clicks</th>
+                            <th>Created</th>
+                            <th>Last Click</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analyticsTableBody">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- API Tab -->
+        <div class="tab-content" id="api">
+            <div class="api-section">
+                <h3>API Documentation</h3>
+                <div class="api-endpoint">
+                    <h4>Shorten URL</h4>
+                    <code>POST /api/shorten</code>
+                    <div class="endpoint-details">
+                        <p><strong>Request Body:</strong></p>
+                        <pre>{
+  "url": "https://example.com/long-url",
+  "alias": "optional-custom-alias",
+  "expiry": "2024-12-31T23:59:59",
+  "maxClicks": 100,
+  "password": "optional-password"
+}</pre>
+                        <p><strong>Response:</strong></p>
+                        <pre>{
+  "success": true,
+  "shortUrl": "https://short.ly/abc123",
+  "originalUrl": "https://example.com/long-url",
+  "clicks": 0,
+  "created": "2024-01-01T00:00:00Z"
+}</pre>
+                    </div>
+                </div>
+
+                <div class="api-endpoint">
+                    <h4>Get Analytics</h4>
+                    <code>GET /api/analytics/{shortCode}</code>
+                    <div class="endpoint-details">
+                        <p><strong>Response:</strong></p>
+                        <pre>{
+  "shortCode": "abc123",
+  "clicks": 150,
+  "referrers": ["google.com", "facebook.com"],
+  "countries": ["US", "BR", "CA"],
+  "devices": ["desktop", "mobile", "tablet"]
+}</pre>
+                    </div>
+                </div>
+
+                <div class="api-test">
+                    <h4>Test API</h4>
+                    <div class="test-form">
+                        <input type="text" id="apiUrl" placeholder="Enter URL to test">
+                        <button class="btn primary-btn" id="testApiBtn">Test API</button>
+                    </div>
+                    <div class="api-response" id="apiResponse"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="tab-content" id="settings">
+            <div class="settings-section">
+                <h3>Settings</h3>
+                
+                <div class="setting-group">
+                    <h4>Default Settings</h4>
+                    <div class="setting-item">
+                        <label for="defaultDomain">Default Domain:</label>
+                        <input type="text" id="defaultDomain" value="short.ly">
+                    </div>
+                    <div class="setting-item">
+                        <label for="defaultExpiry">Default Expiry (days):</label>
+                        <input type="number" id="defaultExpiry" value="30" min="1">
+                    </div>
+                    <div class="setting-item">
+                        <label for="autoGenerateAlias">Auto-generate aliases:</label>
+                        <input type="checkbox" id="autoGenerateAlias" checked>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h4>Analytics</h4>
+                    <div class="setting-item">
+                        <label for="trackClicks">Track clicks:</label>
+                        <input type="checkbox" id="trackClicks" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="trackReferrers">Track referrers:</label>
+                        <input type="checkbox" id="trackReferrers" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="trackCountries">Track countries:</label>
+                        <input type="checkbox" id="trackCountries">
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h4>Data Management</h4>
+                    <button class="btn secondary-btn" id="exportDataBtn">Export All Data</button>
+                    <button class="btn secondary-btn" id="importDataBtn">Import Data</button>
+                    <button class="btn danger-btn" id="clearAllDataBtn">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="index.js"></script>
+</body>
+</html> 

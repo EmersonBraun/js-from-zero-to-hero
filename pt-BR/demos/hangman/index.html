@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Hangman Game</h1>
+        
+        <div class="game-info">
+            <div class="lives">Lives: <span id="lives">6</span></div>
+            <div class="score">Score: <span id="score">0</span></div>
+        </div>
+        
+        <div class="hangman-drawing">
+            <canvas id="hangmanCanvas" width="300" height="300"></canvas>
+        </div>
+        
+        <div class="word-display">
+            <div id="wordDisplay" class="word"></div>
+        </div>
+        
+        <div class="keyboard">
+            <div id="keyboard" class="keyboard-grid"></div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="newGameBtn" class="btn">New Game</button>
+                <button id="hintBtn" class="btn">Hint</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="challenge-1/index.html" class="btn">Challenge 1</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

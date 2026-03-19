@@ -1,0 +1,36 @@
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #fafafa;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.card:hover {
+    transform: translateY(-5px);
+    cursor: pointer;
+}
+
+.card {
+    border-radius: 5px;
+    box-shadow: 7px 7px 13px 0px rgba(50, 50, 50, 0.22);
+    padding: 30px;
+    margin: 20px;
+    width: 200px;
+    transition: all 0.3s ease-out;
+}
+
+.selected {
+    border-left: 3px solid #4895ff;
+}
+
+.image {
+    float: right;
+    max-width: 64px;
+    max-height: 64px;
+}
+.middle {
+    padding: 30px;
+}

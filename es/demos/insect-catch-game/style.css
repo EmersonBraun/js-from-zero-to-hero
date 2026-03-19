@@ -1,0 +1,281 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #0f2027 0%, #2c5364 50%, #203a43 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    padding: 2rem;
+}
+
+.game-intro {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 3rem;
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.game-intro h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.game-intro p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.insect-selection {
+    margin: 2rem 0;
+}
+
+.insect-selection h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.insect-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.insect-option {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.insect-option:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-5px);
+    border-color: #2e647a;
+}
+
+.insect-option.selected {
+    background: rgba(46, 100, 122, 0.3);
+    border-color: #2e647a;
+    transform: scale(1.05);
+}
+
+.insect-option img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 0.5rem;
+    filter: brightness(0) invert(1);
+}
+
+.insect-option span {
+    display: block;
+    font-weight: 500;
+}
+
+.btn {
+    background: #2e647a;
+    color: #fff;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn:hover {
+    background: #1e4a5a;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.game-screen {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.score-board {
+    display: flex;
+    gap: 2rem;
+}
+
+.score-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.score-item .label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 0.25rem;
+}
+
+.score-item .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2e647a;
+}
+
+.restart-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.game-area {
+    position: relative;
+    height: 500px;
+    background: linear-gradient(135deg, #1a4a5a 0%, #2c5364 100%);
+    overflow: hidden;
+}
+
+.message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+}
+
+.message h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.message p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.insect {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    z-index: 5;
+}
+
+.insect:hover {
+    transform: scale(1.1);
+}
+
+.insect img {
+    width: 100%;
+    height: 100%;
+    filter: brightness(0) invert(1);
+}
+
+.insect.caught {
+    animation: catch 0.3s ease-out;
+}
+
+@keyframes catch {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.game-over {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 3rem;
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.game-over h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #ff6b6b;
+}
+
+.final-score {
+    margin: 2rem 0;
+}
+
+.final-score p {
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+}
+
+.final-score span {
+    font-weight: bold;
+    color: #2e647a;
+}
+
+.play-again-btn {
+    background: #ff6b6b;
+}
+
+.play-again-btn:hover {
+    background: #ff5252;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .game-intro h1 {
+        font-size: 2rem;
+    }
+    
+    .insect-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .game-area {
+        height: 400px;
+    }
+    
+    .score-board {
+        gap: 1rem;
+    }
+    
+    .score-item .value {
+        font-size: 1.2rem;
+    }
+} 

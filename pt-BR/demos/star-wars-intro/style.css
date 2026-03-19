@@ -1,0 +1,288 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #0f2027 0%, #2c5364 50%, #203a43 100%);
+    min-height: 100vh;
+    color: #fff;
+    padding: 1rem;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.control-group label {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.input {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.input::placeholder {
+    color: rgba(255,255,255,0.7);
+}
+
+.input:focus {
+    outline: none;
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 0 20px rgba(46, 100, 122, 0.5);
+}
+
+.slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.3);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #FFE81F;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    background: #FFD700;
+    transform: scale(1.2);
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #FFE81F;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s;
+}
+
+.slider::-moz-range-thumb:hover {
+    background: #FFD700;
+    transform: scale(1.2);
+}
+
+#speedValue {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #FFE81F;
+}
+
+.row {
+    margin-bottom: 1.5rem;
+}
+
+.btn-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background: #2e647a;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background: #3a7a94;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.star-wars-container {
+    position: relative;
+    height: 500px;
+    margin: 2rem 0;
+    perspective: 400px;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.95) 100%);
+}
+
+.star-wars-intro {
+    position: relative;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+
+.crawl-text {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1.8;
+    color: #FFE81F;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    white-space: pre-line;
+    animation: none;
+}
+
+.crawl-text.playing {
+    animation: crawl 60s linear infinite;
+}
+
+@keyframes crawl {
+    0% {
+        transform: translateX(-50%) rotateX(20deg) translateY(100%);
+    }
+    100% {
+        transform: translateX(-50%) rotateX(20deg) translateY(-200%);
+    }
+}
+
+.crawl-text.paused {
+    animation-play-state: paused;
+}
+
+/* Star field background */
+.star-wars-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 160px 30px, #ddd, transparent);
+    background-repeat: repeat;
+    background-size: 200px 100px;
+    animation: stars 20s linear infinite;
+    opacity: 0.3;
+}
+
+@keyframes stars {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-100px);
+    }
+}
+
+.navigation {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0.5rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .controls {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .crawl-text {
+        font-size: 1.2rem;
+        width: 90%;
+    }
+    
+    .star-wars-container {
+        height: 400px;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .crawl-text {
+        font-size: 1rem;
+        width: 95%;
+    }
+    
+    .star-wars-container {
+        height: 350px;
+    }
+} 

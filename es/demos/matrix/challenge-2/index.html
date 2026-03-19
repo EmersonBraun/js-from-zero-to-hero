@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+    <form class="container" name="form">
+        <div class="box">
+            <div class="label">Choose a color</div>
+            <input 
+                type="color" 
+                id="fcolor"
+                name="color" 
+                value="#4CAF50"
+                required
+            />
+        </div>
+        <div class="box">
+            <div class="label">Write the text</div>
+            <input 
+                type="text" 
+                id="ftext"
+                name="text" 
+                value="0123456789"
+                required
+            />
+        </div>
+        <div class="box">
+            <div class="label">Choose a interval (in seconds)</div>
+            <input 
+            type="number" 
+            id="finterval"
+            name="interval" 
+            value="30"
+            min="10"
+            max="100"
+            required
+            />
+        </div>
+        <div class="box">
+            <button type="button" onclick="validateForm()">Enter on Matrix</button>
+        </div>
+    </form>
+    <canvas id="canvas"></canvas>
+    <script src="index.js"></script>
+</body>
+
+</html>

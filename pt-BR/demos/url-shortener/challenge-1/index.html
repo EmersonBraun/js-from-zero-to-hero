@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener - Challenge 1</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 URL Shortener</h1>
+            <p>Create short, memorable links with custom aliases</p>
+        </div>
+
+        <div class="shortener-form">
+            <div class="input-group">
+                <label for="longUrl">Long URL:</label>
+                <input 
+                    type="url" 
+                    id="longUrl" 
+                    placeholder="https://example.com/very-long-url-that-needs-shortening"
+                    required
+                >
+            </div>
+
+            <div class="input-group">
+                <label for="customAlias">Custom Alias (optional):</label>
+                <div class="alias-input">
+                    <span class="domain">short.ly/</span>
+                    <input 
+                        type="text" 
+                        id="customAlias" 
+                        placeholder="my-custom-link"
+                        pattern="[a-zA-Z0-9-_]+"
+                        title="Only letters, numbers, hyphens and underscores allowed"
+                    >
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="expiryDate">Expiry Date (optional):</label>
+                <input 
+                    type="datetime-local" 
+                    id="expiryDate"
+                    min=""
+                >
+            </div>
+
+            <div class="btn-group">
+                <button class="btn primary-btn" id="shortenBtn">Shorten URL</button>
+                <button class="btn secondary-btn" id="clearBtn">Clear</button>
+            </div>
+        </div>
+
+        <div class="result-section" id="resultSection" style="display: none;">
+            <h3>Your Shortened URL:</h3>
+            <div class="short-url-display">
+                <input type="text" id="shortUrl" readonly>
+                <button class="btn copy-btn" id="copyBtn">📋 Copy</button>
+            </div>
+            <div class="url-info">
+                <div class="info-item">
+                    <span class="label">Original URL:</span>
+                    <span class="value" id="originalUrl"></span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Created:</span>
+                    <span class="value" id="createdDate"></span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Expires:</span>
+                    <span class="value" id="expiryInfo">Never</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Clicks:</span>
+                    <span class="value" id="clickCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h3>Recent URLs</h3>
+            <div class="history-controls">
+                <button class="btn secondary-btn" id="clearHistoryBtn">Clear History</button>
+                <button class="btn secondary-btn" id="exportBtn">Export</button>
+            </div>
+            <div class="url-list" id="urlList">
+                <!-- URLs will be populated here -->
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h3>Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUrls">0</div>
+                    <div class="stat-label">Total URLs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalClicks">0</div>
+                    <div class="stat-label">Total Clicks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeUrls">0</div>
+                    <div class="stat-label">Active URLs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="expiredUrls">0</div>
+                    <div class="stat-label">Expired URLs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html> 

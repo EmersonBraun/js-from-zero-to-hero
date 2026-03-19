@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jokempo</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,400;0,600;1,200;1,400;1,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="row">
+        <h1>Choose your move</h1>
+    </div>
+    <div class="row">
+        <div id="rock-player" class="card" onclick="move('rock')">
+            <img src="./images/png/rock.png" style="width: 100px;">
+        </div>
+        <div id="paper-player" class="card" onclick="move('paper')">
+            <img src="./images/png/paper.png" style="width: 100px;">
+        </div>
+        <div id="scissor-player" class="card" onclick="move('scissor')">
+            <img src="./images/png/scissor.png" style="width: 100px;">
+        </div>
+    </div>
+    
+    <div class="row">
+        <h1>Move computer</h1>
+    </div>
+    <div class="row">
+        <div id="rock-pc" class="card">
+            <img src="./images/png/rock.png" style="width: 100px;">
+        </div>
+        <div id="paper-pc" class="card">
+            <img src="./images/png/paper.png" style="width: 100px;">
+        </div>
+        <div id="scissor-pc" class="card">
+            <img src="./images/png/scissor.png" style="width: 100px;">
+        </div>
+    </div>
+
+    <div class="row middle">
+        <h1 id="winner">-</h1>
+    </div>
+    <div class="row">
+        <table>
+            <tr>
+              <th>Type</th>
+              <th>Quantity</th>
+            </tr>
+            <tr>
+              <td>Wons</td>
+              <td id="wons">0</td>
+            </tr>
+            <tr>
+              <td>Draws</td>
+              <td id="draws">0</td>
+            </tr>
+            <tr>
+              <td>Losses</td>
+              <td id="losses">0</td>
+            </tr>
+        </table>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>

@@ -1,0 +1,555 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #0f2027 0%, #2c5364 50%, #203a43 100%);
+    min-height: 100vh;
+    color: #fff;
+    padding: 1rem;
+    transition: all 0.5s ease-in-out;
+}
+
+/* Theme variations */
+body.theme-light {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #333;
+}
+
+body.theme-sunset {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+    color: #333;
+}
+
+body.theme-ocean {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+}
+
+body.theme-forest {
+    background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+    color: #fff;
+}
+
+body.theme-neon {
+    background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+    color: #fff;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.clock-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.clock {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    border: 20px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(0,0,0,0.3);
+    transition: all 0.5s ease-in-out;
+}
+
+/* Theme-specific clock styles */
+.theme-light .clock {
+    border-color: rgba(0,0,0,0.2);
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 30px rgba(0,0,0,0.1);
+}
+
+.theme-sunset .clock {
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 0 30px rgba(255,154,158,0.3);
+}
+
+.theme-ocean .clock {
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 30px rgba(102,126,234,0.3);
+}
+
+.theme-forest .clock {
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 30px rgba(113,178,128,0.3);
+}
+
+.theme-neon .clock {
+    border-color: #00ff88;
+    background: rgba(0,0,0,0.8);
+    box-shadow: 0 0 30px rgba(0,255,136,0.5);
+}
+
+.needle {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: bottom;
+    border-radius: 4px;
+    transition: all 0.1s ease-in-out;
+}
+
+.hour {
+    width: 4px;
+    height: 25%;
+    background: rgba(255,255,255,0.8);
+    transform: translateX(-50%) rotate(0deg);
+}
+
+.minute {
+    width: 3px;
+    height: 35%;
+    background: rgba(255,255,255,0.8);
+    transform: translateX(-50%) rotate(0deg);
+}
+
+.second {
+    width: 2px;
+    height: 40%;
+    background: #ff6b6b;
+    transform: translateX(-50%) rotate(0deg);
+}
+
+/* Theme-specific needle colors */
+.theme-light .hour,
+.theme-light .minute {
+    background: rgba(0,0,0,0.8);
+}
+
+.theme-light .second {
+    background: #ff6b6b;
+}
+
+.theme-sunset .hour,
+.theme-sunset .minute {
+    background: rgba(255,255,255,0.9);
+}
+
+.theme-sunset .second {
+    background: #ff4757;
+}
+
+.theme-ocean .hour,
+.theme-ocean .minute {
+    background: rgba(255,255,255,0.9);
+}
+
+.theme-ocean .second {
+    background: #00d2ff;
+}
+
+.theme-forest .hour,
+.theme-forest .minute {
+    background: rgba(255,255,255,0.9);
+}
+
+.theme-forest .second {
+    background: #2ed573;
+}
+
+.theme-neon .hour,
+.theme-neon .minute {
+    background: #00ff88;
+    box-shadow: 0 0 10px rgba(0,255,136,0.5);
+}
+
+.theme-neon .second {
+    background: #ff0080;
+    box-shadow: 0 0 10px rgba(255,0,128,0.5);
+}
+
+.center-point {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    background: #ff6b6b;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(255,255,255,0.8);
+}
+
+.theme-light .center-point {
+    background: #ff6b6b;
+    border-color: rgba(0,0,0,0.8);
+}
+
+.theme-neon .center-point {
+    background: #ff0080;
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(255,0,128,0.8);
+}
+
+.time {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: rgba(255,255,255,0.9);
+}
+
+.theme-light .time {
+    color: rgba(0,0,0,0.8);
+}
+
+.date {
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+}
+
+.theme-light .date {
+    color: rgba(0,0,0,0.6);
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.theme-light .controls {
+    background: rgba(0,0,0,0.1);
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.control-group label {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.input {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+}
+
+.theme-light .input {
+    background: rgba(0,0,0,0.1);
+    color: #333;
+}
+
+.input:focus {
+    outline: none;
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+.theme-light .input:focus {
+    background: rgba(0,0,0,0.2);
+}
+
+.digital-clock {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(10px);
+    display: none;
+}
+
+.digital-clock.show {
+    display: block;
+}
+
+.theme-light .digital-clock {
+    background: rgba(0,0,0,0.1);
+}
+
+.digital-time {
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #4CAF50;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.digital-date {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: rgba(255,255,255,0.8);
+}
+
+.theme-light .digital-date {
+    color: rgba(0,0,0,0.8);
+}
+
+.digital-timezone {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.6);
+}
+
+.theme-light .digital-timezone {
+    color: rgba(0,0,0,0.6);
+}
+
+.clock-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.info-item {
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.theme-light .info-item {
+    background: rgba(0,0,0,0.1);
+}
+
+.info-item .label {
+    font-weight: bold;
+    color: rgba(255,255,255,0.8);
+}
+
+.theme-light .info-item .label {
+    color: rgba(0,0,0,0.8);
+}
+
+.info-item .value {
+    color: #4CAF50;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+.row {
+    margin-bottom: 1.5rem;
+}
+
+.btn-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background: #2e647a;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background: #3a7a94;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.navigation {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    border: 2px solid rgba(255,255,255,0.2);
+}
+
+.theme-light .modal-content {
+    background: rgba(255,255,255,0.9);
+    border-color: rgba(0,0,0,0.2);
+}
+
+.modal-content h3 {
+    margin-bottom: 1.5rem;
+    color: #4CAF50;
+}
+
+.alarm-form {
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.day-selector {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.day-selector label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+/* Clock numbers (optional enhancement) */
+.clock::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 20px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 2px;
+}
+
+.theme-light .clock::before {
+    background: rgba(0,0,0,0.8);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0.5rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .clock {
+        width: 250px;
+        height: 250px;
+        border-width: 15px;
+    }
+    
+    .digital-time {
+        font-size: 3rem;
+    }
+    
+    .controls {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .clock-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .clock {
+        width: 200px;
+        height: 200px;
+        border-width: 12px;
+    }
+    
+    .time {
+        font-size: 1.2rem;
+    }
+    
+    .date {
+        font-size: 0.8rem;
+    }
+    
+    .digital-time {
+        font-size: 2.5rem;
+    }
+    
+    .digital-date {
+        font-size: 1.2rem;
+    }
+} 

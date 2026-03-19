@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Wars Intro</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Star Wars Intro</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="introText">Intro Text:</label>
+                <textarea id="introText" class="input" rows="8" placeholder="Enter your Star Wars intro text here...">A long time ago in a galaxy far, far away....
+
+STAR WARS
+Episode IV
+A NEW HOPE
+
+It is a period of civil war. Rebel spaceships, striking from a hidden base, have won their first victory against the evil Galactic Empire.
+
+During the battle, Rebel spies managed to steal secret plans to the Empire's ultimate weapon, the DEATH STAR, an armored space station with enough power to destroy an entire planet.
+
+Pursued by the Empire's sinister agents, Princess Leia races home aboard her starship, custodian of the stolen plans that can save her people and restore freedom to the galaxy....</textarea>
+            </div>
+            
+            <div class="control-group">
+                <label for="speedControl">Speed:</label>
+                <input type="range" id="speedControl" min="1" max="10" value="5" class="slider">
+                <span id="speedValue">5</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="colorSelect">Text Color:</label>
+                <select id="colorSelect" class="input">
+                    <option value="#FFE81F" selected>Classic Yellow</option>
+                    <option value="#FF6B6B">Red</option>
+                    <option value="#4ECDC4">Cyan</option>
+                    <option value="#45B7D1">Blue</option>
+                    <option value="#96CEB4">Green</option>
+                    <option value="#FFEAA7">Light Yellow</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="playBtn" class="btn">Play Intro</button>
+                <button id="pauseBtn" class="btn">Pause</button>
+                <button id="resetBtn" class="btn">Reset</button>
+            </div>
+        </div>
+        
+        <div class="star-wars-container">
+            <div id="starWarsIntro" class="star-wars-intro">
+                <div id="crawlText" class="crawl-text"></div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="challenge-1/index.html" class="btn">Challenge 1</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

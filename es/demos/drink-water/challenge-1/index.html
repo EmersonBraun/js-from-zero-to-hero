@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drink Water - Challenge 1</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Drink Water</h1>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalGlasses">0</div>
+                <div class="stat-label">Glasses Today</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalWater">0</div>
+                <div class="stat-label">ml Consumed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="goalProgress">0%</div>
+                <div class="stat-label">Goal Progress</div>
+            </div>
+        </div>
+        
+        <div class="water-container">
+            <div class="water-cup">
+                <div class="cup-header">
+                    <h2>Drink Water</h2>
+                    <div class="cup-amount" id="cupAmount">250ml</div>
+                </div>
+                <div class="cup" id="cup">
+                    <div class="water" id="water"></div>
+                    <div class="water-level" id="waterLevel">0%</div>
+                </div>
+                <div class="cup-actions">
+                    <button id="drinkBtn" class="btn drink-btn">Drink Water</button>
+                    <button id="refillBtn" class="btn refill-btn">Refill Cup</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glasses-container">
+            <h3>Today's Glasses</h3>
+            <div class="glasses" id="glasses">
+                <!-- Glasses will be added here dynamically -->
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="resetBtn" class="btn">Reset Day</button>
+                <button id="historyBtn" class="btn">View History</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="../index.html" class="btn">Back to Class</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <div class="notification-content">
+            <span id="notificationText"></span>
+            <button id="notificationClose" class="notification-close">&times;</button>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

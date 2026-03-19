@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Drawing App - Challenge 2</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Drawing App</h1>
+        <p class="subtitle">Professional Drawing Tools with Layers and Effects</p>
+        
+        <div class="main-layout">
+            <div class="toolbar-panel">
+                <div class="tool-section">
+                    <h3>Drawing Tools</h3>
+                    <div class="tool-grid">
+                        <button class="tool-btn active" data-tool="brush" title="Brush Tool (B)">
+                            <span class="tool-icon">🖌️</span>
+                            <span class="tool-name">Brush</span>
+                        </button>
+                        <button class="tool-btn" data-tool="pencil" title="Pencil Tool (P)">
+                            <span class="tool-icon">✏️</span>
+                            <span class="tool-name">Pencil</span>
+                        </button>
+                        <button class="tool-btn" data-tool="spray" title="Spray Tool (S)">
+                            <span class="tool-icon">💨</span>
+                            <span class="tool-name">Spray</span>
+                        </button>
+                        <button class="tool-btn" data-tool="eraser" title="Eraser Tool (E)">
+                            <span class="tool-icon">🧽</span>
+                            <span class="tool-name">Eraser</span>
+                        </button>
+                        <button class="tool-btn" data-tool="fill" title="Fill Tool (F)">
+                            <span class="tool-icon">🪣</span>
+                            <span class="tool-name">Fill</span>
+                        </button>
+                        <button class="tool-btn" data-tool="line" title="Line Tool (L)">
+                            <span class="tool-icon">📏</span>
+                            <span class="tool-name">Line</span>
+                        </button>
+                        <button class="tool-btn" data-tool="rectangle" title="Rectangle Tool (R)">
+                            <span class="tool-icon">⬜</span>
+                            <span class="tool-name">Rectangle</span>
+                        </button>
+                        <button class="tool-btn" data-tool="circle" title="Circle Tool (C)">
+                            <span class="tool-icon">⭕</span>
+                            <span class="tool-name">Circle</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3>Brush Settings</h3>
+                    <div class="setting-group">
+                        <label for="brushSize">Size:</label>
+                        <input type="range" id="brushSize" class="slider" min="1" max="100" value="5">
+                        <span id="brushSizeValue">5px</span>
+                    </div>
+                    <div class="setting-group">
+                        <label for="brushOpacity">Opacity:</label>
+                        <input type="range" id="brushOpacity" class="slider" min="10" max="100" value="100">
+                        <span id="brushOpacityValue">100%</span>
+                    </div>
+                    <div class="setting-group">
+                        <label for="brushType">Brush Type:</label>
+                        <select id="brushType" class="select">
+                            <option value="round">Round</option>
+                            <option value="square">Square</option>
+                            <option value="star">Star</option>
+                            <option value="spray">Spray</option>
+                            <option value="texture">Texture</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3>Colors</h3>
+                    <div class="color-palette">
+                        <input type="color" id="primaryColor" class="color-picker" value="#000000">
+                        <input type="color" id="secondaryColor" class="color-picker" value="#ffffff">
+                        <div class="color-swap">
+                            <button id="swapColors" class="btn-small">🔄</button>
+                        </div>
+                    </div>
+                    <div class="color-presets">
+                        <div class="preset-colors">
+                            <div class="color-preset" style="background: #ff0000" data-color="#ff0000"></div>
+                            <div class="color-preset" style="background: #00ff00" data-color="#00ff00"></div>
+                            <div class="color-preset" style="background: #0000ff" data-color="#0000ff"></div>
+                            <div class="color-preset" style="background: #ffff00" data-color="#ffff00"></div>
+                            <div class="color-preset" style="background: #ff00ff" data-color="#ff00ff"></div>
+                            <div class="color-preset" style="background: #00ffff" data-color="#00ffff"></div>
+                            <div class="color-preset" style="background: #ffa500" data-color="#ffa500"></div>
+                            <div class="color-preset" style="background: #800080" data-color="#800080"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3>Layers</h3>
+                    <div class="layers-panel">
+                        <div class="layer-controls">
+                            <button id="addLayer" class="btn-small">➕</button>
+                            <button id="deleteLayer" class="btn-small">🗑️</button>
+                            <button id="duplicateLayer" class="btn-small">📋</button>
+                        </div>
+                        <div id="layersList" class="layers-list">
+                            <div class="layer-item active" data-layer="0">
+                                <span class="layer-name">Background</span>
+                                <span class="layer-visibility">👁️</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="canvas-area">
+                <div class="canvas-container">
+                    <canvas id="canvas" class="canvas"></canvas>
+                    <div class="canvas-overlay">
+                        <div class="coordinates" id="coordinates">0, 0</div>
+                    </div>
+                </div>
+                
+                <div class="canvas-controls">
+                    <button id="undoBtn" class="btn">↶ Undo</button>
+                    <button id="redoBtn" class="btn">↷ Redo</button>
+                    <button id="clearBtn" class="btn clear">🗑️ Clear</button>
+                    <button id="saveBtn" class="btn save">💾 Save</button>
+                    <button id="exportBtn" class="btn">📤 Export</button>
+                </div>
+            </div>
+            
+            <div class="properties-panel">
+                <div class="tool-section">
+                    <h3>Properties</h3>
+                    <div class="property-group">
+                        <label>Canvas Size:</label>
+                        <select id="canvasSize" class="select">
+                            <option value="800x600">800x600</option>
+                            <option value="1024x768">1024x768</option>
+                            <option value="1920x1080">1920x1080</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    <div class="property-group">
+                        <label>Background:</label>
+                        <input type="color" id="bgColor" class="color-picker" value="#ffffff">
+                    </div>
+                    <div class="property-group">
+                        <label>Grid:</label>
+                        <input type="checkbox" id="showGrid" class="checkbox">
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3>Effects</h3>
+                    <div class="effects-list">
+                        <button class="effect-btn" data-effect="blur">Blur</button>
+                        <button class="effect-btn" data-effect="sharpen">Sharpen</button>
+                        <button class="effect-btn" data-effect="invert">Invert</button>
+                        <button class="effect-btn" data-effect="grayscale">Grayscale</button>
+                        <button class="effect-btn" data-effect="sepia">Sepia</button>
+                        <button class="effect-btn" data-effect="brightness">Brightness</button>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3>Statistics</h3>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="strokesCount">0</span>
+                            <span class="stat-label">Strokes</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="timeElapsed">0:00</span>
+                            <span class="stat-label">Time</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="layersCount">1</span>
+                            <span class="stat-label">Layers</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="fileSize">0 KB</span>
+                            <span class="stat-label">Size</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-panel">
+            <div class="history-panel">
+                <h3>History</h3>
+                <div id="historyList" class="history-list">
+                    <div class="history-item">Canvas created</div>
+                </div>
+            </div>
+            
+            <div class="gallery-panel">
+                <h3>Gallery</h3>
+                <div id="galleryGrid" class="gallery-grid">
+                    <!-- Saved drawings will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

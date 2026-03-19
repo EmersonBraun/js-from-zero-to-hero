@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Github Profiles</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Github Profiles</h1>
+        
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" id="usernameInput" class="search-input" placeholder="Enter GitHub username..." value="EmersonBraun">
+                <button id="searchBtn" class="search-btn">Search</button>
+            </div>
+            <div class="search-suggestions" id="searchSuggestions">
+                <!-- Search suggestions will appear here -->
+            </div>
+        </div>
+        
+        <div class="profile-container" id="profileContainer">
+            <!-- Profile will be displayed here -->
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="themeSelect">Theme:</label>
+                <select id="themeSelect" class="input">
+                    <option value="dark" selected>Dark</option>
+                    <option value="light">Light</option>
+                    <option value="github">GitHub</option>
+                    <option value="neon">Neon</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="displayMode">Display Mode:</label>
+                <select id="displayMode" class="input">
+                    <option value="card" selected>Card</option>
+                    <option value="compact">Compact</option>
+                    <option value="detailed">Detailed</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="sortBy">Sort Repos By:</label>
+                <select id="sortBy" class="input">
+                    <option value="stars" selected>Stars</option>
+                    <option value="forks">Forks</option>
+                    <option value="updated">Updated</option>
+                    <option value="name">Name</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="repoLimit">Repo Limit:</label>
+                <input type="range" id="repoLimit" min="5" max="50" value="10" class="slider">
+                <span id="repoLimitValue">10</span>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="refreshBtn" class="btn">Refresh</button>
+                <button id="favoriteBtn" class="btn">Add to Favorites</button>
+                <button id="shareBtn" class="btn">Share Profile</button>
+                <button id="exportBtn" class="btn">Export Data</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="compareBtn" class="btn">Compare Profiles</button>
+                <button id="statsBtn" class="btn">View Statistics</button>
+                <button id="timelineBtn" class="btn">Activity Timeline</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="challenge-1/index.html" class="btn">Challenge 1</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+        
+        <!-- Favorites Section -->
+        <div class="favorites-section">
+            <h3>Favorite Profiles</h3>
+            <div class="favorites-grid" id="favoritesGrid">
+                <!-- Favorite profiles will be displayed here -->
+            </div>
+        </div>
+        
+        <!-- Recent Searches -->
+        <div class="recent-searches">
+            <h3>Recent Searches</h3>
+            <div class="recent-list" id="recentList">
+                <!-- Recent searches will be displayed here -->
+            </div>
+        </div>
+        
+        <!-- Statistics Panel -->
+        <div class="statistics-panel" id="statisticsPanel">
+            <h3>Profile Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Total Repositories:</span>
+                    <span class="stat-value" id="totalRepos">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Stars:</span>
+                    <span class="stat-value" id="totalStars">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Forks:</span>
+                    <span class="stat-value" id="totalForks">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Account Age:</span>
+                    <span class="stat-value" id="accountAge">0 days</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>Loading profile...</p>
+        </div>
+        
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage">
+            <!-- Error messages will be displayed here -->
+        </div>
+    </div>
+    
+    <!-- Profile Comparison Modal -->
+    <div id="compareModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeCompareModal">&times;</span>
+            <h3>Compare Profiles</h3>
+            <div class="compare-container" id="compareContainer">
+                <!-- Comparison content will be displayed here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Modal -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeStatsModal">&times;</span>
+            <h3>Detailed Statistics</h3>
+            <div class="stats-container" id="statsContainer">
+                <!-- Detailed statistics will be displayed here -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

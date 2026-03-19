@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Text Effect - Challenge 2</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Auto Text Effect</h1>
+        <p class="subtitle">Advanced Text Animation with Multiple Effects</p>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="textInput">Text:</label>
+                <input type="text" id="textInput" class="input" placeholder="Enter your text here..." value="Welcome to the Advanced Auto Text Effect! This challenge includes multiple animation types, custom effects, and enhanced controls.">
+            </div>
+            
+            <div class="control-group">
+                <label for="speedSlider">Speed:</label>
+                <input type="range" id="speedSlider" class="slider" min="50" max="500" value="150">
+                <span id="speedValue">150ms</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="effectSelect">Effect:</label>
+                <select id="effectSelect" class="select">
+                    <option value="typewriter">Typewriter</option>
+                    <option value="glitch">Glitch</option>
+                    <option value="matrix">Matrix</option>
+                    <option value="bounce">Bounce</option>
+                    <option value="fade">Fade</option>
+                    <option value="rainbow">Rainbow</option>
+                    <option value="wave">Wave</option>
+                    <option value="random">Random</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="colorPicker">Color:</label>
+                <input type="color" id="colorPicker" class="color-picker" value="#2e647a">
+            </div>
+            
+            <div class="control-group">
+                <label for="fontSizeSlider">Font Size:</label>
+                <input type="range" id="fontSizeSlider" class="slider" min="16" max="72" value="32">
+                <span id="fontSizeValue">32px</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="fontFamilySelect">Font:</label>
+                <select id="fontFamilySelect" class="select">
+                    <option value="Roboto">Roboto</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button id="startBtn" class="btn">Start Animation</button>
+            <button id="pauseBtn" class="btn" disabled>Pause</button>
+            <button id="resetBtn" class="btn">Reset</button>
+            <button id="randomBtn" class="btn">Random Effect</button>
+            <button id="saveBtn" class="btn">Save Settings</button>
+            <button id="loadBtn" class="btn">Load Settings</button>
+        </div>
+        
+        <div class="display-container">
+            <div id="textDisplay" class="text-display"></div>
+            <div id="cursor" class="cursor"></div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="charCount">0</span>
+                <span class="stat-label">Characters</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="wordCount">0</span>
+                <span class="stat-label">Words</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="animationTime">0s</span>
+                <span class="stat-label">Duration</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="effectCount">0</span>
+                <span class="stat-label">Effects Used</span>
+            </div>
+        </div>
+        
+        <div class="effects-panel">
+            <h3>Custom Effects</h3>
+            <div class="effects-grid">
+                <button class="effect-btn" data-effect="reverse">Reverse</button>
+                <button class="effect-btn" data-effect="mirror">Mirror</button>
+                <button class="effect-btn" data-effect="scramble">Scramble</button>
+                <button class="effect-btn" data-effect="bubble">Bubble</button>
+                <button class="effect-btn" data-effect="fire">Fire</button>
+                <button class="effect-btn" data-effect="neon">Neon</button>
+                <button class="effect-btn" data-effect="matrix">Matrix</button>
+                <button class="effect-btn" data-effect="glitch">Glitch</button>
+            </div>
+        </div>
+        
+        <div class="presets">
+            <h3>Animation Presets</h3>
+            <div class="preset-grid">
+                <button class="preset-btn" data-preset="classic">Classic Typewriter</button>
+                <button class="preset-btn" data-preset="cyberpunk">Cyberpunk</button>
+                <button class="preset-btn" data-preset="elegant">Elegant</button>
+                <button class="preset-btn" data-preset="funky">Funky</button>
+                <button class="preset-btn" data-preset="minimal">Minimal</button>
+                <button class="preset-btn" data-preset="retro">Retro</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

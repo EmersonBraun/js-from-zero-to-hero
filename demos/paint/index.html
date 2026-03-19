@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paint App</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Paint App</h1>
+        
+        <div class="toolbar">
+            <div class="tool-group">
+                <button id="brushTool" class="tool-btn active" title="Brush">🖌️</button>
+                <button id="eraserTool" class="tool-btn" title="Eraser">🧽</button>
+                <button id="lineTool" class="tool-btn" title="Line">📏</button>
+                <button id="rectTool" class="tool-btn" title="Rectangle">⬜</button>
+                <button id="circleTool" class="tool-btn" title="Circle">⭕</button>
+            </div>
+            
+            <div class="tool-group">
+                <label for="brushSize">Size:</label>
+                <input type="range" id="brushSize" min="1" max="50" value="5" class="slider">
+                <span id="sizeValue">5</span>
+            </div>
+            
+            <div class="tool-group">
+                <label for="colorPicker">Color:</label>
+                <input type="color" id="colorPicker" value="#000000" class="color-picker">
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="canvas" width="800" height="600"></canvas>
+        </div>
+        
+        <div class="row">
+            <div class="btn-group">
+                <button id="clearBtn" class="btn">Clear Canvas</button>
+                <button id="saveBtn" class="btn">Save Image</button>
+                <button id="undoBtn" class="btn">Undo</button>
+                <button id="redoBtn" class="btn">Redo</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="challenge-1/index.html" class="btn">Challenge 1</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

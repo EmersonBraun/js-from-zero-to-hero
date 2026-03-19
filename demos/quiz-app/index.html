@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz App</h1>
+        
+        <div class="quiz-header">
+            <div class="progress">
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <span id="progressText">1/10</span>
+            </div>
+            <div class="score">Score: <span id="score">0</span></div>
+        </div>
+        
+        <div class="quiz-container">
+            <div id="startScreen" class="screen active">
+                <h2>Welcome to the Quiz!</h2>
+                <p>Test your knowledge with our interactive quiz.</p>
+                <div class="options">
+                    <label for="categorySelect">Select Category:</label>
+                    <select id="categorySelect" class="input">
+                        <option value="general">General Knowledge</option>
+                        <option value="science">Science</option>
+                        <option value="history">History</option>
+                        <option value="geography">Geography</option>
+                    </select>
+                </div>
+                <div class="options">
+                    <label for="difficultySelect">Select Difficulty:</label>
+                    <select id="difficultySelect" class="input">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <button id="startBtn" class="btn">Start Quiz</button>
+            </div>
+            
+            <div id="questionScreen" class="screen">
+                <div class="question">
+                    <h2 id="questionText">Question goes here?</h2>
+                </div>
+                
+                <div class="answers" id="answers">
+                    <!-- Answers will be added here dynamically -->
+                </div>
+                
+                <div class="quiz-controls">
+                    <button id="nextBtn" class="btn" disabled>Next Question</button>
+                </div>
+            </div>
+            
+            <div id="resultScreen" class="screen">
+                <h2>Quiz Complete!</h2>
+                <div class="result-summary">
+                    <p>Your final score: <span id="finalScore">0</span>/<span id="totalQuestions">10</span></p>
+                    <p>Percentage: <span id="percentage">0</span>%</p>
+                    <div id="resultMessage" class="result-message"></div>
+                </div>
+                <div class="btn-group">
+                    <button id="restartBtn" class="btn">Restart Quiz</button>
+                    <button id="reviewBtn" class="btn">Review Answers</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="navigation">
+                <a href="challenge-1/index.html" class="btn">Challenge 1</a>
+                <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

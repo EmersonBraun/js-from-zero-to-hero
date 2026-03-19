@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insect Catch Game</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="game-intro" id="gameIntro">
+            <h1>Catch the Insect!</h1>
+            <p>Click on the insects as fast as you can!</p>
+            <div class="insect-selection">
+                <h3>Choose your insect:</h3>
+                <div class="insect-options">
+                    <div class="insect-option" data-insect="fly">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1995/1995574.png" alt="Fly">
+                        <span>Fly</span>
+                    </div>
+                    <div class="insect-option" data-insect="mosquito">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1995/1995575.png" alt="Mosquito">
+                        <span>Mosquito</span>
+                    </div>
+                    <div class="insect-option" data-insect="spider">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1995/1995576.png" alt="Spider">
+                        <span>Spider</span>
+                    </div>
+                    <div class="insect-option" data-insect="roach">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1995/1995577.png" alt="Roach">
+                        <span>Roach</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn start-btn" id="startBtn">Start Game</button>
+        </div>
+
+        <div class="game-screen" id="gameScreen" style="display: none;">
+            <div class="game-header">
+                <div class="score-board">
+                    <div class="score-item">
+                        <span class="label">Time:</span>
+                        <span class="value" id="timeDisplay">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="label">Score:</span>
+                        <span class="value" id="scoreDisplay">0</span>
+                    </div>
+                </div>
+                <button class="btn restart-btn" id="restartBtn">Restart</button>
+            </div>
+            
+            <div class="game-area" id="gameArea">
+                <div class="message" id="message">
+                    <h2>Are you ready?</h2>
+                    <p>Click on the insects as fast as you can!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-over" id="gameOver" style="display: none;">
+            <h2>Game Over!</h2>
+            <div class="final-score">
+                <p>Final Score: <span id="finalScore">0</span></p>
+                <p>Time: <span id="finalTime">0</span> seconds</p>
+            </div>
+            <button class="btn play-again-btn" id="playAgainBtn">Play Again</button>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html> 

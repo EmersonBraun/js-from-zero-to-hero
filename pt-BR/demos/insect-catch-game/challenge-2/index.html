@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insect Catch Game - Challenge 2</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="game-intro" id="gameIntro">
+            <h1>Insect Catch Game - Advanced</h1>
+            <p>Master the art of insect catching with power-ups and boss battles!</p>
+            
+            <div class="game-mode-selection">
+                <h3>Choose game mode:</h3>
+                <div class="mode-options">
+                    <div class="mode-option" data-mode="story">
+                        <span class="mode-icon">📖</span>
+                        <span>Story Mode</span>
+                        <small>Progressive levels with boss battles</small>
+                    </div>
+                    <div class="mode-option" data-mode="endless">
+                        <span class="mode-icon">♾️</span>
+                        <span>Endless Mode</span>
+                        <small>Survive as long as possible</small>
+                    </div>
+                    <div class="mode-option" data-mode="multiplayer">
+                        <span class="mode-icon">👥</span>
+                        <span>Multiplayer</span>
+                        <small>Compete with friends locally</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="difficulty-selection">
+                <h3>Choose difficulty:</h3>
+                <div class="difficulty-options">
+                    <div class="difficulty-option" data-difficulty="easy">
+                        <span class="difficulty-icon">🐛</span>
+                        <span>Easy</span>
+                        <small>Beginner friendly</small>
+                    </div>
+                    <div class="difficulty-option" data-difficulty="medium">
+                        <span class="difficulty-icon">🦗</span>
+                        <span>Medium</span>
+                        <small>Balanced challenge</small>
+                    </div>
+                    <div class="difficulty-option" data-difficulty="hard">
+                        <span class="difficulty-icon">🕷️</span>
+                        <span>Hard</span>
+                        <small>Expert level</small>
+                    </div>
+                    <div class="difficulty-option" data-difficulty="nightmare">
+                        <span class="difficulty-icon">👹</span>
+                        <span>Nightmare</span>
+                        <small>Ultimate challenge</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insect-selection">
+                <h3>Choose your insect:</h3>
+                <div class="insect-options">
+                    <div class="insect-option" data-insect="fly">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1995/1995574.png" alt="Fly">
+                        <span>Fly</span>
+                    </div>
+                    <div class="insect-option" data-insect="mosquito">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1995/1995575.png" alt="Mosquito">
+                        <span>Mosquito</span>
+                    </div>
+                    <div class="insect-option" data-insect="spider">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1995/1995576.png" alt="Spider">
+                        <span>Spider</span>
+                    </div>
+                    <div class="insect-option" data-insect="roach">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1995/1995577.png" alt="Roach">
+                        <span>Roach</span>
+                    </div>
+                    <div class="insect-option" data-insect="butterfly">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1995/1995578.png" alt="Butterfly">
+                        <span>Butterfly</span>
+                    </div>
+                    <div class="insect-option" data-insect="bee">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1995/1995579.png" alt="Bee">
+                        <span>Bee</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn start-btn" id="startBtn">Start Game</button>
+        </div>
+
+        <div class="game-screen" id="gameScreen" style="display: none;">
+            <div class="game-header">
+                <div class="score-board">
+                    <div class="score-item">
+                        <span class="label">Time:</span>
+                        <span class="value" id="timeDisplay">30</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="label">Score:</span>
+                        <span class="value" id="scoreDisplay">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="label">Level:</span>
+                        <span class="value" id="levelDisplay">1</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="label">High Score:</span>
+                        <span class="value" id="highScoreDisplay">0</span>
+                    </div>
+                </div>
+                <div class="power-ups">
+                    <div class="power-up" id="freezePower" title="Freeze Time (F)">
+                        <span>❄️</span>
+                        <span class="cooldown" id="freezeCooldown">0</span>
+                    </div>
+                    <div class="power-up" id="magnetPower" title="Insect Magnet (M)">
+                        <span>🧲</span>
+                        <span class="cooldown" id="magnetCooldown">0</span>
+                    </div>
+                    <div class="power-up" id="bombPower" title="Area Bomb (B)">
+                        <span>💣</span>
+                        <span class="cooldown" id="bombCooldown">0</span>
+                    </div>
+                </div>
+                <button class="btn restart-btn" id="restartBtn">Restart</button>
+            </div>
+            
+            <div class="game-area" id="gameArea">
+                <div class="message" id="message">
+                    <h2>Are you ready?</h2>
+                    <p>Use power-ups and defeat boss insects!</p>
+                </div>
+                <div class="boss-health" id="bossHealth" style="display: none;">
+                    <div class="boss-name" id="bossName">Boss Insect</div>
+                    <div class="health-bar">
+                        <div class="health-fill" id="healthFill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-over" id="gameOver" style="display: none;">
+            <h2>Game Over!</h2>
+            <div class="final-score">
+                <p>Final Score: <span id="finalScore">0</span></p>
+                <p>Level Reached: <span id="finalLevel">1</span></p>
+                <p>Time Survived: <span id="finalTime">0</span> seconds</p>
+                <p>Mode: <span id="finalMode">Story</span></p>
+                <p>Difficulty: <span id="finalDifficulty">Easy</span></p>
+                <div class="score-comparison">
+                    <p>High Score: <span id="finalHighScore">0</span></p>
+                    <div id="newRecord" style="display: none;">
+                        <span class="record-badge">🏆 New Record!</span>
+                    </div>
+                </div>
+                <div class="achievements" id="achievements">
+                    <h3>Achievements Unlocked:</h3>
+                    <div class="achievement-list" id="achievementList"></div>
+                </div>
+            </div>
+            <button class="btn play-again-btn" id="playAgainBtn">Play Again</button>
+        </div>
+
+        <div class="level-complete" id="levelComplete" style="display: none;">
+            <h2>Level Complete!</h2>
+            <div class="level-stats">
+                <p>Level: <span id="completedLevel">1</span></p>
+                <p>Score: <span id="levelScore">0</span></p>
+                <p>Time Bonus: <span id="timeBonus">0</span></p>
+                <div class="boss-defeated" id="bossDefeated" style="display: none;">
+                    <span class="boss-badge">👑 Boss Defeated!</span>
+                </div>
+            </div>
+            <button class="btn next-level-btn" id="nextLevelBtn">Next Level</button>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html> 

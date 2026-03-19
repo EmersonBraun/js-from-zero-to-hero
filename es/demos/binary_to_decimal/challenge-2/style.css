@@ -1,0 +1,91 @@
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+  font-size: 62,5%;
+}
+
+body {
+  height: 100vh;
+  width: 100%;
+  background: #0f2027; /* fallback for old browsers */
+  background: linear-gradient(to right,#a37070, #7a3b3b, #7a2e2e);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #fff;
+}
+
+.card {
+    border-radius: 5px;
+    margin: 20px;
+    width: 500px;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.2rem;
+  margin-left: 2rem;
+  margin-top: 0.7rem;
+  transition: all 0.3s;
+  transform: translateY(0rem);
+}
+
+.input {
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  font-size: 1.2rem;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 0.2rem;
+  background-color: rgb(255, 255, 255);
+  border: none;
+  width: 87%;
+  border-bottom: 0.3rem solid transparent;
+  transition: all 0.3s;
+}
+
+.input:placeholder-shown + .label {
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transform: translateY(-4rem);
+  transform: translateY(-4rem);
+}
+
+.btn {
+  padding: 1.5em 6.5em;
+  border: solid 1px #2e647a;
+  border-radius: 4px;
+  display: inline-block;
+  text-align: center;
+}
+.btn:hover,
+.btn:focus {
+  cursor: pointer;
+  background-color: #2e647a;
+  color: #fff;
+}
+.btn-group {
+  display: inline-flex;
+  border: 1px solid #2e647a;
+  overflow: hidden;
+  border-radius: 4px;  
+}
+.btn-group > .btn {
+  border-radius: 0;
+  border: none;
+  border-right: 1px solid #2e647a;
+}
+.btn-group > .btn:last-child {
+  border-right: none;
+}

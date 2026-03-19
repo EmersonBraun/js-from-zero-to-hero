@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Slider - Challenge 1</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="slider-container">
+        <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')">
+            <div class="slide-content">
+                <h2>Mountain Landscape</h2>
+                <p>Breathtaking views of majestic mountains</p>
+            </div>
+        </div>
+        
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80')">
+            <div class="slide-content">
+                <h2>Forest Path</h2>
+                <p>Peaceful walk through nature's beauty</p>
+            </div>
+        </div>
+        
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80')">
+            <div class="slide-content">
+                <h2>Sunset Sky</h2>
+                <p>Beautiful colors of the evening sky</p>
+            </div>
+        </div>
+        
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')">
+            <div class="slide-content">
+                <h2>Ocean Waves</h2>
+                <p>Serene ocean with calming waves</p>
+            </div>
+        </div>
+        
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')">
+            <div class="slide-content">
+                <h2>Desert Dunes</h2>
+                <p>Golden sands stretching to the horizon</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="slider-controls">
+        <button id="prevBtn" class="btn control-btn">
+            <span class="arrow">&#10094;</span>
+        </button>
+        
+        <div class="dots-container" id="dotsContainer">
+            <!-- Dots will be generated here -->
+        </div>
+        
+        <button id="nextBtn" class="btn control-btn">
+            <span class="arrow">&#10095;</span>
+        </button>
+    </div>
+    
+    <div class="slide-info">
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">5</span>
+        </div>
+        <div class="slide-title" id="slideTitle">Mountain Landscape</div>
+    </div>
+    
+    <div class="row">
+        <div class="btn-group">
+            <button id="playPauseBtn" class="btn">Pause</button>
+            <button id="fullscreenBtn" class="btn">Fullscreen</button>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="navigation">
+            <a href="../index.html" class="btn">Back to Class</a>
+            <a href="challenge-2/index.html" class="btn">Challenge 2</a>
+        </div>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+</html> 

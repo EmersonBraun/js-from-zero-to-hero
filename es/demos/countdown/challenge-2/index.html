@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+    <h1>The Final Countdown</h1>
+    <div id="clock">
+        <div>
+            <span id="years">00</span>
+            <div class="text">Years</div>
+        </div>
+        <div>
+            <span id="months">00</span>
+            <div class="text">Months</div>
+        </div>
+        <div>
+            <span id="days">00</span>
+            <div class="text">Days</div>
+        </div>
+        <div>
+            <span id="hours">00</span>
+            <div class="text">Hours</div>
+        </div>
+        <div>
+            <span id="minutes">00</span>
+            <div class="text">Minutes</div>
+        </div>
+        <div>
+            <span id="seconds">00</span>
+            <div class="text">Seconds</div>
+        </div>
+    </div>
+    <div class="datetime">
+        <span id="seconds">Choose a time</span>
+        <div class="text">
+            <input 
+                type="datetime-local" 
+                id="datetime"
+                name="datetime" 
+                value="2018-06-12T19:30"
+                min="2018-06-07T00:00" 
+            />
+        </div>
+        <button class="button" onclick="getDeadline()">Start</button>
+    </div>
+    <script src="index.js"></script>
+</body>
+
+</html>

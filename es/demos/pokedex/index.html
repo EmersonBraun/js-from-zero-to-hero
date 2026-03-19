@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <h1>Pokédex</h1>
+                <div class="pokeball-icon">⚡</div>
+            </div>
+            <p>Search and discover Pokémon from around the world!</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Search Pokémon by name or number..."
+                >
+                <button class="search-btn" id="searchBtn">Search</button>
+            </div>
+            <div class="filter-options">
+                <select id="typeFilter" class="filter-select">
+                    <option value="">All Types</option>
+                    <option value="normal">Normal</option>
+                    <option value="fire">Fire</option>
+                    <option value="water">Water</option>
+                    <option value="electric">Electric</option>
+                    <option value="grass">Grass</option>
+                    <option value="ice">Ice</option>
+                    <option value="fighting">Fighting</option>
+                    <option value="poison">Poison</option>
+                    <option value="ground">Ground</option>
+                    <option value="flying">Flying</option>
+                    <option value="psychic">Psychic</option>
+                    <option value="bug">Bug</option>
+                    <option value="rock">Rock</option>
+                    <option value="ghost">Ghost</option>
+                    <option value="dragon">Dragon</option>
+                    <option value="dark">Dark</option>
+                    <option value="steel">Steel</option>
+                    <option value="fairy">Fairy</option>
+                </select>
+                <button class="random-btn" id="randomBtn">Random Pokémon</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="pokemon-display" id="pokemonDisplay">
+                <div class="welcome-message">
+                    <div class="welcome-icon">🎮</div>
+                    <h2>Welcome to the Pokédex!</h2>
+                    <p>Search for a Pokémon by name or number to get started</p>
+                    <p>Or click "Random Pokémon" to discover something new!</p>
+                </div>
+            </div>
+
+            <div class="pokemon-grid" id="pokemonGrid" style="display: none;">
+                <div class="grid-header">
+                    <h3>Pokémon List</h3>
+                    <div class="grid-controls">
+                        <button class="btn view-toggle" id="listViewBtn">List View</button>
+                        <button class="btn view-toggle active" id="gridViewBtn">Grid View</button>
+                    </div>
+                </div>
+                <div class="pokemon-list" id="pokemonList">
+                    <!-- Pokémon cards will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button class="btn pagination-btn" id="prevBtn">Previous</button>
+            <div class="page-info">
+                <span id="currentPage">1</span> of <span id="totalPages">1</span>
+            </div>
+            <button class="btn pagination-btn" id="nextBtn">Next</button>
+        </div>
+
+        <div class="loading" id="loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Loading Pokémon...</p>
+        </div>
+
+        <div class="error-message" id="errorMessage" style="display: none;">
+            <div class="error-icon">❌</div>
+            <h3>Oops! Something went wrong</h3>
+            <p id="errorText">Unable to load Pokémon data. Please try again.</p>
+            <button class="btn retry-btn" id="retryBtn">Try Again</button>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html> 

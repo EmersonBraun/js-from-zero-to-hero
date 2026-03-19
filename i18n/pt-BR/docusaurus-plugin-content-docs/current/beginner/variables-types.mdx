@@ -1,0 +1,300 @@
+---
+sidebar_position: 2
+---
+
+# Variáveis & Tipos
+
+Variáveis são os blocos fundamentais de qualquer programa. Elas armazenam dados que seu código pode usar e manipular. Neste módulo, você aprenderá como declarar variáveis e entender os diferentes tipos de dados em JavaScript.
+
+## Declarando Variáveis
+
+JavaScript tem três formas de declarar variáveis: `var`, `let` e `const`.
+
+### `let` — O Padrão Moderno
+
+`let` declara uma variável que pode ser **reatribuída**:
+
+```javascript
+let age = 25;
+age = 26;  // OK — podemos mudar o valor
+```
+
+`let` tem **escopo de bloco** — ela só existe dentro do `{}` onde foi declarada:
+
+```javascript
+if (true) {
+  let message = "Hello";
+  console.log(message);  // "Hello"
+}
+// console.log(message);  // ERRO: message não está definida
+```
+
+### `const` — Para Valores que Não Mudam
+
+`const` declara uma variável que **não pode ser reatribuída**:
+
+```javascript
+const PI = 3.14159;
+// PI = 3;  // ERRO: Atribuição a variável constante
+```
+
+**Importante:** `const` previne reatribuição, não mutação. Objetos e arrays declarados com `const` ainda podem ter seus conteúdos alterados:
+
+```javascript
+const user = { name: "Alice" };
+user.name = "Bob";  // OK — estamos mudando uma propriedade, não reatribuindo
+// user = {};  // ERRO — não podemos reatribuir a própria variável
+```
+
+### `var` — A Forma Legada
+
+`var` é a forma original de declarar variáveis. Ela tem **escopo de função** (não de bloco) e sofre **hoisting**:
+
+```javascript
+console.log(x);  // undefined (não é erro — var sofre hoisting)
+var x = 5;
+```
+
+**Regra geral:** Use `const` por padrão. Use `let` quando precisar reatribuir. Evite `var`.
+
+> **Referência MDN:** [let](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let), [const](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const), [var](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var)
+
+## Os 7 Tipos Primitivos
+
+JavaScript tem 7 tipos de dados primitivos (básicos):
+
+| Tipo | Exemplo | Descrição |
+|---|---|---|
+| `string` | `"hello"` | Texto |
+| `number` | `42`, `3.14` | Inteiro ou ponto flutuante |
+| `boolean` | `true`, `false` | Verdadeiro/falso lógico |
+| `undefined` | `undefined` | Variável declarada mas não atribuída |
+| `null` | `null` | Ausência intencional de valor |
+| `bigint` | `9007199254740991n` | Inteiros muito grandes |
+| `symbol` | `Symbol("id")` | Identificador único |
+
+### Strings
+
+Strings representam texto e podem ser criadas com aspas simples, aspas duplas ou backticks:
+
+```javascript
+let single = 'Hello';
+let double = "Hello";
+let template = `Hello, ${single}`;  // Template literal — pode incorporar expressões
+```
+
+Template literals (backticks) permitem **interpolação de strings**:
+
+```javascript
+let name = "World";
+let greeting = `Hello, ${name}!`;  // "Hello, World!"
+let math = `2 + 2 = ${2 + 2}`;    // "2 + 2 = 4"
+```
+
+### Numbers
+
+JavaScript usa um único tipo `number` para inteiros e decimais:
+
+```javascript
+let integer = 42;
+let decimal = 3.14;
+let negative = -10;
+let result = 0.1 + 0.2;  // 0.30000000000000004 (precisão de ponto flutuante!)
+```
+
+Valores numéricos especiais: `Infinity`, `-Infinity`, `NaN` (Not a Number).
+
+### Booleans
+
+Booleans têm apenas dois valores: `true` e `false`:
+
+```javascript
+let isActive = true;
+let isComplete = false;
+```
+
+### `undefined` vs `null`
+
+- `undefined` — a variável existe mas não tem valor atribuído
+- `null` — intencionalmente definido como "sem valor"
+
+```javascript
+let x;           // undefined (declarada mas não atribuída)
+let y = null;    // null (intencionalmente vazia)
+```
+
+> **Referência MDN:** [Tipos de dados](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures)
+
+## O Operador `typeof`
+
+Use `typeof` para verificar o tipo de um valor:
+
+```javascript
+typeof "hello"     // "string"
+typeof 42          // "number"
+typeof true        // "boolean"
+typeof undefined   // "undefined"
+typeof null        // "object"  (isso é um bug conhecido do JavaScript!)
+typeof {}          // "object"
+typeof []          // "object"
+```
+
+> **Referência MDN:** [typeof](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof)
+
+## Coerção de Tipos
+
+JavaScript converte tipos automaticamente em certas situações. Isso é chamado de **coerção de tipos**:
+
+```javascript
+"5" + 3     // "53" (número 3 é convertido para string)
+"5" - 3     // 2 (string "5" é convertida para número)
+"5" * 2     // 10
+true + 1    // 2 (true vira 1)
+false + 1   // 1 (false vira 0)
+```
+
+O operador `+` com strings sempre concatena. Outros operadores tentam converter para números.
+
+### Valores Falsy
+
+Estes valores são considerados `false` em contextos booleanos:
+
+```javascript
+false, 0, -0, "", null, undefined, NaN
+```
+
+Todo o resto é **truthy**, incluindo `"0"`, `[]` e `{}`.
+
+## Stack vs Heap
+
+Entender onde os dados vivem na memória ajuda a explicar como as variáveis se comportam:
+
+- **Stack** — armazena valores primitivos (numbers, strings, booleans). Cada variável tem sua própria cópia.
+- **Heap** — armazena objetos e arrays. Variáveis guardam uma **referência** (ponteiro) para os dados.
+
+```javascript
+// Primitivos: cópias independentes
+let a = 5;
+let b = a;
+b = 10;
+console.log(a);  // 5 (não mudou)
+
+// Objetos: referência compartilhada
+let obj1 = { name: "Alice" };
+let obj2 = obj1;
+obj2.name = "Bob";
+console.log(obj1.name);  // "Bob" (ambos apontam para o mesmo objeto!)
+```
+
+## Exercícios
+
+### Exercício 1: Verificador de Tipo
+
+<CodeRunner
+  title="Exercise 1: Return the type of a value"
+  code={`// Return the type of the given value as a string
+function getType(value) {
+  return typeof value;
+}
+`}
+  testCases={[
+    { input: "getType(42)", expected: "\"number\"", description: "42 is a number" },
+    { input: "getType('hello')", expected: "\"string\"", description: "'hello' is a string" },
+    { input: "getType(true)", expected: "\"boolean\"", description: "true is a boolean" },
+    { input: "getType(undefined)", expected: "\"undefined\"", description: "undefined is undefined" }
+  ]}
+/>
+
+### Exercício 2: Template Literals
+
+<CodeRunner
+  title="Exercise 2: Create a greeting with template literals"
+  code={`// Use a template literal to return "My name is <name> and I am <age> years old."
+function introduce(name, age) {
+  return \`My name is \${name} and I am \${age} years old.\`;
+}
+`}
+  testCases={[
+    { input: "introduce('Alice', 25)", expected: "\"My name is Alice and I am 25 years old.\"", description: "Introduce Alice" },
+    { input: "introduce('Bob', 30)", expected: "\"My name is Bob and I am 30 years old.\"", description: "Introduce Bob" }
+  ]}
+/>
+
+### Exercício 3: Valores Padrão
+
+<CodeRunner
+  title="Exercise 3: Handle undefined with default values"
+  code={`// Return the value if defined, otherwise return the defaultValue
+function withDefault(value, defaultValue) {
+  return value !== undefined ? value : defaultValue;
+}
+`}
+  testCases={[
+    { input: "withDefault(5, 10)", expected: "5", description: "5 is defined, return 5" },
+    { input: "withDefault(undefined, 10)", expected: "10", description: "undefined returns default 10" },
+    { input: "withDefault('hello', 'world')", expected: "\"hello\"", description: "'hello' is defined" }
+  ]}
+/>
+
+### Exercício 4: String para Número
+
+<CodeRunner
+  title="Exercise 4: Convert a string to a number"
+  code={`// Convert the string to a number and add 10
+function addTen(str) {
+  return Number(str) + 10;
+}
+`}
+  testCases={[
+    { input: "addTen('5')", expected: "15", description: "'5' + 10 = 15" },
+    { input: "addTen('100')", expected: "110", description: "'100' + 10 = 110" },
+    { input: "addTen('0')", expected: "10", description: "'0' + 10 = 10" }
+  ]}
+/>
+
+### Exercício 5: Truthy ou Falsy
+
+<CodeRunner
+  title="Exercise 5: Check if a value is truthy"
+  code={`// Return true if the value is truthy, false if falsy
+function isTruthy(value) {
+  return Boolean(value);
+}
+`}
+  testCases={[
+    { input: "isTruthy(1)", expected: "true", description: "1 is truthy" },
+    { input: "isTruthy(0)", expected: "false", description: "0 is falsy" },
+    { input: "isTruthy('')", expected: "false", description: "empty string is falsy" },
+    { input: "isTruthy('hello')", expected: "true", description: "'hello' is truthy" },
+    { input: "isTruthy(null)", expected: "false", description: "null is falsy" }
+  ]}
+/>
+
+### Exercício 6: Trocar Variáveis
+
+<CodeRunner
+  title="Exercise 6: Swap two values using destructuring"
+  code={`// Return an array with a and b swapped
+function swap(a, b) {
+  return [b, a];
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(swap(1, 2))", expected: "\"[2,1]\"", description: "swap(1,2) returns [2,1]" },
+    { input: "JSON.stringify(swap('hello', 'world'))", expected: "\"[\\\"world\\\",\\\"hello\\\"]\"", description: "swap strings" }
+  ]}
+/>
+
+## Resumo
+
+Neste módulo você aprendeu:
+
+- **`const`** para valores que não mudam, **`let`** para valores que mudam, evite **`var`**
+- JavaScript tem **7 tipos primitivos**: string, number, boolean, undefined, null, bigint, symbol
+- **Template literals** (backticks) permitem interpolação de strings com `${expressão}`
+- **`typeof`** verifica o tipo de um valor
+- **Coerção de tipos** converte tipos automaticamente (cuidado com `+`)
+- **Valores falsy**: `false`, `0`, `""`, `null`, `undefined`, `NaN`
+- **Primitivos** são armazenados na stack (cópias independentes), **objetos** no heap (referências compartilhadas)
+
+A seguir: **Operadores & Condicionais** — tomando decisões no seu código.

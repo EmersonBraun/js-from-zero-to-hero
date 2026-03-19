@@ -1,0 +1,590 @@
+---
+sidebar_position: 4
+---
+
+# Módulos ES, Generadores y Herramientas
+
+El desarrollo moderno de JavaScript gira en torno a dos pilares: el sistema de módulos que organiza tu código, y el ecosistema de herramientas que lo transforma y empaqueta. Este módulo también cubre generadores e iteradores — primitivos poderosos que sustentan la iteración asíncrona, la evaluación perezosa y las estructuras de datos personalizadas.
+
+---
+
+## 1. Script vs Módulo (`type="module"`)
+
+Antes de los Módulos ES (ESM), todos los archivos JavaScript cargados en un navegador compartían un único alcance global. Esto llevaba a colisiones de nombres, dependencias implícitas y código spaghetti imposible de mantener.
+
+HTML distingue entre scripts clásicos y módulos a través del atributo `type`:
+
+```html
+<!-- Script clásico: comparte alcance global, sin modo estricto por defecto -->
+<script src="app.js"></script>
+
+<!-- Módulo ES: alcance propio, modo estricto aplicado, diferido por defecto -->
+<script type="module" src="app.js"></script>
+```
+
+Diferencias clave:
+
+| Característica | Script Clásico | Módulo ES |
+|---|---|---|
+| Alcance | Global | Alcance de módulo |
+| `"use strict"` | Opcional | Siempre activo |
+| `this` en nivel superior | `window` | `undefined` |
+| Orden de ejecución | Bloqueante por defecto | Diferido por defecto |
+| `import`/`export` | No disponible | Disponible |
+| Carga duplicada | Re-ejecuta | En caché (una vez) |
+
+Referencia MDN: [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
+
+---
+
+## 2. Exportaciones e Importaciones con Nombre
+
+Las exportaciones nombradas permiten que un módulo exponga múltiples bindings. El consumidor elige exactamente qué importar.
+
+```js
+// math.js
+export function add(a, b) { return a + b; }
+export function subtract(a, b) { return a - b; }
+export const PI = 3.14159265358979;
+```
+
+```js
+// main.js
+import { add, PI } from './math.js';
+import { subtract as sub } from './math.js'; // alias
+```
+
+También puedes exportar un binding después de su declaración:
+
+```js
+function multiply(a, b) { return a * b; }
+export { multiply };
+```
+
+---
+
+## 3. Exportaciones por Defecto
+
+Cada módulo puede tener como máximo una exportación por defecto. Representa la "cosa principal" que el módulo proporciona.
+
+```js
+// logger.js
+export default function log(msg) {
+  console.log(`[LOG] ${msg}`);
+}
+```
+
+```js
+// main.js — el nombre local lo elige quien importa
+import log from './logger.js';
+import myLogger from './logger.js'; // misma exportación, nombre diferente
+```
+
+Combinando default y nombradas:
+
+```js
+export default class EventEmitter { /* ... */ }
+export const VERSION = '1.0.0';
+```
+
+```js
+import EventEmitter, { VERSION } from './emitter.js';
+```
+
+---
+
+## 4. Re-exportaciones
+
+Las re-exportaciones te permiten crear archivos barrel — puntos de entrada únicos que agregan exportaciones de muchos módulos.
+
+```js
+// utils/index.js
+export { add, subtract } from './math.js';
+export { default as log } from './logger.js';
+export * from './string-utils.js';
+export * as arrays from './array-utils.js'; // re-exportación de espacio de nombres
+```
+
+---
+
+## 5. Importaciones Dinámicas (`import()`)
+
+Las importaciones estáticas deben aparecer en el nivel superior de un módulo. `import()` dinámico es una expresión similar a una función que retorna una Promise, habilitando la carga perezosa.
+
+```js
+async function loadChart() {
+  const { Chart } = await import('./chart.js');
+  return new Chart();
+}
+
+// Con manejo de errores
+async function loadPlugin(name) {
+  try {
+    const module = await import(`./plugins/${name}.js`);
+    return module.default;
+  } catch (err) {
+    console.error(`Plugin "${name}" not found`);
+    return null;
+  }
+}
+```
+
+Casos de uso:
+- División de código basada en rutas en SPAs
+- Cargar bibliotecas pesadas solo cuando se necesitan
+- Carga condicional de características
+
+Referencia MDN: [import()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import)
+
+---
+
+## 6. Alcance de Módulo vs Alcance Global
+
+Las variables declaradas dentro de un módulo son locales a ese módulo. Nada se filtra a `window` a menos que se asigne explícitamente.
+
+```js
+// module.js
+const secret = 'not global';       // alcance de módulo
+window.publicThing = 'now global'; // asignación global explícita
+```
+
+El `this` a nivel de módulo es `undefined` (modo estricto), no `window`:
+
+```js
+// type="module"
+console.log(this); // undefined
+```
+
+---
+
+## 7. CommonJS vs Módulos ES
+
+Node.js históricamente usó CommonJS (CJS). ESM es ahora el estándar pero ambos coexisten.
+
+| Aspecto | CommonJS | Módulos ES |
+|---|---|---|
+| Sintaxis | `require()` / `module.exports` | `import` / `export` |
+| Carga | Síncrona | Capaz de ser asíncrona |
+| Binding | Copia de valor | Binding en vivo |
+| `await` en nivel superior | No soportado | Soportado |
+| Extensión de archivo | `.js` / `.cjs` | `.mjs` o `"type":"module"` |
+| Tree-shaking | Difícil | Soportado |
+
+Ejemplo de binding en vivo — ESM exporta una referencia en vivo, no una instantánea:
+
+```js
+// counter.js (ESM)
+export let count = 0;
+export function increment() { count++; }
+
+// main.js
+import { count, increment } from './counter.js';
+console.log(count); // 0
+increment();
+console.log(count); // 1  ← binding en vivo actualizado
+```
+
+En CJS, `count` permanecería en `0` porque `require` copia el valor.
+
+---
+
+## 8. Resumen de Empaquetadores
+
+Los empaquetadores (bundlers) transforman y combinan grafos de módulos en salida optimizada para navegadores o Node.
+
+### Webpack
+El pionero original. Altamente configurable con un vasto ecosistema de plugins. Usa una canalización de loaders para transformar activos que no son JS. Con mucha configuración pero extremadamente flexible.
+
+### Vite
+Herramienta orientada al desarrollo usando ESM nativo en el navegador durante el desarrollo (sin empaquetado), con Rollup bajo el capó para compilaciones de producción. HMR (Hot Module Replacement) casi instantáneo.
+
+### Rollup
+Optimizado para el empaquetado de bibliotecas. Fue pionero en el tree-shaking. Produce bundles limpios y mínimos. Preferido para paquetes npm.
+
+### esbuild
+Escrito en Go, órdenes de magnitud más rápido que los empaquetadores basados en JS. Usado internamente por Vite y otras herramientas. API de plugins limitada pero excelente velocidad bruta.
+
+---
+
+## 9. Generadores (`function*`, `yield`, `next()`)
+
+Una función generadora retorna un **objeto Generator** — un iterador que pausa y reanuda bajo demanda. La ejecución se suspende en cada `yield` y se reanuda cuando se llama `.next()`.
+
+```js
+function* count() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+const gen = count();
+console.log(gen.next()); // { value: 1, done: false }
+console.log(gen.next()); // { value: 2, done: false }
+console.log(gen.next()); // { value: 3, done: false }
+console.log(gen.next()); // { value: undefined, done: true }
+```
+
+Los generadores pueden recibir valores de vuelta a través de `next(value)`:
+
+```js
+function* accumulator() {
+  let total = 0;
+  while (true) {
+    const n = yield total;
+    if (n === null) break;
+    total += n;
+  }
+  return total;
+}
+
+const acc = accumulator();
+acc.next();     // iniciar — { value: 0, done: false }
+acc.next(10);   // { value: 10, done: false }
+acc.next(5);    // { value: 15, done: false }
+acc.next(null); // { value: 15, done: true }
+```
+
+Referencia MDN: [function*](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*)
+
+---
+
+## 10. Iteradores y `Symbol.iterator`
+
+Un **iterador** es cualquier objeto con un método `.next()` que retorna `{ value, done }`.
+
+Un **iterable** es cualquier objeto con un método `[Symbol.iterator]()` que retorna un iterador.
+
+```js
+// Iterador manual
+function range(start, end) {
+  let current = start;
+  return {
+    [Symbol.iterator]() { return this; },
+    next() {
+      if (current <= end) {
+        return { value: current++, done: false };
+      }
+      return { value: undefined, done: true };
+    }
+  };
+}
+
+for (const n of range(1, 5)) {
+  console.log(n); // 1 2 3 4 5
+}
+
+const nums = [...range(1, 3)]; // [1, 2, 3]
+```
+
+Iterables integrados: `Array`, `String`, `Map`, `Set`, `arguments`, NodeLists del DOM, generadores.
+
+Referencia MDN: [Iteration protocols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols)
+
+---
+
+## 11. Protocolo Iterable y `for...of`
+
+`for...of` funciona con cualquier iterable llamando `[Symbol.iterator]()` y llamando `.next()` repetidamente.
+
+```js
+// String es iterable (itera sobre puntos de código Unicode)
+for (const char of 'hello') {
+  console.log(char); // h e l l o
+}
+
+// La desestructuración usa el protocolo iterador
+const [first, second, ...rest] = range(1, 10);
+
+// El spread usa el protocolo iterador
+const all = [...new Set([1, 2, 2, 3])]; // [1, 2, 3]
+```
+
+Los iterables infinitos están bien con generadores — solo producen valores bajo demanda:
+
+```js
+function* fibonacci() {
+  let [a, b] = [0, 1];
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+const fib = fibonacci();
+const first10 = Array.from({ length: 10 }, () => fib.next().value);
+// [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+```
+
+---
+
+## Ejercicios
+
+<CodeRunner
+  title="Named and Default Exports (simulation)"
+  code={`// Simulating module patterns in a single scope
+
+// Named exports simulation
+const mathModule = (() => {
+  function add(a, b) { return a + b; }
+  function multiply(a, b) { return a * b; }
+  const PI = 3.14159;
+  return { add, multiply, PI };
+})();
+
+// Default export simulation
+const defaultLogger = (msg) => \`[LOG] \${msg}\`;
+
+// Usage
+const { add, multiply, PI } = mathModule;
+
+function runExports() {
+  return {
+    sum: add(3, 4),
+    product: multiply(3, 4),
+    pi: PI,
+    log: defaultLogger("hello")
+  };
+}
+`}
+  testCases={[
+    { input: "runExports().sum", expected: "7", description: "Named export add(3,4) returns 7" },
+    { input: "runExports().product", expected: "12", description: "Named export multiply(3,4) returns 12" },
+    { input: "runExports().log", expected: "[LOG] hello", description: "Default export logger formats message" }
+  ]}
+/>
+
+<CodeRunner
+  title="Basic Generator"
+  code={`function* range(start, end, step = 1) {
+  for (let i = start; i <= end; i += step) {
+    yield i;
+  }
+}
+
+function collectRange(start, end, step) {
+  return [...range(start, end, step)];
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(collectRange(1, 5))", expected: "[1,2,3,4,5]", description: "Range 1 to 5 yields [1,2,3,4,5]" },
+    { input: "JSON.stringify(collectRange(0, 10, 2))", expected: "[0,2,4,6,8,10]", description: "Range 0 to 10 step 2 yields even numbers" },
+    { input: "JSON.stringify(collectRange(5, 5))", expected: "[5]", description: "Range with same start and end yields one element" }
+  ]}
+/>
+
+<CodeRunner
+  title="Fibonacci Generator"
+  code={`function* fibonacci() {
+  let a = 0, b = 1;
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+function takeFib(n) {
+  const gen = fibonacci();
+  const result = [];
+  for (let i = 0; i < n; i++) {
+    result.push(gen.next().value);
+  }
+  return result;
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(takeFib(1))", expected: "[0]", description: "First Fibonacci number is 0" },
+    { input: "JSON.stringify(takeFib(7))", expected: "[0,1,1,2,3,5,8]", description: "First 7 Fibonacci numbers" },
+    { input: "takeFib(10)[9]", expected: "34", description: "10th Fibonacci number (0-indexed) is 34" }
+  ]}
+/>
+
+<CodeRunner
+  title="Custom Iterable with Symbol.iterator"
+  code={`function createRange(start, end) {
+  return {
+    [Symbol.iterator]() {
+      let current = start;
+      return {
+        next() {
+          if (current <= end) {
+            return { value: current++, done: false };
+          }
+          return { value: undefined, done: true };
+        }
+      };
+    }
+  };
+}
+
+function sumIterable(iterable) {
+  let total = 0;
+  for (const val of iterable) {
+    total += val;
+  }
+  return total;
+}
+`}
+  testCases={[
+    { input: "JSON.stringify([...createRange(1, 4)])", expected: "[1,2,3,4]", description: "Spread iterable range 1-4" },
+    { input: "sumIterable(createRange(1, 10))", expected: "55", description: "Sum of 1 to 10 is 55" },
+    { input: "sumIterable(createRange(5, 5))", expected: "5", description: "Single-element range sums to itself" }
+  ]}
+/>
+
+<CodeRunner
+  title="Generator as Lazy Pipeline"
+  code={`function* map(iterable, fn) {
+  for (const item of iterable) {
+    yield fn(item);
+  }
+}
+
+function* filter(iterable, predicate) {
+  for (const item of iterable) {
+    if (predicate(item)) yield item;
+  }
+}
+
+function* take(iterable, n) {
+  let count = 0;
+  for (const item of iterable) {
+    if (count++ >= n) return;
+    yield item;
+  }
+}
+
+function* naturals() {
+  let n = 1;
+  while (true) yield n++;
+}
+
+// Pipeline: first 5 even squares from natural numbers
+function evenSquaresPipeline(count) {
+  const squares = map(naturals(), x => x * x);
+  const evens = filter(squares, x => x % 2 === 0);
+  return [...take(evens, count)];
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(evenSquaresPipeline(3))", expected: "[4,16,36]", description: "First 3 even perfect squares" },
+    { input: "JSON.stringify(evenSquaresPipeline(1))", expected: "[4]", description: "First even square is 4 (2²)" },
+    { input: "evenSquaresPipeline(4)[3]", expected: "64", description: "4th even square is 64 (8²)" }
+  ]}
+/>
+
+<CodeRunner
+  title="Two-Way Communication with Generators"
+  code={`function* calculator() {
+  let result = 0;
+  while (true) {
+    const input = yield result;
+    if (input === null) return result;
+    if (typeof input === 'object') {
+      const { op, value } = input;
+      if (op === 'add') result += value;
+      else if (op === 'sub') result -= value;
+      else if (op === 'mul') result *= value;
+    }
+  }
+}
+
+function runCalculator(operations) {
+  const calc = calculator();
+  calc.next(); // initialize
+  let last;
+  for (const op of operations) {
+    last = calc.next(op).value;
+  }
+  return last;
+}
+`}
+  testCases={[
+    { input: "runCalculator([{op:'add',value:10},{op:'add',value:5}])", expected: "15", description: "Add 10 + 5 = 15" },
+    { input: "runCalculator([{op:'add',value:10},{op:'mul',value:3}])", expected: "30", description: "10 * 3 = 30" },
+    { input: "runCalculator([{op:'add',value:20},{op:'sub',value:8}])", expected: "12", description: "20 - 8 = 12" }
+  ]}
+/>
+
+<CodeRunner
+  title="Dynamic Import Pattern (simulation)"
+  code={`// Simulating dynamic import with a module registry
+const moduleRegistry = {
+  'math': { add: (a, b) => a + b, mul: (a, b) => a * b },
+  'string': { upper: s => s.toUpperCase(), reverse: s => s.split('').reverse().join('') },
+};
+
+async function dynamicImport(moduleName) {
+  // Simulate async loading
+  return new Promise((resolve, reject) => {
+    const mod = moduleRegistry[moduleName];
+    if (mod) resolve(mod);
+    else reject(new Error(\`Module "\${moduleName}" not found\`));
+  });
+}
+
+async function loadAndUse(moduleName, fn, args) {
+  const mod = await dynamicImport(moduleName);
+  return mod[fn](...args);
+}
+`}
+  testCases={[
+    { input: "await loadAndUse('math', 'add', [3, 7])", expected: "10", description: "Dynamic math module: add(3,7) = 10" },
+    { input: "await loadAndUse('string', 'upper', ['hello'])", expected: "HELLO", description: "Dynamic string module: upper('hello')" },
+    { input: "await loadAndUse('string', 'reverse', ['abc'])", expected: "cba", description: "Dynamic string module: reverse('abc')" }
+  ]}
+/>
+
+<CodeRunner
+  title="Iterable Class Implementation"
+  code={`class NumberSet {
+  constructor(...values) {
+    this.values = [...new Set(values)].sort((a, b) => a - b);
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    const values = this.values;
+    return {
+      next() {
+        if (index < values.length) {
+          return { value: values[index++], done: false };
+        }
+        return { value: undefined, done: true };
+      }
+    };
+  }
+
+  has(value) {
+    return this.values.includes(value);
+  }
+
+  get size() {
+    return this.values.length;
+  }
+}
+
+function spreadSet(...values) {
+  return [...new NumberSet(...values)];
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(spreadSet(3, 1, 2, 1, 3))", expected: "[1,2,3]", description: "Deduplicates and sorts values" },
+    { input: "new NumberSet(5, 3, 1).size", expected: "3", description: "Size reflects unique values" },
+    { input: "new NumberSet(1, 2, 3).has(2)", expected: "true", description: "has() returns true for existing member" }
+  ]}
+/>
+
+---
+
+## Resumen
+
+- Los **Módulos ES** aplican modo estricto, alcance de módulo y bindings en vivo — a diferencia de los scripts clásicos o CommonJS.
+- Las **exportaciones nombradas** exponen múltiples bindings; las **exportaciones por defecto** exponen un valor primario por módulo.
+- Las **re-exportaciones** habilitan archivos barrel que agregan APIs de múltiples módulos.
+- **`import()` dinámico** retorna una Promise, habilitando carga perezosa bajo demanda y división de código.
+- **CommonJS** usa `require()` síncrono y semántica de copia de valor; **ESM** usa bindings en vivo y soporta `await` en nivel superior.
+- Los **empaquetadores** (Webpack, Vite, Rollup, esbuild) transforman grafos de módulos en bundles optimizados; cada uno tiene distintas ventajas en rendimiento y configurabilidad.
+- Los **generadores** (`function*`) producen valores de forma perezosa a través de `yield`, soportan comunicación bidireccional y pueden modelar secuencias infinitas.
+- Los **iteradores** implementan el protocolo `{ next() }`; los **iterables** implementan `[Symbol.iterator]()`.
+- `for...of`, spread y desestructuración todos se basan en el **protocolo iterable** bajo el capó.
+- Los generadores se componen naturalmente en **canalizaciones perezosas** — transformaciones sobre secuencias potencialmente infinitas con cero sobrecarga de memoria.

@@ -1,0 +1,346 @@
+---
+sidebar_position: 5
+---
+
+# Funções
+
+Funções são blocos de código reutilizáveis que realizam uma tarefa específica. Elas são um dos conceitos mais importantes em JavaScript — ajudam você a organizar o código, evitar repetição e construir programas complexos a partir de peças menores.
+
+## Declaração de Função
+
+A forma clássica de definir uma função:
+
+```javascript
+function greet(name) {
+  return "Hello, " + name + "!";
+}
+
+console.log(greet("Alice"));  // "Hello, Alice!"
+```
+
+Partes de uma função:
+- Palavra-chave **`function`**
+- **Nome** (`greet`)
+- **Parâmetros** (`name`) — entradas que a função aceita
+- **Corpo** (`{ ... }`) — o código que executa
+- **`return`** — o valor de saída (opcional)
+
+> **Referência MDN:** [Functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions)
+
+## Expressão de Função
+
+Uma função armazenada em uma variável:
+
+```javascript
+const greet = function(name) {
+  return "Hello, " + name + "!";
+};
+```
+
+A diferença: declarações de função sofrem **hoisting** (podem ser chamadas antes de serem definidas), expressões de função **não**.
+
+## Arrow Functions
+
+Uma sintaxe mais curta introduzida no ES6:
+
+```javascript
+const greet = (name) => {
+  return "Hello, " + name + "!";
+};
+
+// Ainda mais curta para expressões simples:
+const greet = (name) => "Hello, " + name + "!";
+
+// Parâmetro único — parênteses opcionais:
+const double = n => n * 2;
+```
+
+> **Referência MDN:** [Arrow functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)
+
+## Parâmetros e Argumentos
+
+- **Parâmetros** são os nomes listados na definição da função
+- **Argumentos** são os valores reais passados ao chamar a função
+
+```javascript
+function add(a, b) {   // a, b são parâmetros
+  return a + b;
+}
+
+add(3, 5);  // 3, 5 são argumentos
+```
+
+### Parâmetros Padrão
+
+Forneça valores de fallback quando argumentos não forem passados:
+
+```javascript
+function greet(name = "World") {
+  return `Hello, ${name}!`;
+}
+
+greet();        // "Hello, World!"
+greet("Alice"); // "Hello, Alice!"
+```
+
+### Parâmetros Rest
+
+Colete múltiplos argumentos em um array:
+
+```javascript
+function sum(...numbers) {
+  let total = 0;
+  for (const num of numbers) {
+    total += num;
+  }
+  return total;
+}
+
+sum(1, 2, 3);     // 6
+sum(10, 20, 30, 40); // 100
+```
+
+## Valores de Retorno
+
+Funções podem retornar um valor usando `return`. Se nenhuma declaração `return` for usada, a função retorna `undefined`:
+
+```javascript
+function add(a, b) {
+  return a + b;  // Retorna um valor
+}
+
+function logMessage(msg) {
+  console.log(msg);  // Sem return — retorna undefined
+}
+```
+
+Uma função para de executar quando chega em um `return`:
+
+```javascript
+function checkAge(age) {
+  if (age < 0) return "Invalid age";  // Retorno antecipado
+  if (age >= 18) return "Adult";
+  return "Minor";
+}
+```
+
+## Escopo
+
+**Escopo** determina onde uma variável é acessível:
+
+```javascript
+let globalVar = "I'm global";
+
+function myFunction() {
+  let localVar = "I'm local";
+  console.log(globalVar);  // OK — pode acessar global
+  console.log(localVar);   // OK — pode acessar local
+}
+
+myFunction();
+// console.log(localVar);  // ERRO — localVar não está definida aqui
+```
+
+Funções criam seu próprio escopo. Variáveis declaradas dentro de uma função **não são acessíveis** fora dela.
+
+> **Referência MDN:** [Scope](https://developer.mozilla.org/en-US/docs/Glossary/Scope)
+
+## Exercícios
+
+### Exercício 1: Celsius para Fahrenheit
+
+<CodeRunner
+  title="Exercise 1: Convert Celsius to Fahrenheit"
+  code={`// Formula: F = C * 9/5 + 32
+function toFahrenheit(celsius) {
+  return celsius * 9/5 + 32;
+}
+`}
+  testCases={[
+    { input: "toFahrenheit(0)", expected: "32", description: "0°C = 32°F" },
+    { input: "toFahrenheit(100)", expected: "212", description: "100°C = 212°F" },
+    { input: "toFahrenheit(-40)", expected: "-40", description: "-40°C = -40°F" }
+  ]}
+/>
+
+### Exercício 2: Contar Caracteres
+
+<CodeRunner
+  title="Exercise 2: Count occurrences of a character"
+  code={`// Return how many times char appears in str
+function countChar(str, char) {
+  let count = 0;
+  for (const c of str) {
+    if (c === char) count++;
+  }
+  return count;
+}
+`}
+  testCases={[
+    { input: "countChar('banana', 'a')", expected: "3", description: "3 a's in banana" },
+    { input: "countChar('hello', 'l')", expected: "2", description: "2 l's in hello" },
+    { input: "countChar('hello', 'z')", expected: "0", description: "0 z's in hello" }
+  ]}
+/>
+
+### Exercício 3: Soma com Rest
+
+<CodeRunner
+  title="Exercise 3: Sum any number of arguments"
+  code={`// Use rest parameters to sum all arguments
+function sumAll(...nums) {
+  let total = 0;
+  for (const n of nums) {
+    total += n;
+  }
+  return total;
+}
+`}
+  testCases={[
+    { input: "sumAll(1, 2, 3)", expected: "6", description: "1+2+3 = 6" },
+    { input: "sumAll(10)", expected: "10", description: "single arg" },
+    { input: "sumAll(1, 2, 3, 4, 5)", expected: "15", description: "1+2+3+4+5 = 15" }
+  ]}
+/>
+
+### Exercício 4: Repetir String
+
+<CodeRunner
+  title="Exercise 4: Repeat a string n times"
+  code={`// Return the string repeated n times
+function repeatStr(str, n) {
+  let result = "";
+  for (let i = 0; i < n; i++) {
+    result += str;
+  }
+  return result;
+}
+`}
+  testCases={[
+    { input: "repeatStr('ha', 3)", expected: "\"hahaha\"", description: "ha repeated 3 times" },
+    { input: "repeatStr('abc', 2)", expected: "\"abcabc\"", description: "abc repeated 2 times" },
+    { input: "repeatStr('x', 0)", expected: "\"\"", description: "0 repeats = empty" }
+  ]}
+/>
+
+### Exercício 5: Saudação Padrão
+
+<CodeRunner
+  title="Exercise 5: Use default parameters"
+  code={`// Return a greeting. If no name is given, greet "World"
+const greet = (name = "World") => \`Hello, \${name}!\`;
+`}
+  testCases={[
+    { input: "greet('Alice')", expected: "\"Hello, Alice!\"", description: "Greet Alice" },
+    { input: "greet()", expected: "\"Hello, World!\"", description: "Default to World" }
+  ]}
+/>
+
+### Exercício 6: É Divisível
+
+<CodeRunner
+  title="Exercise 6: Check divisibility"
+  code={`// Return true if a is divisible by b
+const isDivisible = (a, b) => a % b === 0;
+`}
+  testCases={[
+    { input: "isDivisible(10, 2)", expected: "true", description: "10 is divisible by 2" },
+    { input: "isDivisible(10, 3)", expected: "false", description: "10 is not divisible by 3" },
+    { input: "isDivisible(15, 5)", expected: "true", description: "15 is divisible by 5" }
+  ]}
+/>
+
+## Projeto: Calculadora de IMC
+
+Vamos aplicar funções em um projeto real! A **Calculadora de IMC** recebe altura e peso como entradas e calcula o Índice de Massa Corporal.
+
+### Como Funciona
+
+A fórmula do IMC é: `IMC = peso (kg) / altura (m)²`
+
+A função principal demonstra **parâmetros**, **valores de retorno** e **retornos antecipados**:
+
+```javascript
+function calculate() {
+  const height = document.getElementById('height').value;
+  const weight = document.getElementById('weight').value;
+  if (!height || !weight) return;  // Retorno antecipado se entradas estiverem vazias
+  const bmi = weight / height ** 2;
+  document.getElementById('bmi').textContent = `${(bmi * 10000).toFixed(2)} BMI`;
+}
+```
+
+Conceitos-chave:
+- **Função sem parâmetros** — lê valores do DOM
+- Padrão de **retorno antecipado** — `if (!height || !weight) return`
+- **Operador de exponenciação** `**` e `.toFixed(2)` para formatação
+
+### Demonstração ao Vivo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/bmi/index.html"
+  width="100%"
+  height="400"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="BMI Calculator Demo"
+/>
+
+### Desafios
+
+#### Desafio 1: Categorias de IMC
+
+Estenda a calculadora para mostrar a categoria do IMC (Magreza Severa, Normal, Sobrepeso, etc.) usando uma função com múltiplas declarações `if`:
+
+```javascript
+function getBMIType(value) {
+  if (value < 16) return 'Severe Thinness';
+  if (value <= 17) return 'Moderate Thinness';
+  if (value <= 18.5) return 'Mild Thinness';
+  if (value <= 25) return 'Normal';
+  if (value <= 30) return 'Overweight';
+  if (value <= 35) return 'Obese Class I';
+  if (value <= 40) return 'Obese Class II';
+  return 'Obese Class III';
+}
+```
+
+<iframe
+  src="/js-from-zero-to-hero/demos/bmi/challenge-1/index.html"
+  width="100%"
+  height="400"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="BMI Challenge 1 Demo"
+/>
+
+#### Desafio 2: Peso Ideal
+
+Adicione uma função que calcula o peso ideal com base em um IMC de 22.5 e mostra a diferença:
+
+```javascript
+function calculateBMIIdeal(height, weight) {
+  const idealWeight = (height ** 2 * 22.5 / 10000).toFixed(2);
+  const diff = (idealWeight - weight).toFixed(2);
+  return `Ideal weight: ${idealWeight} kg (${diff > 0 ? '+' : ''}${diff}kg)`;
+}
+```
+
+<iframe
+  src="/js-from-zero-to-hero/demos/bmi/challenge-2/index.html"
+  width="100%"
+  height="450"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="BMI Challenge 2 Demo"
+/>
+
+## Resumo
+
+Neste módulo você aprendeu:
+
+- **Declarações de função**, **expressões** e **arrow functions**
+- **Parâmetros** vs **argumentos**
+- **Parâmetros padrão** e **parâmetros rest** (`...args`)
+- **Valores de retorno** e o padrão de **retorno antecipado**
+- **Escopo** — variáveis locais vs globais
+- Como construir uma calculadora de IMC usando funções com interação DOM
+
+A seguir: **DOM Básico** — como JavaScript interage com elementos HTML.

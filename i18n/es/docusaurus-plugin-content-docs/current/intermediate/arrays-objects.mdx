@@ -1,0 +1,345 @@
+---
+sidebar_position: 1
+---
+
+# Arrays y Objetos
+
+Los arrays y objetos son la columna vertebral de la gestión de datos en JavaScript. Dominarlos — junto con la sintaxis moderna como la desestructuración y el spread — mejorará dramáticamente cómo escribes y razonas sobre el código.
+
+## Teoría
+
+### Arrays
+
+Un array es una lista ordenada de valores. Los arrays de JavaScript son dinámicos y pueden contener tipos mixtos.
+
+```js
+const fruits = ["apple", "banana", "cherry"];
+console.log(fruits[0]); // "apple"
+console.log(fruits.length); // 3
+```
+
+#### Métodos Comunes de Array
+
+| Método | Descripción |
+|--------|-------------|
+| `push(val)` | Agregar al final |
+| `pop()` | Eliminar del final |
+| `shift()` | Eliminar del inicio |
+| `unshift(val)` | Agregar al inicio |
+| `slice(start, end)` | Devolver una porción (no mutante) |
+| `splice(start, deleteCount, ...items)` | Insertar/eliminar en el lugar (mutante) |
+| `indexOf(val)` | Encontrar índice del valor (-1 si no se encuentra) |
+| `includes(val)` | Verificar si el valor existe |
+| `find(fn)` | Devolver el primer elemento que coincida |
+| `filter(fn)` | Devolver todos los elementos que coincidan |
+| `map(fn)` | Transformar cada elemento |
+| `reduce(fn, init)` | Acumular a un único valor |
+
+Referencia MDN: [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)
+
+### Objetos
+
+Un objeto almacena pares clave-valor. Las claves son strings (o Symbols); los valores pueden ser cualquier cosa.
+
+```js
+const person = { name: "Alice", age: 30 };
+console.log(person.name);       // notación de punto
+console.log(person["age"]);     // notación de corchetes
+
+const key = "name";
+console.log(person[key]);       // acceso dinámico a clave
+```
+
+#### Métodos de Utilidad de Objetos
+
+- `Object.keys(obj)` — array de claves
+- `Object.values(obj)` — array de valores
+- `Object.entries(obj)` — array de pares `[clave, valor]`
+- `Object.assign(target, source)` — mezcla superficial
+- `Object.freeze(obj)` — prevenir modificaciones
+
+Referencia MDN: [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+### Desestructuración
+
+Extrae valores de arrays u objetos en variables.
+
+```js
+// Desestructuración de array
+const [first, second, ...rest] = [1, 2, 3, 4, 5];
+
+// Desestructuración de objeto
+const { name, age, city = "Unknown" } = person;
+
+// Anidado
+const { address: { street } } = { address: { street: "Main St" } };
+```
+
+Referencia MDN: [Asignación por desestructuración](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)
+
+### Operadores Spread y Rest
+
+```js
+// Spread: expandir un iterable
+const combined = [...arr1, ...arr2];
+const clone = { ...obj };
+
+// Rest: recopilar elementos restantes
+function sum(...numbers) {
+  return numbers.reduce((a, b) => a + b, 0);
+}
+```
+
+Referencia MDN: [Sintaxis spread](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)
+
+### Copia Superficial vs Profunda
+
+```js
+// Copia superficial — los objetos anidados aún son compartidos
+const shallow = { ...original };
+
+// Copia profunda — clon completamente independiente
+const deep = JSON.parse(JSON.stringify(original));
+// O usando structuredClone (moderno):
+const deep2 = structuredClone(original);
+```
+
+### Map y Set
+
+```js
+// Map — como un objeto, pero cualquier tipo de clave; preserva el orden de inserción
+const map = new Map();
+map.set("key", 42);
+map.get("key"); // 42
+map.has("key"); // true
+
+// Set — colección de valores únicos
+const set = new Set([1, 2, 2, 3]);
+set.size; // 3
+set.has(2); // true
+```
+
+Referencias MDN: [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) | [Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)
+
+---
+
+## Ejercicios
+
+<CodeRunner
+  title="Exercise 1 – Array push, pop, and length"
+  code={`function manageStack(items, newItem) {
+  // Push newItem onto items, then pop the last element and return
+  // an object with the removed item and the remaining array length.
+  // Example: manageStack([1, 2, 3], 4) => { removed: 4, length: 3 }
+  const arr = [...items];
+  arr.push(newItem);
+  const removed = arr.pop();
+  return { removed, length: arr.length };
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(manageStack([1, 2, 3], 4))", expected: '{"removed":4,"length":3}', description: "Push then pop returns the pushed item" },
+    { input: "JSON.stringify(manageStack([], 99))", expected: '{"removed":99,"length":0}', description: "Works on an empty array" },
+    { input: "JSON.stringify(manageStack(['a','b'], 'c'))", expected: '{"removed":"c","length":2}', description: "Works with strings" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2 – filter and map"
+  code={`function processScores(scores) {
+  // 1. Filter out scores below 50
+  // 2. Multiply each remaining score by 2
+  // 3. Return the resulting array
+  return scores
+    .filter(s => s >= 50)
+    .map(s => s * 2);
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(processScores([30, 50, 70, 45, 90]))", expected: "[100,140,180]", description: "Filters low scores and doubles the rest" },
+    { input: "JSON.stringify(processScores([10, 20, 30]))", expected: "[]", description: "All scores below 50 returns empty array" },
+    { input: "JSON.stringify(processScores([50, 100]))", expected: "[100,200]", description: "All scores at or above 50" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3 – reduce to sum"
+  code={`function sumArray(numbers) {
+  // Use Array.reduce to return the sum of all numbers.
+  // Return 0 for an empty array.
+  return numbers.reduce((acc, n) => acc + n, 0);
+}
+`}
+  testCases={[
+    { input: "sumArray([1, 2, 3, 4, 5])", expected: "15", description: "Sum of 1 through 5 is 15" },
+    { input: "sumArray([])", expected: "0", description: "Empty array returns 0" },
+    { input: "sumArray([-1, -2, 3])", expected: "0", description: "Handles negative numbers" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4 – Object access and Object.entries"
+  code={`function invertObject(obj) {
+  // Swap keys and values of the given object and return the new object.
+  // Example: { a: 1, b: 2 } => { '1': 'a', '2': 'b' }
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [v, k])
+  );
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(invertObject({ a: 1, b: 2 }))", expected: '{"1":"a","2":"b"}', description: "Basic inversion" },
+    { input: "JSON.stringify(invertObject({ x: 'hello' }))", expected: '{"hello":"x"}', description: "String value becomes key" },
+    { input: "JSON.stringify(invertObject({}))", expected: "{}", description: "Empty object stays empty" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5 – Destructuring"
+  code={`function getFirstAndLast(arr) {
+  // Use array destructuring to extract the first element.
+  // Use a rest parameter to capture the remaining elements,
+  // then return { first, last } where last is the last element.
+  const [first, ...rest] = arr;
+  const last = rest[rest.length - 1] ?? first;
+  return { first, last };
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(getFirstAndLast([10, 20, 30, 40]))", expected: '{"first":10,"last":40}', description: "Returns first and last elements" },
+    { input: "JSON.stringify(getFirstAndLast([5]))", expected: '{"first":5,"last":5}', description: "Single element — first equals last" },
+    { input: "JSON.stringify(getFirstAndLast([1, 2]))", expected: '{"first":1,"last":2}', description: "Two-element array" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6 – Spread and merge objects"
+  code={`function mergeWithDefaults(defaults, overrides) {
+  // Merge defaults and overrides using spread.
+  // Values in overrides should take precedence.
+  return { ...defaults, ...overrides };
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(mergeWithDefaults({ color: 'red', size: 'M' }, { size: 'L' }))", expected: '{"color":"red","size":"L"}', description: "Override replaces default value" },
+    { input: "JSON.stringify(mergeWithDefaults({ a: 1 }, { b: 2 }))", expected: '{"a":1,"b":2}', description: "Non-overlapping keys are merged" },
+    { input: "JSON.stringify(mergeWithDefaults({}, { x: 99 }))", expected: '{"x":99}', description: "Empty defaults" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 7 – Map and Set"
+  code={`function uniqueWordCount(sentence) {
+  // Split sentence into words (split by space),
+  // use a Set to count unique words,
+  // and return the count of unique words.
+  const words = sentence.toLowerCase().split(' ');
+  return new Set(words).size;
+}
+`}
+  testCases={[
+    { input: "uniqueWordCount('the cat sat on the mat')", expected: "5", description: "Counts unique words ignoring duplicates" },
+    { input: "uniqueWordCount('hello world')", expected: "2", description: "Two distinct words" },
+    { input: "uniqueWordCount('repeat repeat repeat')", expected: "1", description: "All duplicates returns 1" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 8 – Deep copy vs shallow copy"
+  code={`function safeUpdateNested(original, newScore) {
+  // Create a deep copy of the original object and update
+  // original.stats.score to newScore without mutating the original.
+  // Return the updated copy.
+  const copy = structuredClone(original);
+  copy.stats.score = newScore;
+  return copy;
+}
+`}
+  testCases={[
+    { input: "const obj = { name: 'Alice', stats: { score: 10 } }; const result = safeUpdateNested(obj, 99); obj.stats.score", expected: "10", description: "Original is not mutated" },
+    { input: "const obj = { name: 'Bob', stats: { score: 5 } }; safeUpdateNested(obj, 42).stats.score", expected: "42", description: "Copy has updated score" }
+  ]}
+/>
+
+---
+
+## Proyecto: Piedra-Papel-Tijera (Jokempo)
+
+En este proyecto construimos un clásico juego de **Piedra-Papel-Tijera**. Demuestra:
+
+- Almacenar el estado del juego en objetos y arrays
+- Usar `find` e `includes` para la lógica del juego
+- Rastrear un marcador con `Map`
+
+### Demo en Vivo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/jokempo/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Jokempo – Rock Paper Scissors Demo"
+/>
+
+### Guía
+
+La lógica principal mapea cada elección con lo que vence:
+
+```js
+const rules = {
+  rock: "scissors",
+  paper: "rock",
+  scissors: "paper",
+};
+
+function getResult(player, computer) {
+  if (player === computer) return "draw";
+  return rules[player] === computer ? "win" : "lose";
+}
+```
+
+El marcador se almacena en un `Map` para que cualquier clave de string (nombre del jugador) pueda usarse:
+
+```js
+const scoreboard = new Map();
+
+function updateScore(player, result) {
+  const current = scoreboard.get(player) ?? { wins: 0, losses: 0, draws: 0 };
+  current[result === "win" ? "wins" : result === "lose" ? "losses" : "draws"]++;
+  scoreboard.set(player, current);
+}
+```
+
+### Desafío 1 – Mejor de 5
+
+<iframe
+  src="/js-from-zero-to-hero/demos/jokempo/challenge-1/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Jokempo Challenge 1 – Best of 5"
+/>
+
+Modifica el juego para que juegue **mejor de 5 rondas**. Rastrea las rondas en un array y anuncia el ganador general una vez completadas 5 rondas.
+
+### Desafío 2 – Lagarto y Spock
+
+<iframe
+  src="/js-from-zero-to-hero/demos/jokempo/challenge-2/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Jokempo Challenge 2 – Lizard Spock"
+/>
+
+Extiende el objeto de reglas para soportar **Piedra-Papel-Tijera-Lagarto-Spock**. Cada opción debe vencer exactamente a otras dos — actualiza el mapa de `rules` en consecuencia.
+
+---
+
+## Resumen
+
+- Los arrays tienen un rico conjunto de métodos integrados; prefiere los **no mutantes** (`map`, `filter`, `slice`) cuando no quieras efectos secundarios.
+- Los objetos almacenan datos estructurados; `Object.entries` + `map` te permite transformarlos como arrays.
+- La **desestructuración** y el **spread** reducen el código repetitivo y hacen que la intención sea más clara.
+- Usa `structuredClone` (o `JSON.parse(JSON.stringify(...))`) para copias profundas de datos anidados.
+- `Map` y `Set` son mejores opciones que objetos simples cuando necesitas almacenamiento ordenado de clave-valor o colecciones de valores únicos.

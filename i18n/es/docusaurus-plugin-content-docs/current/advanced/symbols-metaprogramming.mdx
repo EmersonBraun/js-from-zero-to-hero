@@ -1,0 +1,633 @@
+---
+sidebar_position: 5
+---
+
+# Symbols y Metaprogramación
+
+La metaprogramación es la práctica de escribir código que opera sobre otro código — inspeccionándolo, modificando su comportamiento o interceptando sus operaciones en tiempo de ejecución. JavaScript proporciona tres pilares para esto: **Symbols** (claves únicas que evitan colisiones), **Proxy** (interceptar operaciones fundamentales de objetos) y **Reflect** (una API limpia para esas mismas operaciones).
+
+---
+
+## 1. ¿Qué Son los Symbols y Por Qué Existen?
+
+Antes de los Symbols, todas las claves de objeto eran cadenas de texto. Esto creaba problemas cuando múltiples bibliotecas intentaban agregar propiedades al mismo objeto — los nombres podían colisionar silenciosamente.
+
+`Symbol()` crea un **valor primitivo garantizado como único**. Dos symbols nunca son iguales, incluso si se crean con la misma descripción.
+
+```js
+const a = Symbol('id');
+const b = Symbol('id');
+console.log(a === b); // false — siempre únicos
+console.log(typeof a); // "symbol"
+console.log(a.toString()); // "Symbol(id)"
+console.log(a.description); // "id"
+```
+
+Los symbols no son enumerables en bucles `for...in`, no aparecen en `Object.keys()` y son excluidos de `JSON.stringify()`. Esto los hace ideales para adjuntar metadatos o puntos de extensión sin contaminar las APIs públicas.
+
+Referencia MDN: [Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)
+
+---
+
+## 2. Crear Symbols: `Symbol()` vs `Symbol.for()`
+
+`Symbol()` siempre crea un nuevo symbol único.
+
+`Symbol.for(key)` usa un **registro global de symbols** — retorna el mismo symbol para la misma cadena clave, entre realms (iframes, workers).
+
+```js
+const s1 = Symbol.for('app.user');
+const s2 = Symbol.for('app.user');
+console.log(s1 === s2); // true
+
+// Búsqueda inversa
+console.log(Symbol.keyFor(s1)); // "app.user"
+
+// Los symbols locales no tienen clave de registro
+const local = Symbol('local');
+console.log(Symbol.keyFor(local)); // undefined
+```
+
+Usa `Symbol.for()` cuando necesites symbols compartidos entre realms o módulos. Usa `Symbol()` para puntos de extensión privados/internos.
+
+---
+
+## 3. Symbols como Claves de Objeto
+
+```js
+const ID = Symbol('id');
+const ROLE = Symbol('role');
+
+const user = {
+  name: 'Alice',
+  [ID]: 42,
+  [ROLE]: 'admin',
+};
+
+console.log(user[ID]); // 42
+console.log(Object.keys(user)); // ["name"] — symbols excluidos
+console.log(Object.getOwnPropertySymbols(user)); // [Symbol(id), Symbol(role)]
+
+// JSON.stringify ignora los symbols
+console.log(JSON.stringify(user)); // {"name":"Alice"}
+```
+
+Las bibliotecas usan este patrón para adjuntar estado interno no enumerable a objetos de usuario sin arriesgar colisiones de claves.
+
+---
+
+## 4. Symbols Conocidos
+
+JavaScript usa symbols integrados (almacenados en `Symbol.*`) para conectarse a comportamientos fundamentales del lenguaje. Estos se llaman **symbols conocidos**.
+
+### `Symbol.iterator`
+
+Define el iterador por defecto de un objeto. Usado por `for...of`, spread y desestructuración.
+
+```js
+class Counter {
+  constructor(max) { this.max = max; }
+
+  [Symbol.iterator]() {
+    let n = 0, max = this.max;
+    return {
+      next() {
+        return n < max
+          ? { value: n++, done: false }
+          : { value: undefined, done: true };
+      }
+    };
+  }
+}
+
+console.log([...new Counter(4)]); // [0, 1, 2, 3]
+```
+
+### `Symbol.toPrimitive`
+
+Controla cómo un objeto se coerciona a un primitivo (número, cadena o por defecto).
+
+```js
+class Temperature {
+  constructor(celsius) { this.celsius = celsius; }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === 'number') return this.celsius;
+    if (hint === 'string') return `${this.celsius}°C`;
+    return this.celsius; // default
+  }
+}
+
+const temp = new Temperature(22);
+console.log(+temp);           // 22  (hint numérico)
+console.log(`Temp: ${temp}`); // "Temp: 22°C"  (hint de cadena)
+console.log(temp + 0);        // 22  (hint por defecto)
+```
+
+Referencia MDN: [Symbol.toPrimitive](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/toPrimitive)
+
+### `Symbol.hasInstance`
+
+Controla el comportamiento de `instanceof`.
+
+```js
+class EvenNumber {
+  static [Symbol.hasInstance](value) {
+    return typeof value === 'number' && value % 2 === 0;
+  }
+}
+
+console.log(4 instanceof EvenNumber); // true
+console.log(3 instanceof EvenNumber); // false
+```
+
+### `Symbol.toStringTag`
+
+Personaliza la salida de `Object.prototype.toString()`.
+
+```js
+class Database {
+  get [Symbol.toStringTag]() { return 'Database'; }
+}
+
+const db = new Database();
+console.log(Object.prototype.toString.call(db)); // "[object Database]"
+```
+
+### `Symbol.species`
+
+Especifica el constructor usado cuando se crean objetos derivados por métodos como `map`, `filter`, `slice`. Raramente necesario fuera del código de framework/biblioteca.
+
+Referencia MDN: [Well-known symbols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol#well-known_symbols)
+
+---
+
+## 5. El Objeto Proxy
+
+`Proxy` envuelve un objeto objetivo e intercepta operaciones fundamentales a través de **trampas del handler**. Cada operación que puedes realizar en un objeto tiene una trampa correspondiente.
+
+```js
+const proxy = new Proxy(target, handler);
+```
+
+El handler es un objeto cuyos métodos (trampas) interceptan operaciones en el objetivo.
+
+Referencia MDN: [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
+
+### Trampa `get`
+
+```js
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Getting: ${String(prop)}`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const obj = new Proxy({ x: 1 }, handler);
+obj.x; // registra "Getting: x", retorna 1
+```
+
+### Trampa `set`
+
+```js
+const validator = {
+  set(target, prop, value, receiver) {
+    if (prop === 'age' && (typeof value !== 'number' || value < 0)) {
+      throw new TypeError('Age must be a non-negative number');
+    }
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const person = new Proxy({}, validator);
+person.age = 25;  // OK
+person.age = -1;  // TypeError
+```
+
+### Trampa `has`
+
+Intercepta el operador `in`.
+
+```js
+const rangeProxy = new Proxy({}, {
+  has(target, prop) {
+    const num = Number(prop);
+    return num >= 1 && num <= 100;
+  }
+});
+
+console.log(50 in rangeProxy);  // true
+console.log(101 in rangeProxy); // false
+```
+
+### Trampa `deleteProperty`
+
+```js
+const frozen = new Proxy({ a: 1, b: 2 }, {
+  deleteProperty(target, prop) {
+    console.warn(`Deletion of "${prop}" was blocked`);
+    return false; // previene la eliminación
+  }
+});
+```
+
+### Trampa `apply`
+
+Intercepta llamadas a funciones.
+
+```js
+function greet(name) { return `Hello, ${name}!`; }
+
+const tracedGreet = new Proxy(greet, {
+  apply(target, thisArg, args) {
+    console.log(`Called with args: ${JSON.stringify(args)}`);
+    return Reflect.apply(target, thisArg, args);
+  }
+});
+
+tracedGreet('Alice'); // registra los argumentos, retorna "Hello, Alice!"
+```
+
+---
+
+## 6. La API Reflect
+
+`Reflect` proporciona métodos estáticos que reflejan cada trampa de Proxy. Sirve dos propósitos:
+
+1. **Reenviar operaciones desde trampas de Proxy** — siempre usa `Reflect` en lugar de operar directamente en el objetivo para preservar el comportamiento correcto de `this` con herencia.
+2. **Alternativas funcionales a operadores** — `Reflect.has(obj, key)` vs `key in obj`.
+
+```js
+// En lugar de:
+target[prop] = value;
+// Usar en trampas:
+Reflect.set(target, prop, value, receiver);
+
+// En lugar de:
+delete target[prop];
+Reflect.deleteProperty(target, prop);
+
+// En lugar de:
+new Ctor(...args);
+Reflect.construct(Ctor, args);
+```
+
+Referencia MDN: [Reflect](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect)
+
+---
+
+## 7. Patrones Prácticos de Metaprogramación
+
+### Proxy de Validación
+
+```js
+function createValidated(schema) {
+  return new Proxy({}, {
+    set(target, prop, value) {
+      if (schema[prop] && !schema[prop](value)) {
+        throw new TypeError(`Validation failed for "${prop}"`);
+      }
+      return Reflect.set(target, prop, value);
+    }
+  });
+}
+
+const user = createValidated({
+  name: v => typeof v === 'string' && v.length > 0,
+  age: v => Number.isInteger(v) && v >= 0 && v <= 150,
+});
+```
+
+### Proxy de Registro / Traza
+
+```js
+function createLogged(target, label = 'Object') {
+  return new Proxy(target, {
+    get(t, prop, receiver) {
+      const value = Reflect.get(t, prop, receiver);
+      if (typeof value === 'function') {
+        return function(...args) {
+          console.log(`[${label}] ${String(prop)}(${args.map(JSON.stringify).join(', ')})`);
+          return value.apply(this, args);
+        };
+      }
+      return value;
+    }
+  });
+}
+```
+
+### Datos Reactivos (estilo Vue)
+
+```js
+function reactive(data, onChange) {
+  return new Proxy(data, {
+    set(target, prop, value, receiver) {
+      const old = target[prop];
+      const result = Reflect.set(target, prop, value, receiver);
+      if (old !== value) onChange(prop, old, value);
+      return result;
+    }
+  });
+}
+
+const state = reactive({ count: 0 }, (key, from, to) => {
+  console.log(`${key}: ${from} → ${to}`);
+});
+
+state.count = 1; // registra "count: 0 → 1"
+```
+
+---
+
+## Ejercicios
+
+<CodeRunner
+  title="Symbol as Private Key"
+  code={`const _balance = Symbol('balance');
+const _owner = Symbol('owner');
+
+class BankAccount {
+  constructor(owner, initialBalance) {
+    this[_owner] = owner;
+    this[_balance] = initialBalance;
+  }
+
+  deposit(amount) {
+    if (amount <= 0) throw new Error('Amount must be positive');
+    this[_balance] += amount;
+    return this;
+  }
+
+  withdraw(amount) {
+    if (amount > this[_balance]) throw new Error('Insufficient funds');
+    this[_balance] -= amount;
+    return this;
+  }
+
+  get balance() { return this[_balance]; }
+  get owner() { return this[_owner]; }
+}
+
+function testAccount() {
+  const acc = new BankAccount('Alice', 100);
+  acc.deposit(50).withdraw(30);
+  return {
+    balance: acc.balance,
+    publicKeys: Object.keys(acc),
+    hasBalance: 'balance' in acc,
+  };
+}
+`}
+  testCases={[
+    { input: "testAccount().balance", expected: "120", description: "Deposit 50, withdraw 30 from 100 = 120" },
+    { input: "JSON.stringify(testAccount().publicKeys)", expected: "[]", description: "Symbol keys don't appear in Object.keys()" },
+    { input: "testAccount().hasBalance", expected: "false", description: "Symbol 'balance' not found via string 'balance'" }
+  ]}
+/>
+
+<CodeRunner
+  title="Symbol.toPrimitive"
+  code={`class Money {
+  constructor(amount, currency) {
+    this.amount = amount;
+    this.currency = currency;
+  }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === 'number') return this.amount;
+    if (hint === 'string') return \`\${this.amount} \${this.currency}\`;
+    return this.amount;
+  }
+
+  add(other) {
+    if (this.currency !== other.currency) throw new Error('Currency mismatch');
+    return new Money(this.amount + other.amount, this.currency);
+  }
+}
+
+function testMoney() {
+  const price = new Money(42.5, 'USD');
+  const tax = new Money(3.5, 'USD');
+  const total = price.add(tax);
+  return {
+    numeric: +price,
+    string: String(price),
+    total: +total,
+  };
+}
+`}
+  testCases={[
+    { input: "testMoney().numeric", expected: "42.5", description: "Numeric hint returns amount" },
+    { input: "testMoney().string", expected: "42.5 USD", description: "String hint returns formatted value" },
+    { input: "testMoney().total", expected: "46", description: "add() combines amounts" }
+  ]}
+/>
+
+<CodeRunner
+  title="Symbol.iterator Custom Collection"
+  code={`class LinkedList {
+  constructor() {
+    this.head = null;
+    this.size = 0;
+  }
+
+  push(value) {
+    this.head = { value, next: this.head };
+    this.size++;
+    return this;
+  }
+
+  [Symbol.iterator]() {
+    // Collect to array first (reverse LIFO to FIFO)
+    const items = [];
+    let node = this.head;
+    while (node) {
+      items.unshift(node.value);
+      node = node.next;
+    }
+    let index = 0;
+    return {
+      next() {
+        return index < items.length
+          ? { value: items[index++], done: false }
+          : { value: undefined, done: true };
+      }
+    };
+  }
+}
+
+function testList() {
+  const list = new LinkedList();
+  list.push(1).push(2).push(3);
+  return [...list];
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(testList())", expected: "[1,2,3]", description: "LinkedList iterates in insertion order" },
+    { input: "testList().length", expected: "3", description: "Spread produces array of correct length" },
+    { input: "Math.max(...testList())", expected: "3", description: "Spread works with Math.max" }
+  ]}
+/>
+
+<CodeRunner
+  title="Validation Proxy"
+  code={`function createValidated(rules) {
+  const data = {};
+  return new Proxy(data, {
+    set(target, prop, value, receiver) {
+      if (rules[prop]) {
+        const { test, message } = rules[prop];
+        if (!test(value)) {
+          throw new TypeError(\`[\${prop}] \${message}\`);
+        }
+      }
+      return Reflect.set(target, prop, value, receiver);
+    },
+    get(target, prop, receiver) {
+      return Reflect.get(target, prop, receiver);
+    }
+  });
+}
+
+function testValidation() {
+  const user = createValidated({
+    name: { test: v => typeof v === 'string' && v.length >= 2, message: 'must be string ≥ 2 chars' },
+    age: { test: v => Number.isInteger(v) && v >= 0 && v <= 120, message: 'must be integer 0-120' },
+  });
+
+  user.name = 'Alice';
+  user.age = 30;
+
+  let error = null;
+  try { user.age = -5; } catch (e) { error = e.message; }
+
+  return { name: user.name, age: user.age, error };
+}
+`}
+  testCases={[
+    { input: "testValidation().name", expected: "Alice", description: "Valid name is stored" },
+    { input: "testValidation().age", expected: "30", description: "Valid age is stored" },
+    { input: "testValidation().error", expected: "[age] must be integer 0-120", description: "Invalid age throws TypeError" }
+  ]}
+/>
+
+<CodeRunner
+  title="Reflect API Usage"
+  code={`function demonstrateReflect() {
+  const obj = { a: 1, b: 2 };
+
+  // Reflect.has — like 'in' operator
+  const hasA = Reflect.has(obj, 'a');
+  const hasC = Reflect.has(obj, 'c');
+
+  // Reflect.ownKeys — all own keys including symbols
+  const sym = Symbol('x');
+  obj[sym] = 99;
+  const keys = Reflect.ownKeys(obj);
+
+  // Reflect.deleteProperty
+  Reflect.deleteProperty(obj, 'b');
+
+  // Reflect.set and Reflect.get
+  Reflect.set(obj, 'c', 42);
+  const cVal = Reflect.get(obj, 'c');
+
+  return { hasA, hasC, keyCount: keys.length, cVal, hasB: Reflect.has(obj, 'b') };
+}
+`}
+  testCases={[
+    { input: "demonstrateReflect().hasA", expected: "true", description: "Reflect.has finds existing key" },
+    { input: "demonstrateReflect().hasC", expected: "false", description: "Reflect.has returns false for missing key" },
+    { input: "demonstrateReflect().keyCount", expected: "3", description: "Reflect.ownKeys includes symbol keys" },
+    { input: "demonstrateReflect().cVal", expected: "42", description: "Reflect.set and get work together" },
+    { input: "demonstrateReflect().hasB", expected: "false", description: "Reflect.deleteProperty removes key" }
+  ]}
+/>
+
+<CodeRunner
+  title="Proxy: Logging Trap"
+  code={`function createLogged(target) {
+  const log = [];
+  const proxy = new Proxy(target, {
+    get(t, prop, receiver) {
+      log.push({ op: 'get', prop: String(prop) });
+      return Reflect.get(t, prop, receiver);
+    },
+    set(t, prop, value, receiver) {
+      log.push({ op: 'set', prop: String(prop), value });
+      return Reflect.set(t, prop, value, receiver);
+    }
+  });
+  return { proxy, log };
+}
+
+function testLogging() {
+  const { proxy, log } = createLogged({ x: 10 });
+  const _ = proxy.x;       // get
+  proxy.y = 20;             // set
+  const __ = proxy.y;      // get
+  return {
+    xVal: proxy.x,
+    yVal: proxy.y,
+    ops: log.filter(e => e.prop !== 'x' || e.op !== 'get' || log.indexOf(e) > 0)
+             .map(e => e.op + ':' + e.prop),
+    totalOps: log.length
+  };
+}
+`}
+  testCases={[
+    { input: "testLogging().xVal", expected: "10", description: "Proxy transparently returns original value" },
+    { input: "testLogging().yVal", expected: "20", description: "Proxy set then get works correctly" },
+    { input: "testLogging().totalOps >= 3", expected: "true", description: "At least 3 operations logged" }
+  ]}
+/>
+
+<CodeRunner
+  title="Symbol.hasInstance Custom instanceof"
+  code={`class PositiveInteger {
+  static [Symbol.hasInstance](value) {
+    return Number.isInteger(value) && value > 0;
+  }
+}
+
+class NonEmptyString {
+  static [Symbol.hasInstance](value) {
+    return typeof value === 'string' && value.trim().length > 0;
+  }
+}
+
+function testHasInstance() {
+  return {
+    pos5: 5 instanceof PositiveInteger,
+    neg5: -5 instanceof PositiveInteger,
+    zero: 0 instanceof PositiveInteger,
+    float: 2.5 instanceof PositiveInteger,
+    hello: 'hello' instanceof NonEmptyString,
+    empty: '' instanceof NonEmptyString,
+    spaces: '   ' instanceof NonEmptyString,
+  };
+}
+`}
+  testCases={[
+    { input: "testHasInstance().pos5", expected: "true", description: "5 is a positive integer" },
+    { input: "testHasInstance().neg5", expected: "false", description: "-5 is not positive" },
+    { input: "testHasInstance().float", expected: "false", description: "2.5 is not an integer" },
+    { input: "testHasInstance().hello", expected: "true", description: "'hello' is a non-empty string" },
+    { input: "testHasInstance().spaces", expected: "false", description: "Whitespace-only string is empty" }
+  ]}
+/>
+
+---
+
+## Resumen
+
+- Los **Symbols** son primitivos únicos y no enumerables usados como claves de objeto libres de colisiones o para adjuntar metadatos no públicos.
+- `Symbol()` crea un symbol local siempre único; `Symbol.for(key)` registra y recupera symbols de un registro global.
+- Los **symbols conocidos** son los ganchos de extensión para comportamientos integrados del lenguaje: `Symbol.iterator` (iteración), `Symbol.toPrimitive` (coerción), `Symbol.hasInstance` (`instanceof`), `Symbol.toStringTag` (etiqueta de tipo), `Symbol.species` (constructor derivado).
+- **Proxy** envuelve cualquier objeto e intercepta operaciones a través de trampas (`get`, `set`, `has`, `deleteProperty`, `apply` y más).
+- Siempre reenvía a **Reflect** dentro de las trampas de Proxy para preservar el comportamiento correcto de la cadena de prototipos.
+- **Reflect** proporciona una API funcional que refleja cada trampa de Proxy y cada operador de objeto.
+- Los patrones prácticos de metaprogramación incluyen **proxies de validación** (aplicar invariantes en la asignación), **proxies de registro** (rastrear todas las operaciones) y **datos reactivos** (disparar efectos secundarios en mutaciones, como se ve en Vue y MobX).
+- Estos primitivos son la base de los frameworks modernos de JavaScript — entenderlos revela la maquinaria detrás de las propiedades computadas, el binding bidireccional y el estado observable.

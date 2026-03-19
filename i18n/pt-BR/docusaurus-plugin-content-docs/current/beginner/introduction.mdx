@@ -1,0 +1,310 @@
+---
+sidebar_position: 1
+---
+
+# Introdução ao JavaScript
+
+Bem-vindo ao seu primeiro passo no mundo do JavaScript! Este módulo vai te ensinar o que é JavaScript, como ele funciona no navegador e como escrever suas primeiras linhas de código.
+
+## O que é JavaScript?
+
+**JavaScript** (frequentemente abreviado como **JS**) é uma linguagem de programação leve e interpretada que é uma das três tecnologias fundamentais da World Wide Web, junto com HTML e CSS.
+
+- **HTML** define a estrutura de uma página web (cabeçalhos, parágrafos, botões)
+- **CSS** define a apresentação e o estilo (cores, fontes, layout)
+- **JavaScript** define o comportamento (o que acontece quando você clica em um botão, como os dados são validados, animações)
+
+JavaScript foi criado em 1995 por Brendan Eich em apenas 10 dias enquanto trabalhava na Netscape. Apesar do nome, JavaScript não tem nenhuma relação com a linguagem de programação Java — o nome foi uma decisão de marketing.
+
+Hoje, JavaScript é a linguagem de programação mais utilizada no mundo. Ela roda em todos os navegadores web, em servidores (via Node.js), em aplicativos móveis, aplicativos desktop e até em dispositivos IoT.
+
+> **Referência MDN:** [O que é JavaScript?](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/What_is_JavaScript)
+
+## Como o JavaScript Funciona no Navegador
+
+Todo navegador web moderno (Chrome, Firefox, Safari, Edge) possui um **motor JavaScript** embutido que pode executar código JavaScript:
+
+| Navegador | Motor |
+|---|---|
+| Chrome | V8 |
+| Firefox | SpiderMonkey |
+| Safari | JavaScriptCore |
+| Edge | V8 |
+
+Quando um navegador carrega uma página web, ele:
+1. Analisa o **HTML** para construir o DOM (Document Object Model)
+2. Aplica os estilos **CSS**
+3. Executa qualquer código **JavaScript** que encontrar
+
+## O Console do Navegador
+
+O **console do navegador** é uma ferramenta de desenvolvedor embutida em todos os navegadores onde você pode digitar e executar código JavaScript imediatamente. É o seu melhor amigo para aprendizado e depuração.
+
+### Como abrir:
+- **Chrome/Edge:** Pressione `F12` ou `Ctrl+Shift+J` (Windows/Linux) ou `Cmd+Option+J` (Mac)
+- **Firefox:** Pressione `F12` ou `Ctrl+Shift+K` (Windows/Linux) ou `Cmd+Option+K` (Mac)
+- **Safari:** Ative o menu Desenvolvedor nas Preferências, depois pressione `Cmd+Option+C`
+
+Tente abrir o console do seu navegador agora e digitando:
+
+```javascript
+2 + 2
+```
+
+Você deve ver `4` como resultado. O console **avalia** a expressão e mostra o resultado.
+
+## `console.log()` — Sua Primeira Ferramenta
+
+`console.log()` é uma função que imprime (registra) uma mensagem no console do navegador. É a ferramenta de depuração mais básica e mais utilizada em JavaScript.
+
+```javascript
+console.log("Hello, World!");
+```
+
+Isso vai imprimir `Hello, World!` no console.
+
+Você pode registrar múltiplos valores separados por vírgulas:
+
+```javascript
+console.log("My name is", "Emerson");
+console.log("2 + 2 =", 2 + 2);
+```
+
+Você também pode registrar números, booleanos e expressões:
+
+```javascript
+console.log(42);
+console.log(true);
+console.log(10 > 5);
+```
+
+> **Referência MDN:** [console.log()](https://developer.mozilla.org/en-US/docs/Web/API/console/log_static)
+
+## Adicionando JavaScript a uma Página HTML
+
+Existem duas formas principais de adicionar JavaScript a uma página web:
+
+### 1. Script Inline (dentro do arquivo HTML)
+
+Use a tag `<script>` diretamente no seu HTML:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My First JS Page</title>
+</head>
+<body>
+  <h1>Hello!</h1>
+
+  <script>
+    console.log("This script runs when the page loads!");
+    document.querySelector("h1").textContent = "Hello from JavaScript!";
+  </script>
+</body>
+</html>
+```
+
+**Importante:** Coloque a tag `<script>` no **final do `<body>`** para que os elementos HTML sejam carregados antes que o script tente acessá-los.
+
+### 2. Script Externo (arquivo `.js` separado)
+
+Crie um arquivo separado (ex.: `index.js`) e vincule-o:
+
+```html
+<!-- index.html -->
+<body>
+  <h1>Hello!</h1>
+  <script src="index.js"></script>
+</body>
+```
+
+```javascript
+// index.js
+console.log("This comes from an external file!");
+```
+
+**Esta é a abordagem preferida** para projetos reais porque mantém seu código organizado e reutilizável.
+
+> **Referência MDN:** [O que deu errado? Solucionando problemas de JavaScript](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/What_went_wrong)
+
+## Comentários
+
+Comentários são notas no seu código que o JavaScript ignora. Eles ajudam você (e outras pessoas) a entender o que o código faz.
+
+```javascript
+// This is a single-line comment
+
+/*
+  This is a
+  multi-line comment
+*/
+
+console.log("This runs"); // You can also comment at the end of a line
+```
+
+## Seu Primeiro Programa
+
+Vamos juntar tudo. Aqui está um programa simples que saúda o usuário:
+
+```javascript
+// My first JavaScript program
+let name = "World";
+console.log("Hello, " + name + "!");
+console.log("Welcome to JavaScript!");
+```
+
+Este programa:
+1. Cria uma **variável** chamada `name` com o valor `"World"`
+2. **Concatena** (une) strings usando `+`
+3. Imprime duas mensagens no console
+
+Não se preocupe se você não entender totalmente variáveis e concatenação de strings ainda — vamos cobri-las em detalhes no próximo módulo!
+
+## Exercícios
+
+Agora é sua vez! Experimente os exercícios interativos abaixo. Clique em **"Run Code"** para executar o código e verificar se sua solução passa nos casos de teste.
+
+### Exercício 1: Hello World
+
+<CodeRunner
+  title="Exercise 1: Write your first console.log"
+  code={`// Write a console.log that prints "Hello, World!"
+function hello() {
+  return "Hello, World!";
+}
+`}
+  testCases={[
+    { input: "hello()", expected: "\"Hello, World!\"", description: "Should return Hello, World!" }
+  ]}
+/>
+
+### Exercício 2: Matemática Simples
+
+<CodeRunner
+  title="Exercise 2: Return the sum of two numbers"
+  code={`// Write a function that returns the sum of a and b
+function add(a, b) {
+  return a + b;
+}
+`}
+  testCases={[
+    { input: "add(2, 3)", expected: "5", description: "2 + 3 should be 5" },
+    { input: "add(10, 20)", expected: "30", description: "10 + 20 should be 30" },
+    { input: "add(-1, 1)", expected: "0", description: "-1 + 1 should be 0" }
+  ]}
+/>
+
+### Exercício 3: Concatenação de Strings
+
+<CodeRunner
+  title="Exercise 3: Create a greeting message"
+  code={`// Write a function that returns "Hello, <name>!"
+// For example, greet("Alice") should return "Hello, Alice!"
+function greet(name) {
+  return "Hello, " + name + "!";
+}
+`}
+  testCases={[
+    { input: "greet('Alice')", expected: "\"Hello, Alice!\"", description: "Should greet Alice" },
+    { input: "greet('JavaScript')", expected: "\"Hello, JavaScript!\"", description: "Should greet JavaScript" },
+    { input: "greet('World')", expected: "\"Hello, World!\"", description: "Should greet World" }
+  ]}
+/>
+
+### Exercício 4: Comparação Básica
+
+<CodeRunner
+  title="Exercise 4: Check if a number is positive"
+  code={`// Write a function that returns true if the number is positive, false otherwise
+function isPositive(num) {
+  return num > 0;
+}
+`}
+  testCases={[
+    { input: "isPositive(5)", expected: "true", description: "5 is positive" },
+    { input: "isPositive(-3)", expected: "false", description: "-3 is not positive" },
+    { input: "isPositive(0)", expected: "false", description: "0 is not positive" }
+  ]}
+/>
+
+### Exercício 5: Comprimento de String
+
+<CodeRunner
+  title="Exercise 5: Return the length of a string"
+  code={`// Write a function that returns how many characters are in a string
+// Hint: use the .length property
+function getLength(str) {
+  return str.length;
+}
+`}
+  testCases={[
+    { input: "getLength('hello')", expected: "5", description: "hello has 5 characters" },
+    { input: "getLength('')", expected: "0", description: "empty string has 0 characters" },
+    { input: "getLength('JavaScript')", expected: "10", description: "JavaScript has 10 characters" }
+  ]}
+/>
+
+### Exercício 6: Multiplicar Dois Números
+
+<CodeRunner
+  title="Exercise 6: Return the product of two numbers"
+  code={`// Write a function that returns a * b
+function multiply(a, b) {
+  return a * b;
+}
+`}
+  testCases={[
+    { input: "multiply(3, 4)", expected: "12", description: "3 * 4 = 12" },
+    { input: "multiply(0, 100)", expected: "0", description: "0 * 100 = 0" },
+    { input: "multiply(-2, 5)", expected: "-10", description: "-2 * 5 = -10" }
+  ]}
+/>
+
+### Exercício 7: Par ou Ímpar
+
+<CodeRunner
+  title="Exercise 7: Check if a number is even"
+  code={`// Write a function that returns true if the number is even, false if odd
+// Hint: use the modulo operator (%)
+function isEven(num) {
+  return num % 2 === 0;
+}
+`}
+  testCases={[
+    { input: "isEven(4)", expected: "true", description: "4 is even" },
+    { input: "isEven(7)", expected: "false", description: "7 is odd" },
+    { input: "isEven(0)", expected: "true", description: "0 is even" }
+  ]}
+/>
+
+### Exercício 8: Converter para Maiúsculas
+
+<CodeRunner
+  title="Exercise 8: Convert a string to uppercase"
+  code={`// Write a function that returns the string in ALL CAPS
+// Hint: use the .toUpperCase() method
+function shout(str) {
+  return str.toUpperCase();
+}
+`}
+  testCases={[
+    { input: "shout('hello')", expected: "\"HELLO\"", description: "hello becomes HELLO" },
+    { input: "shout('javascript')", expected: "\"JAVASCRIPT\"", description: "javascript becomes JAVASCRIPT" },
+    { input: "shout('Hi There')", expected: "\"HI THERE\"", description: "Hi There becomes HI THERE" }
+  ]}
+/>
+
+## Resumo
+
+Neste módulo você aprendeu:
+
+- **JavaScript** é a linguagem de programação da web, rodando em todos os navegadores
+- O **console do navegador** permite executar código JS diretamente
+- **`console.log()`** imprime mensagens no console
+- A tag **`<script>`** adiciona JavaScript a uma página HTML
+- **Comentários** ajudam a documentar seu código (`//` para linha única, `/* */` para múltiplas linhas)
+- Você pode usar **operadores** como `+`, `*`, `%`, `>` para trabalhar com valores
+- **Strings** têm propriedades e métodos úteis como `.length` e `.toUpperCase()`
+
+No próximo módulo, vamos nos aprofundar em **Variáveis & Tipos** — os blocos fundamentais de todo programa JavaScript.

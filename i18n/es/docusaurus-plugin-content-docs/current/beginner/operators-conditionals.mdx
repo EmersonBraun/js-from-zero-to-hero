@@ -1,0 +1,528 @@
+---
+sidebar_position: 3
+---
+
+# Operadores y Condicionales
+
+En este módulo aprenderás cómo realizar cálculos, comparar valores y tomar decisiones en tu código. Estos son los bloques de construcción que hacen que los programas sean dinámicos e interactivos.
+
+## Operadores Aritméticos
+
+JavaScript soporta todas las operaciones matemáticas básicas:
+
+| Operador | Nombre | Ejemplo | Resultado |
+|---|---|---|---|
+| `+` | Suma | `5 + 3` | `8` |
+| `-` | Resta | `10 - 4` | `6` |
+| `*` | Multiplicación | `3 * 7` | `21` |
+| `/` | División | `20 / 4` | `5` |
+| `%` | Módulo (resto) | `10 % 3` | `1` |
+| `**` | Exponenciación | `2 ** 3` | `8` |
+
+El **operador módulo** (`%`) devuelve el resto de una división. Es muy útil para verificar si un número es par o impar:
+
+```javascript
+10 % 2  // 0 → par (sin resto)
+7 % 2   // 1 → impar (resto de 1)
+```
+
+> **Referencia MDN:** [Operadores aritméticos](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators#arithmetic_operators)
+
+## Operadores de Comparación
+
+Los operadores de comparación comparan dos valores y devuelven un **booleano** (`true` o `false`):
+
+| Operador | Significado | Ejemplo | Resultado |
+|---|---|---|---|
+| `===` | Igualdad estricta | `5 === 5` | `true` |
+| `!==` | Desigualdad estricta | `5 !== 3` | `true` |
+| `>` | Mayor que | `10 > 5` | `true` |
+| `<` | Menor que | `3 < 7` | `true` |
+| `>=` | Mayor o igual que | `5 >= 5` | `true` |
+| `<=` | Menor o igual que | `3 <= 2` | `false` |
+
+### `===` vs `==`
+
+JavaScript tiene dos operadores de igualdad:
+
+- **`===` (igualdad estricta)** — compara tanto el valor COMO el tipo. **Siempre usa este.**
+- **`==` (igualdad débil)** — compara valores con coerción de tipos (puede producir resultados inesperados)
+
+```javascript
+5 === 5      // true (mismo valor, mismo tipo)
+5 === "5"    // false (tipos diferentes: number vs string)
+5 == "5"     // true (débil: ¡convierte string a número!)
+```
+
+**Regla general:** Siempre usa `===` y `!==` para evitar bugs causados por la coerción de tipos.
+
+> **Referencia MDN:** [Operadores de comparación](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Comparison_Operators)
+
+## Operadores Lógicos
+
+Los operadores lógicos combinan expresiones booleanas:
+
+| Operador | Nombre | Descripción |
+|---|---|---|
+| `&&` | AND | `true` si AMBOS lados son true |
+| `\|\|` | OR | `true` si AL MENOS UN lado es true |
+| `!` | NOT | Invierte el valor booleano |
+
+```javascript
+true && true    // true
+true && false   // false
+true || false   // true
+false || false  // false
+!true           // false
+!false          // true
+```
+
+Ejemplo práctico:
+
+```javascript
+let age = 25;
+let hasLicense = true;
+
+// Puede manejar: debe tener 18+ Y tener licencia
+let canDrive = age >= 18 && hasLicense;  // true
+```
+
+> **Referencia MDN:** [Operadores lógicos](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_AND)
+
+## Sentencias `if / else`
+
+La sentencia `if` ejecuta código solo cuando una condición es `true`:
+
+```javascript
+let temperature = 35;
+
+if (temperature > 30) {
+  console.log("¡Hace calor afuera!");
+}
+```
+
+Agrega un bloque `else` para cuando la condición es `false`:
+
+```javascript
+let temperature = 15;
+
+if (temperature > 30) {
+  console.log("¡Hace calor afuera!");
+} else {
+  console.log("No hace tanto calor.");
+}
+```
+
+Usa `else if` para múltiples condiciones:
+
+```javascript
+let temperature = 15;
+
+if (temperature > 30) {
+  console.log("¡Hace calor!");
+} else if (temperature > 20) {
+  console.log("Está templado.");
+} else if (temperature > 10) {
+  console.log("Está fresco.");
+} else {
+  console.log("¡Hace frío!");
+}
+```
+
+> **Referencia MDN:** [if...else](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else)
+
+## Sentencia `switch`
+
+Cuando necesitas comparar un valor contra muchas opciones, `switch` es más limpio que múltiples `if/else if`:
+
+```javascript
+let day = "Monday";
+
+switch (day) {
+  case "Monday":
+    console.log("Inicio de semana");
+    break;
+  case "Friday":
+    console.log("¡Casi fin de semana!");
+    break;
+  case "Saturday":
+  case "Sunday":
+    console.log("¡Fin de semana!");
+    break;
+  default:
+    console.log("Día normal");
+}
+```
+
+**Importante:** ¡No olvides la sentencia `break`! Sin ella, la ejecución "cae" al siguiente caso.
+
+> **Referencia MDN:** [switch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch)
+
+## Operador Ternario
+
+El operador ternario es una forma abreviada para sentencias `if/else` simples:
+
+```javascript
+// Sintaxis: condición ? valorSiVerdadero : valorSiFalso
+
+let age = 20;
+let status = age >= 18 ? "adult" : "minor";
+// status es "adult"
+```
+
+Esto es equivalente a:
+
+```javascript
+let status;
+if (age >= 18) {
+  status = "adult";
+} else {
+  status = "minor";
+}
+```
+
+El operador ternario es excelente para condiciones cortas y simples. Para lógica compleja, usa `if/else`.
+
+> **Referencia MDN:** [Operador condicional (ternario)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_operator)
+
+## Ejercicios
+
+### Ejercicio 1: Valor Absoluto
+
+<CodeRunner
+  title="Exercise 1: Return the absolute value of a number"
+  code={`// Return the absolute value (always positive) of a number
+// Do NOT use Math.abs — use an if/else or ternary
+function absoluteValue(num) {
+  return num < 0 ? -num : num;
+}
+`}
+  testCases={[
+    { input: "absoluteValue(-5)", expected: "5", description: "-5 becomes 5" },
+    { input: "absoluteValue(3)", expected: "3", description: "3 stays 3" },
+    { input: "absoluteValue(0)", expected: "0", description: "0 stays 0" }
+  ]}
+/>
+
+### Ejercicio 2: Calculadora de Notas
+
+<CodeRunner
+  title="Exercise 2: Convert a score to a letter grade"
+  code={`// Return the letter grade for a given score:
+// 90-100 → "A", 80-89 → "B", 70-79 → "C", 60-69 → "D", below 60 → "F"
+function getGrade(score) {
+  if (score >= 90) return "A";
+  if (score >= 80) return "B";
+  if (score >= 70) return "C";
+  if (score >= 60) return "D";
+  return "F";
+}
+`}
+  testCases={[
+    { input: "getGrade(95)", expected: "\"A\"", description: "95 is an A" },
+    { input: "getGrade(85)", expected: "\"B\"", description: "85 is a B" },
+    { input: "getGrade(72)", expected: "\"C\"", description: "72 is a C" },
+    { input: "getGrade(65)", expected: "\"D\"", description: "65 is a D" },
+    { input: "getGrade(50)", expected: "\"F\"", description: "50 is an F" }
+  ]}
+/>
+
+### Ejercicio 3: Fizz Buzz
+
+<CodeRunner
+  title="Exercise 3: Classic FizzBuzz"
+  code={`// Return "Fizz" if divisible by 3, "Buzz" if divisible by 5,
+// "FizzBuzz" if divisible by both, or the number as a string otherwise
+function fizzBuzz(num) {
+  if (num % 3 === 0 && num % 5 === 0) return "FizzBuzz";
+  if (num % 3 === 0) return "Fizz";
+  if (num % 5 === 0) return "Buzz";
+  return String(num);
+}
+`}
+  testCases={[
+    { input: "fizzBuzz(15)", expected: "\"FizzBuzz\"", description: "15 → FizzBuzz" },
+    { input: "fizzBuzz(9)", expected: "\"Fizz\"", description: "9 → Fizz" },
+    { input: "fizzBuzz(10)", expected: "\"Buzz\"", description: "10 → Buzz" },
+    { input: "fizzBuzz(7)", expected: "\"7\"", description: "7 → '7'" }
+  ]}
+/>
+
+### Ejercicio 4: Máximo de Tres
+
+<CodeRunner
+  title="Exercise 4: Find the largest of three numbers"
+  code={`// Return the largest of three numbers
+function maxOfThree(a, b, c) {
+  if (a >= b && a >= c) return a;
+  if (b >= a && b >= c) return b;
+  return c;
+}
+`}
+  testCases={[
+    { input: "maxOfThree(1, 2, 3)", expected: "3", description: "max of 1,2,3 is 3" },
+    { input: "maxOfThree(10, 5, 8)", expected: "10", description: "max of 10,5,8 is 10" },
+    { input: "maxOfThree(-1, -5, -2)", expected: "-1", description: "max of -1,-5,-2 is -1" }
+  ]}
+/>
+
+### Ejercicio 5: Tipo de Día (switch)
+
+<CodeRunner
+  title="Exercise 5: Is it a weekday or weekend?"
+  code={`// Use a switch statement to return "weekend" for Saturday/Sunday
+// and "weekday" for all other days
+function dayType(day) {
+  switch (day) {
+    case "Saturday":
+    case "Sunday":
+      return "weekend";
+    default:
+      return "weekday";
+  }
+}
+`}
+  testCases={[
+    { input: "dayType('Saturday')", expected: "\"weekend\"", description: "Saturday is weekend" },
+    { input: "dayType('Sunday')", expected: "\"weekend\"", description: "Sunday is weekend" },
+    { input: "dayType('Monday')", expected: "\"weekday\"", description: "Monday is weekday" },
+    { input: "dayType('Wednesday')", expected: "\"weekday\"", description: "Wednesday is weekday" }
+  ]}
+/>
+
+### Ejercicio 6: Precio de Entrada
+
+<CodeRunner
+  title="Exercise 6: Calculate ticket price by age"
+  code={`// Children (0-12): 5, Teens (13-17): 8, Adults (18-64): 12, Seniors (65+): 7
+function ticketPrice(age) {
+  if (age <= 12) return 5;
+  if (age <= 17) return 8;
+  if (age <= 64) return 12;
+  return 7;
+}
+`}
+  testCases={[
+    { input: "ticketPrice(8)", expected: "5", description: "Child pays 5" },
+    { input: "ticketPrice(15)", expected: "8", description: "Teen pays 8" },
+    { input: "ticketPrice(30)", expected: "12", description: "Adult pays 12" },
+    { input: "ticketPrice(70)", expected: "7", description: "Senior pays 7" }
+  ]}
+/>
+
+### Ejercicio 7: Verificación Lógica
+
+<CodeRunner
+  title="Exercise 7: Can a person vote?"
+  code={`// A person can vote if they are 18+ AND a citizen
+function canVote(age, isCitizen) {
+  return age >= 18 && isCitizen;
+}
+`}
+  testCases={[
+    { input: "canVote(20, true)", expected: "true", description: "20 year old citizen can vote" },
+    { input: "canVote(20, false)", expected: "false", description: "20 year old non-citizen cannot vote" },
+    { input: "canVote(16, true)", expected: "false", description: "16 year old citizen cannot vote" }
+  ]}
+/>
+
+### Ejercicio 8: Restringir un Valor
+
+<CodeRunner
+  title="Exercise 8: Clamp a number between min and max"
+  code={`// Return the number clamped between min and max
+// If num < min, return min. If num > max, return max. Otherwise return num.
+function clamp(num, min, max) {
+  if (num < min) return min;
+  if (num > max) return max;
+  return num;
+}
+`}
+  testCases={[
+    { input: "clamp(5, 1, 10)", expected: "5", description: "5 is within 1-10" },
+    { input: "clamp(-3, 0, 100)", expected: "0", description: "-3 clamped to 0" },
+    { input: "clamp(150, 0, 100)", expected: "100", description: "150 clamped to 100" }
+  ]}
+/>
+
+## Proyecto: Switch Light
+
+¡Ahora apliquemos lo que aprendiste a un proyecto real! **Switch Light** es una bombilla interactiva que responde a eventos del mouse usando condicionales.
+
+### Cómo Funciona
+
+El proyecto tiene una imagen de bombilla que cambia según la interacción del usuario:
+
+- **Pasar el mouse** sobre la bombilla → la luz se ENCIENDE
+- **Alejar el mouse** → la luz se APAGA
+- **Hacer clic** en la bombilla → la luz se ROMPE (y queda rota)
+
+La lógica principal usa **condicionales** y **indicadores booleanos** para controlar el estado:
+
+```javascript
+let broken = false;
+
+function changeLight(element, type) {
+  // Si ya está rota, no hacer nada (retorno anticipado con condicional)
+  if (broken === true) return;
+
+  element.srcElement.src = `images/light-${type}.png`;
+
+  if (type === 'broken') {
+    broken = true;  // Una vez rota, se queda rota
+  }
+}
+```
+
+Conceptos clave demostrados:
+- **Variables booleanas** (`broken`) para rastrear estado
+- **Sentencias `if`** para lógica condicional y retornos anticipados
+- **Template literals** para strings dinámicos
+- **Event listeners** (`mouseenter`, `mouseleave`, `click`) para la interacción del usuario
+
+### Demo en Vivo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/switch-light/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Switch Light Demo"
+/>
+
+### Guía Paso a Paso
+
+**1. Estructura HTML**
+
+El HTML es simple — una imagen y un botón:
+
+```html
+<div class="container">
+  <div class="box">
+    <img id="light" src="images/light-off.png" alt="light">
+  </div>
+  <div class="box">
+    <button id="btn" class="button" onclick="toogleType()">NORMAL</button>
+  </div>
+</div>
+<script src="index.js"></script>
+```
+
+**2. Variables de Estado**
+
+Tres variables rastrean el estado actual de la luz:
+
+```javascript
+let broken = false;  // ¿Está rota la luz?
+let on = true;       // ¿Está encendida actualmente?
+let type = 'NORMAL'; // Modo actual: NORMAL o SWITCH
+```
+
+**3. Event Listeners**
+
+La imagen de la luz escucha tres eventos:
+
+```javascript
+const light = document.getElementById('light');
+
+light.addEventListener('mouseenter', (element) => changeLight(element, 'on'));
+light.addEventListener('mouseleave', (element) => changeLight(element, 'off'));
+light.addEventListener('click', (element) => {
+  if (type === 'NORMAL') {
+    changeLight(element, 'broken');
+  } else {
+    toogleLight(element);
+  }
+});
+```
+
+Observa cómo el handler de `click` usa un **`if/else`** para decidir el comportamiento según el modo actual.
+
+**4. El Operador Ternario en Acción**
+
+El botón de cambio de modo usa un **operador ternario**:
+
+```javascript
+function toogleType() {
+  type = type === 'NORMAL' ? 'SWITCH' : 'NORMAL';
+  document.getElementById('btn').textContent = type;
+  broken = false;
+}
+```
+
+**5. Retorno Anticipado Condicional**
+
+La función `changeLight` usa un patrón de retorno anticipado con condicionales:
+
+```javascript
+function changeLight(element, tipo) {
+  if (broken === true || type === 'SWITCH') return;
+  element.srcElement.src = `images/light-${tipo}.png`;
+  if (tipo === 'broken') {
+    broken = true;
+  }
+}
+```
+
+El operador `||` (OR) combina dos condiciones: si la luz está rota O el modo es SWITCH, no hacer nada.
+
+### Desafíos
+
+#### Desafío 1: Encender/Apagar Luz
+
+Crea una versión más simple donde hacer clic en la luz la alterna entre encendida y apagada:
+
+- Al cargar, muestra la imagen de luz APAGADA
+- Cada clic alterna entre ENCENDIDA y APAGADA
+
+<details>
+<summary>Pista</summary>
+
+Necesitas una variable booleana para rastrear el estado, y una función que la invierta en cada clic:
+
+```javascript
+let on = true;
+// Usa el operador NOT: on = !on
+```
+
+</details>
+
+<iframe
+  src="/js-from-zero-to-hero/demos/switch-light/challenge-1/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Switch Light Challenge 1 Demo"
+/>
+
+#### Desafío 2: Modos Normal + Switch
+
+Construye la versión completa con dos modos:
+
+- **Modo NORMAL:** pasar el mouse enciende, hacer clic rompe la bombilla
+- **Modo SWITCH:** hacer clic alterna encendido/apagado
+- Un botón cambia entre modos y reinicia el estado roto
+
+Este es el desafío más complejo — combina indicadores booleanos, condicionales, operadores ternarios, event listeners y múltiples funciones trabajando juntas.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/switch-light/challenge-2/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Switch Light Challenge 2 Demo"
+/>
+
+## Resumen
+
+En este módulo aprendiste:
+
+- **Operadores aritméticos** (`+`, `-`, `*`, `/`, `%`, `**`) para cálculos
+- **Operadores de comparación** (`===`, `!==`, `>`, `<`, `>=`, `<=`) para comparar valores
+- **Operadores lógicos** (`&&`, `||`, `!`) para combinar condiciones
+- Sentencias **`if/else`** para ejecución condicional
+- Sentencias **`switch`** para comparaciones de múltiples valores
+- **Operador ternario** (`condición ? a : b`) como abreviatura para condiciones simples
+- Cómo aplicar estos conceptos en un proyecto real con gestión de estado y manejo de eventos
+
+A continuación: **Bucles** — cómo repetir acciones de manera eficiente.

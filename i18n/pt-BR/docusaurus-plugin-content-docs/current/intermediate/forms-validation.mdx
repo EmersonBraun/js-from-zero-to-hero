@@ -1,0 +1,472 @@
+---
+sidebar_position: 4
+---
+
+# Formulários & Validação
+
+Formulários são como os usuários enviam dados para sua aplicação. JavaScript permite ler valores, responder à entrada do usuário em tempo real, validar dados antes do envio e fornecer feedback claro — tudo sem recarregar a página.
+
+## Teoria
+
+### Elementos de Formulário
+
+Os principais elementos de formulário e como acessá-los em JavaScript:
+
+| Elemento | Como obter o valor |
+|---------|-----------------|
+| `<input type="text">` | `element.value` |
+| `<input type="number">` | `Number(element.value)` |
+| `<input type="checkbox">` | `element.checked` |
+| `<input type="radio">` | `element.checked` em cada opção |
+| `<select>` | `element.value` |
+| `<textarea>` | `element.value` |
+
+```js
+const nameInput = document.querySelector("#name");
+const ageInput  = document.querySelector("#age");
+const colorSelect = document.querySelector("#color");
+
+console.log(nameInput.value);   // texto atual
+console.log(Number(ageInput.value));
+console.log(colorSelect.value);
+```
+
+Referência MDN: [HTMLInputElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement) | [HTMLSelectElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLSelectElement)
+
+### Obtendo e Definindo Valores de Formulário
+
+Leia valores com `.value`, defina-os da mesma forma:
+
+```js
+// Ler
+const text = input.value.trim(); // .trim() remove espaços ao redor
+
+// Escrever (atualizar a UI)
+input.value = "default text";
+checkbox.checked = true;
+select.value = "option2"; // seleciona o <option> correspondente
+```
+
+Para ler todos os campos de uma vez, use `FormData`:
+
+```js
+const form = document.querySelector("form");
+const data = new FormData(form);
+
+data.get("username"); // valor do input[name="username"]
+Object.fromEntries(data); // converter todos os campos para um objeto simples
+```
+
+Referência MDN: [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
+
+### Eventos de Formulário
+
+| Evento | Quando dispara |
+|-------|--------------|
+| `input` | Em cada tecla pressionada / mudança de valor |
+| `change` | Quando um elemento perde o foco após seu valor mudar |
+| `focus` | Quando um elemento ganha foco |
+| `blur` | Quando um elemento perde o foco |
+| `submit` | Quando o formulário é enviado |
+| `reset` | Quando o formulário é reiniciado |
+
+```js
+input.addEventListener("input", (e) => {
+  console.log(e.target.value); // valor ao vivo em cada tecla pressionada
+});
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault(); // impede o recarregamento da página
+  validate(new FormData(form));
+});
+```
+
+Referência MDN: [HTMLElement: input event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event) | [HTMLFormElement: submit event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/submit_event)
+
+### Padrões Básicos de Validação
+
+**Validação manual** — verifique os valores você mesmo e mostre mensagens de erro:
+
+```js
+function validate(fields) {
+  const errors = {};
+
+  if (!fields.name || fields.name.trim().length < 2) {
+    errors.name = "Name must be at least 2 characters.";
+  }
+
+  if (isNaN(fields.age) || fields.age < 0 || fields.age > 120) {
+    errors.age = "Age must be a number between 0 and 120.";
+  }
+
+  return errors; // objeto vazio significa válido
+}
+```
+
+**Constraint Validation API** — o navegador valida usando atributos HTML:
+
+```html
+<input type="email" required minlength="5" />
+```
+
+```js
+input.checkValidity();   // true / false
+input.validationMessage; // mensagem de erro embutida
+form.checkValidity();    // true se todos os campos são válidos
+```
+
+### Fundamentos de Expressões Regulares
+
+Uma **expressão regular** (regex) é um padrão para correspondência de strings.
+
+```js
+// Testar se uma string corresponde ao padrão
+/^\d{4}$/.test("2024");  // true — exatamente 4 dígitos
+/^\d{4}$/.test("24");    // false
+
+// Padrões comuns
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phonePattern = /^\+?[\d\s\-()]{7,15}$/;
+const upperPattern = /[A-Z]/;
+const numberPattern = /[0-9]/;
+const specialPattern = /[!@#$%^&*]/;
+```
+
+Referência MDN: [Regular Expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions)
+
+### Exibindo Feedback de Validação
+
+Um padrão comum é adicionar/remover classes CSS no elemento contêiner:
+
+```js
+function showError(input, message) {
+  const field = input.parentElement;
+  field.classList.add("error");
+  field.classList.remove("success");
+  field.querySelector(".error-msg").textContent = message;
+}
+
+function showSuccess(input) {
+  const field = input.parentElement;
+  field.classList.remove("error");
+  field.classList.add("success");
+  field.querySelector(".error-msg").textContent = "";
+}
+```
+
+---
+
+## Exercícios
+
+<CodeRunner
+  title="Exercise 1 – Trim and validate a text field"
+  code={`function validateName(name) {
+  // Return an error message string if name is invalid, or null if valid.
+  // Rules: must be a non-empty string with at least 2 non-whitespace characters.
+  const trimmed = name.trim();
+  if (!trimmed) return "Name is required.";
+  if (trimmed.length < 2) return "Name must be at least 2 characters.";
+  return null;
+}
+`}
+  testCases={[
+    { input: "validateName('Alice')", expected: "null", description: "Valid name returns null" },
+    { input: "validateName('  ')", expected: "Name is required.", description: "Whitespace-only is invalid" },
+    { input: "validateName('A')", expected: "Name must be at least 2 characters.", description: "Single character is invalid" },
+    { input: "validateName('')", expected: "Name is required.", description: "Empty string is invalid" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2 – Email validation with regex"
+  code={`function isValidEmail(email) {
+  // Return true if email matches a basic email pattern, false otherwise.
+  // Pattern: at least one non-whitespace/@ char, then @, then domain, then dot, then TLD.
+  const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return pattern.test(email);
+}
+`}
+  testCases={[
+    { input: "isValidEmail('user@example.com')", expected: "true", description: "Valid email" },
+    { input: "isValidEmail('not-an-email')", expected: "false", description: "Missing @ and domain" },
+    { input: "isValidEmail('bad@')", expected: "false", description: "Missing domain" },
+    { input: "isValidEmail('user@domain.io')", expected: "true", description: "Valid email with .io TLD" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3 – Password strength checker"
+  code={`function checkPasswordStrength(password) {
+  // Return 'weak', 'medium', or 'strong' based on:
+  // weak   – less than 8 characters OR missing both uppercase and digit
+  // strong – at least 12 chars AND has uppercase, digit, AND special char (!@#$%^&*)
+  // medium – everything else
+  const hasUpper   = /[A-Z]/.test(password);
+  const hasDigit   = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*]/.test(password);
+  const len = password.length;
+
+  if (len < 8 || (!hasUpper && !hasDigit)) return 'weak';
+  if (len >= 12 && hasUpper && hasDigit && hasSpecial) return 'strong';
+  return 'medium';
+}
+`}
+  testCases={[
+    { input: "checkPasswordStrength('abc')", expected: "weak", description: "Too short — weak" },
+    { input: "checkPasswordStrength('Passw0rd')", expected: "medium", description: "8 chars, upper and digit but no special — medium" },
+    { input: "checkPasswordStrength('Str0ng!Pass#1')", expected: "strong", description: "12+ chars, upper, digit, special — strong" },
+    { input: "checkPasswordStrength('alllowercase')", expected: "weak", description: "No uppercase or digit — weak" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4 – FormData-style validation"
+  code={`function validateForm(fields) {
+  // fields is a plain object: { username, email, age }
+  // Return an errors object with a key for each invalid field.
+  // Rules:
+  //   username: required, min 3 chars
+  //   email: must contain @
+  //   age: must be a number between 1 and 120
+  const errors = {};
+
+  if (!fields.username || fields.username.trim().length < 3) {
+    errors.username = "Username must be at least 3 characters.";
+  }
+  if (!fields.email || !fields.email.includes("@")) {
+    errors.email = "Email must contain @.";
+  }
+  const age = Number(fields.age);
+  if (isNaN(age) || age < 1 || age > 120) {
+    errors.age = "Age must be between 1 and 120.";
+  }
+
+  return errors;
+}
+`}
+  testCases={[
+    { input: "Object.keys(validateForm({ username: 'Alice', email: 'a@b.com', age: 25 })).length", expected: "0", description: "All valid — no errors" },
+    { input: "validateForm({ username: 'Al', email: 'bad', age: 25 }).username", expected: "Username must be at least 3 characters.", description: "Short username triggers error" },
+    { input: "validateForm({ username: 'Alice', email: 'nodomain', age: 25 }).email", expected: "Email must contain @.", description: "Missing @ triggers error" },
+    { input: "validateForm({ username: 'Alice', email: 'a@b.com', age: 200 }).age", expected: "Age must be between 1 and 120.", description: "Age out of range triggers error" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5 – select value parsing"
+  code={`function parseSortOption(value) {
+  // Given a select value string like "price-asc", "price-desc",
+  // "name-asc", or "name-desc", return an object: { field, direction }.
+  // Example: "price-asc" => { field: "price", direction: "asc" }
+  const [field, direction] = value.split("-");
+  return { field, direction };
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(parseSortOption('price-asc'))", expected: '{"field":"price","direction":"asc"}', description: "Parses price-asc" },
+    { input: "JSON.stringify(parseSortOption('name-desc'))", expected: '{"field":"name","direction":"desc"}', description: "Parses name-desc" },
+    { input: "parseSortOption('date-asc').field", expected: "date", description: "Extracts field from date-asc" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6 – Real-time character counter"
+  code={`function getRemainingChars(currentValue, maxLength) {
+  // Return the number of characters remaining.
+  // Return a negative number if the limit is exceeded.
+  return maxLength - currentValue.length;
+}
+`}
+  testCases={[
+    { input: "getRemainingChars('hello', 10)", expected: "5", description: "5 of 10 chars used — 5 remaining" },
+    { input: "getRemainingChars('', 140)", expected: "140", description: "Empty input — all chars available" },
+    { input: "getRemainingChars('toolongtext', 5)", expected: "-6", description: "Exceeded limit returns negative" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 7 – Sanitize user input"
+  code={`function sanitizeInput(str) {
+  // Trim whitespace, collapse multiple spaces into one,
+  // and remove any characters that are not letters, digits, or spaces.
+  return str
+    .trim()
+    .replace(/\\s+/g, ' ')
+    .replace(/[^a-zA-Z0-9 ]/g, '');
+}
+`}
+  testCases={[
+    { input: "sanitizeInput('  Hello   World! ')", expected: "Hello World", description: "Trims, collapses spaces, removes !" },
+    { input: "sanitizeInput('abc123')", expected: "abc123", description: "Alphanumeric unchanged" },
+    { input: "sanitizeInput('  <script>alert(1)</script>  ')", expected: "scriptalert1script", description: "HTML tags stripped" }
+  ]}
+/>
+
+---
+
+## Projeto 1: Gerador de Senhas
+
+Uma ferramenta que gera senhas aleatórias seguras com base em opções selecionadas pelo usuário (comprimento, maiúsculas, números, símbolos).
+
+### Demonstração ao Vivo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/password-generator/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Password Generator Demo"
+/>
+
+### Como Funciona
+
+O gerador lê os estados dos checkboxes e um input range para compor um conjunto de caracteres:
+
+```js
+const CHARS = {
+  lowercase: "abcdefghijklmnopqrstuvwxyz",
+  uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  numbers:   "0123456789",
+  symbols:   "!@#$%^&*()_+-=[]{}|;:,.<>?",
+};
+
+function generatePassword(options) {
+  const { length, useLower, useUpper, useNumbers, useSymbols } = options;
+
+  let charset = "";
+  if (useLower)   charset += CHARS.lowercase;
+  if (useUpper)   charset += CHARS.uppercase;
+  if (useNumbers) charset += CHARS.numbers;
+  if (useSymbols) charset += CHARS.symbols;
+
+  if (!charset) return ""; // nenhuma opção selecionada
+
+  return Array.from({ length }, () =>
+    charset[Math.floor(Math.random() * charset.length)]
+  ).join("");
+}
+```
+
+O formulário escuta eventos `input` no slider de comprimento para atualizar o display em tempo real:
+
+```js
+lengthSlider.addEventListener("input", () => {
+  lengthDisplay.textContent = lengthSlider.value;
+});
+
+generateBtn.addEventListener("click", () => {
+  const options = {
+    length:     Number(lengthSlider.value),
+    useLower:   lowercaseCheckbox.checked,
+    useUpper:   uppercaseCheckbox.checked,
+    useNumbers: numbersCheckbox.checked,
+    useSymbols: symbolsCheckbox.checked,
+  };
+  output.value = generatePassword(options);
+});
+```
+
+### Desafio 1 – Copiar para a Área de Transferência
+
+<iframe
+  src="/js-from-zero-to-hero/demos/password-generator/challenge-1/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Password Generator Challenge 1 – Copy to Clipboard"
+/>
+
+Adicione um botão "Copiar" que usa `navigator.clipboard.writeText()` para copiar a senha gerada. Mostre uma confirmação breve de "Copiado!" que desaparece após 2 segundos usando `setTimeout`.
+
+---
+
+## Projeto 2: Aplicativo de Quiz
+
+Um quiz de múltipla escolha que rastreia pontuação, dá feedback imediato e mostra uma tela de resultados.
+
+### Demonstração ao Vivo
+
+<iframe
+  src="/js-from-zero-to-hero/demos/quiz-app/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Quiz App Demo"
+/>
+
+### Como Funciona
+
+As perguntas são armazenadas como um array de objetos:
+
+```js
+const questions = [
+  {
+    question: "What does typeof null return?",
+    choices: ["null", "undefined", "object", "string"],
+    answer: "object",
+  },
+  {
+    question: "Which method adds an element to the end of an array?",
+    choices: ["push", "pop", "shift", "unshift"],
+    answer: "push",
+  },
+];
+```
+
+O estado é rastreado em um objeto simples:
+
+```js
+let state = {
+  currentIndex: 0,
+  score: 0,
+  answers: [],
+};
+```
+
+O handler de `submit` lê o radio button marcado, verifica contra a resposta e avança para a próxima pergunta:
+
+```js
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const selected = form.querySelector("input[name='choice']:checked");
+  if (!selected) return; // nenhuma escolha feita
+
+  const answer = selected.value;
+  const correct = questions[state.currentIndex].answer;
+  const isCorrect = answer === correct;
+
+  state.answers.push({ answer, isCorrect });
+  if (isCorrect) state.score++;
+  state.currentIndex++;
+
+  if (state.currentIndex < questions.length) {
+    renderQuestion();
+  } else {
+    renderResults();
+  }
+});
+```
+
+### Desafio 1 – Timer por Pergunta
+
+<iframe
+  src="/js-from-zero-to-hero/demos/quiz-app/challenge-1/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Quiz App Challenge 1 – Timer per Question"
+/>
+
+Adicione uma contagem regressiva de 15 segundos por pergunta usando `setInterval`. Se o timer expirar, marque automaticamente a pergunta como incorreta e avance para a próxima. Limpe e reinicie o intervalo para cada nova pergunta.
+
+---
+
+## Resumo
+
+- Acesse valores de formulário com `.value` (texto, número, select, textarea) e `.checked` (checkbox, radio).
+- Use `e.preventDefault()` no evento `submit` para lidar com formulários sem recarregar a página.
+- O evento `input` dispara em cada tecla pressionada — ótimo para feedback em tempo real. O evento `change` dispara quando o foco sai.
+- `FormData` converte um formulário inteiro em uma coleção chave-valor com uma linha.
+- Validação manual retorna um objeto de erros; mostre mensagens ao usuário e nunca assuma que a entrada é segura.
+- Expressões regulares são poderosas para correspondência de padrões (emails, senhas, números de telefone) — teste-as em [regex101.com](https://regex101.com).
+- Sempre sanitize a entrada do usuário antes de exibi-la de volta na página para evitar XSS.

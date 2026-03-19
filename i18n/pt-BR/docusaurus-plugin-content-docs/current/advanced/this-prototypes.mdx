@@ -1,0 +1,739 @@
+---
+sidebar_position: 2
+---
+
+# `this`, Protótipos & Classes
+
+## A Palavra-chave `this`
+
+`this` é uma das partes mais confusas do JavaScript — mas ela segue regras claras e determinísticas. O valor de `this` é **determinado não por onde uma função é definida, mas por como ela é chamada**. Isso é o oposto das closures (que são determinadas por onde uma função é definida).
+
+> "Na maioria dos casos, o valor de `this` é determinado por como uma função é chamada (vinculação em tempo de execução). Não pode ser definido por atribuição durante a execução, e pode ser diferente cada vez que a função é chamada."
+>
+> — [MDN: this](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this)
+
+Existem **quatro regras de vinculação** para `this`, aplicadas em ordem de precedência.
+
+---
+
+## As Quatro Regras de Vinculação
+
+### Regra 1: Vinculação Padrão
+
+Quando uma função é chamada como uma **função simples e independente** (não como método), `this` assume por padrão:
+
+- O **objeto global** (`window` em navegadores, `global` no Node.js) em modo não-estrito
+- `undefined` no **modo estrito**
+
+```js
+function showThis() {
+  console.log(this);
+}
+
+showThis(); // window (navegador) ou global (Node) — ou undefined em modo estrito
+```
+
+```js
+"use strict";
+function showThis() {
+  console.log(this); // undefined
+}
+showThis();
+```
+
+> Leitura adicional: [MDN: strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode)
+
+### Regra 2: Vinculação Implícita
+
+Quando uma função é chamada como **método de um objeto**, `this` refere-se ao objeto à **esquerda do ponto** no momento da chamada:
+
+```js
+const user = {
+  name: "Alice",
+  greet() {
+    console.log(`Hello, I'm ${this.name}`);
+  },
+};
+
+user.greet(); // "Hello, I'm Alice" — this = user
+```
+
+**A vinculação implícita pode ser perdida** quando métodos são extraídos e chamados de forma independente:
+
+```js
+const { greet } = user;
+greet(); // "Hello, I'm undefined" — this agora é global/undefined, não user!
+```
+
+Esse é um bug muito comum. A função `greet` não tem mais um receptor implícito — ela reverte para a vinculação padrão.
+
+### Regra 3: Vinculação Explícita — `call`, `apply` e `bind`
+
+Você pode forçar a definição de `this` usando três métodos embutidos:
+
+**`Function.prototype.call(thisArg, arg1, arg2, ...)`** — chama a função imediatamente com um `this` específico:
+
+```js
+function introduce(greeting) {
+  console.log(`${greeting}, I'm ${this.name}`);
+}
+
+const person = { name: "Bob" };
+introduce.call(person, "Hey"); // "Hey, I'm Bob"
+```
+
+**`Function.prototype.apply(thisArg, [argsArray])`** — igual a `call`, mas os argumentos são passados como array:
+
+```js
+introduce.apply(person, ["Howdy"]); // "Howdy, I'm Bob"
+```
+
+**`Function.prototype.bind(thisArg, ...partialArgs)`** — retorna uma **nova função** permanentemente vinculada a `this`. Ao contrário de `call`/`apply`, não chama a função imediatamente:
+
+```js
+const bobIntro = introduce.bind(person);
+bobIntro("Hi"); // "Hi, I'm Bob"
+
+// bind também suporta aplicação parcial:
+const greetBob = introduce.bind(person, "Hello");
+greetBob(); // "Hello, I'm Bob"
+```
+
+> Leitura adicional: [MDN: Function.prototype.bind](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind)
+
+### Regra 4: Vinculação com `new`
+
+Quando uma função é chamada com a palavra-chave `new`, quatro coisas acontecem automaticamente:
+
+1. Um novo objeto vazio `{}` é criado
+2. O `[[Prototype]]` do novo objeto é definido como `Constructor.prototype`
+3. A função é chamada com `this` apontando para o novo objeto
+4. O novo objeto é retornado (a menos que o construtor retorne explicitamente um objeto diferente)
+
+```js
+function Person(name, age) {
+  this.name = name; // this = o novo objeto
+  this.age = age;
+}
+
+const alice = new Person("Alice", 30);
+console.log(alice.name); // "Alice"
+console.log(alice instanceof Person); // true
+```
+
+> Leitura adicional: [MDN: new operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new)
+
+### Precedência de Vinculação
+
+Quando múltiplas regras poderiam se aplicar, `new` > explícita > implícita > padrão.
+
+---
+
+## Arrow Functions e `this` Léxico
+
+Arrow functions `() => {}` **não** têm seu próprio `this`. Em vez disso, elas **herdam `this` do escopo léxico envolvente** no momento em que são definidas. Isso é chamado de **`this` léxico**.
+
+```js
+const timer = {
+  seconds: 0,
+  start() {
+    // 'this' aqui é o objeto timer
+    setInterval(() => {
+      this.seconds++; // arrow function: this = timer (léxico)
+      console.log(this.seconds);
+    }, 1000);
+  },
+};
+
+timer.start(); // 1, 2, 3, ...
+```
+
+Se usássemos uma função regular em `setInterval`, `this` seria `window`/`undefined` (vinculação padrão), não `timer`.
+
+> Leitura adicional: [MDN: Arrow function expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)
+
+### O Padrão `that = this` (Pré-Arrow)
+
+Antes das arrow functions, os desenvolvedores usavam uma variável (frequentemente chamada `self` ou `that`) para capturar `this`:
+
+```js
+const timer = {
+  seconds: 0,
+  start() {
+    const self = this; // capturar this
+    setInterval(function () {
+      self.seconds++; // usar referência capturada
+      console.log(self.seconds);
+    }, 1000);
+  },
+};
+```
+
+As arrow functions tornaram esse padrão obsoleto.
+
+---
+
+## A Cadeia de Protótipos
+
+Todo objeto JavaScript tem um link interno para outro objeto chamado seu **protótipo** (armazenado como `[[Prototype]]`, acessível via `Object.getPrototypeOf()` ou o legado `__proto__`). Quando você acessa uma propriedade em um objeto e ela não é encontrada, o JavaScript percorre automaticamente a cadeia de protótipos:
+
+```
+myObj → Object.prototype → null
+```
+
+```js
+const animal = {
+  type: "Animal",
+  describe() {
+    return `I am a ${this.type}`;
+  },
+};
+
+const dog = Object.create(animal); // [[Prototype]] de dog = animal
+dog.type = "Dog";
+
+console.log(dog.describe()); // "I am a Dog"
+// describe não está em dog — é encontrado no protótipo de dog (animal)
+```
+
+> Leitura adicional: [MDN: Inheritance and the prototype chain](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain)
+
+### `Object.create`
+
+`Object.create(proto)` cria um novo objeto com `proto` como seu `[[Prototype]]`. Esta é a forma mais pura de configurar delegação de protótipo:
+
+```js
+const vehicleProto = {
+  describe() {
+    return `${this.make} ${this.model} (${this.year})`;
+  },
+};
+
+const car = Object.create(vehicleProto);
+car.make = "Toyota";
+car.model = "Camry";
+car.year = 2023;
+
+console.log(car.describe()); // "Toyota Camry (2023)"
+console.log(Object.getPrototypeOf(car) === vehicleProto); // true
+```
+
+> Leitura adicional: [MDN: Object.create](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create)
+
+### Funções Construtoras e `prototype`
+
+Funções construtoras antecedem a sintaxe `class`. Toda função tem uma propriedade `prototype` — um objeto que se torna o `[[Prototype]]` das instâncias criadas com `new`:
+
+```js
+function Animal(name) {
+  this.name = name;
+}
+
+// Métodos no protótipo são COMPARTILHADOS por todas as instâncias
+Animal.prototype.speak = function () {
+  return `${this.name} makes a sound.`;
+};
+
+const cat = new Animal("Cat");
+const dog = new Animal("Dog");
+
+console.log(cat.speak()); // "Cat makes a sound."
+console.log(dog.speak()); // "Dog makes a sound."
+
+// Ambas as instâncias compartilham a mesma função speak:
+console.log(cat.speak === dog.speak); // true — eficiente em memória!
+```
+
+Colocar métodos no protótipo (em vez de dentro do construtor) é eficiente em memória: em vez de cada instância ter sua própria cópia, todas compartilham uma via a cadeia.
+
+---
+
+## Classes ES6: Açúcar Sintático
+
+A palavra-chave `class`, introduzida no ES6, fornece uma sintaxe mais limpa para o mesmo mecanismo baseado em protótipo. Classes **não** são um novo modelo de objeto — elas são açúcar sintático sobre funções construtoras e protótipos.
+
+```js
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  speak() {
+    return `${this.name} makes a sound.`;
+  }
+}
+
+const cat = new Animal("Cat");
+console.log(cat.speak()); // "Cat makes a sound."
+
+// Por baixo dos panos, speak ainda está no protótipo:
+console.log(typeof Animal.prototype.speak); // "function"
+```
+
+### Métodos Estáticos
+
+Métodos estáticos pertencem à classe em si, não às instâncias. Eles são chamados diretamente na classe:
+
+```js
+class MathUtils {
+  static add(a, b) {
+    return a + b;
+  }
+
+  static PI = 3.14159;
+}
+
+console.log(MathUtils.add(2, 3)); // 5
+console.log(MathUtils.PI);        // 3.14159
+
+const m = new MathUtils();
+// m.add(2, 3); // TypeError: m.add is not a function
+```
+
+> Leitura adicional: [MDN: static](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static)
+
+### Campos Públicos e Privados (`#`)
+
+O ES2022 introduziu **campos de classe**. Campos privados usam o prefixo `#` e são verdadeiramente inacessíveis de fora da classe — aplicado no nível da linguagem, não apenas por convenção:
+
+```js
+class BankAccount {
+  #balance; // declaração de campo privado
+  owner;    // campo público
+
+  constructor(owner, initialBalance) {
+    this.owner = owner;
+    this.#balance = initialBalance;
+  }
+
+  deposit(amount) {
+    this.#balance += amount;
+  }
+
+  get balance() {
+    return this.#balance;
+  }
+}
+
+const account = new BankAccount("Alice", 1000);
+account.deposit(500);
+console.log(account.balance); // 1500
+// console.log(account.#balance); // SyntaxError: Private field '#balance'
+```
+
+> Leitura adicional: [MDN: Private class features](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields)
+
+### Herança com `extends` e `super`
+
+`extends` configura a cadeia de protótipos entre classes. `super` chama o construtor ou métodos da classe pai:
+
+```js
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  speak() {
+    return `${this.name} makes a sound.`;
+  }
+}
+
+class Dog extends Animal {
+  constructor(name, breed) {
+    super(name); // DEVE chamar super() antes de usar this
+    this.breed = breed;
+  }
+
+  speak() {
+    return `${this.name} barks!`;
+  }
+
+  describe() {
+    return `${super.speak()} I am a ${this.breed}.`;
+  }
+}
+
+const rex = new Dog("Rex", "Labrador");
+console.log(rex.speak());    // "Rex barks!"
+console.log(rex.describe()); // "Rex makes a sound. I am a Labrador."
+console.log(rex instanceof Animal); // true — cadeia de protótipos
+console.log(rex instanceof Dog);    // true
+```
+
+> Leitura adicional: [MDN: extends](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/extends)
+
+---
+
+## Exercícios
+
+<CodeRunner
+  title="Exercise 1: Understanding this — Binding Rules"
+  code={`const obj = {
+  value: 42,
+  getValue() {
+    return this.value;
+  }
+};
+
+// Test 1: implicit binding
+console.log(obj.getValue()); // 42
+
+// Test 2: extracted method (loses binding)
+const fn = obj.getValue;
+// console.log(fn()); // would throw or return undefined
+
+// TODO: Fix the extracted method using .bind()
+const boundFn = obj.getValue.bind(obj);
+console.log(boundFn()); // should be 42
+
+// TODO: Use .call() to borrow the method for another object
+const other = { value: 99 };
+console.log(obj.getValue.call(other)); // should be 99
+`}
+  testCases={[
+    { input: "obj.getValue()", expected: "42", description: "Implicit binding: this = obj" },
+    { input: "obj.getValue.bind(obj)()", expected: "42", description: "bind() preserves this" },
+    { input: "obj.getValue.call({ value: 99 })", expected: "99", description: "call() sets this to another object" },
+    { input: "obj.getValue.apply({ value: 7 })", expected: "7", description: "apply() sets this similarly to call()" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2: Arrow Functions and Lexical this"
+  code={`function Timer() {
+  this.ticks = 0;
+
+  // TODO: Fill in the arrow function so that 'this' refers to the Timer instance
+  this.start = function() {
+    // Using setInterval would be async; for testing, simulate with a loop
+    const tick = () => {
+      this.ticks++;
+    };
+    tick();
+    tick();
+    tick();
+  };
+}
+
+const t = new Timer();
+t.start();
+console.log(t.ticks); // 3
+
+// Compare: what happens with a regular function?
+function TimerBroken() {
+  this.ticks = 0;
+  this.start = function() {
+    const tick = function() {
+      // 'this' here is undefined (strict) or global (sloppy)
+      // This would break: this.ticks++;
+    };
+    tick();
+  };
+}
+`}
+  testCases={[
+    { input: `(() => { function T() { this.n = 0; this.run = function() { const f = () => { this.n++; }; f(); f(); }; } const t = new T(); t.run(); return t.n; })()`, expected: "2", description: "Arrow function captures 'this' from constructor" },
+    { input: `(() => { const obj = { val: 5, getVal: () => obj.val }; return obj.getVal(); })()`, expected: "5", description: "Arrow method accessing enclosing scope variable" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3: Prototype Chain — Object.create"
+  code={`// Create a prototype object for shapes
+const shapeProto = {
+  area() {
+    throw new Error("area() must be implemented");
+  },
+  describe() {
+    return \`I am a \${this.type} with area \${this.area().toFixed(2)}\`;
+  }
+};
+
+// TODO: Create a 'rectangle' using Object.create(shapeProto)
+// Set type = "Rectangle", width = 10, height = 5
+// Override area() to return width * height
+const rectangle = Object.create(shapeProto);
+rectangle.type = "Rectangle";
+rectangle.width = 10;
+rectangle.height = 5;
+rectangle.area = function() { return this.width * this.height; };
+
+console.log(rectangle.area());     // 50
+console.log(rectangle.describe()); // "I am a Rectangle with area 50.00"
+console.log(Object.getPrototypeOf(rectangle) === shapeProto); // true
+`}
+  testCases={[
+    { input: `(() => { const p = { greet() { return 'Hello ' + this.name; } }; const o = Object.create(p); o.name = 'World'; return o.greet(); })()`, expected: "Hello World", description: "Method found on prototype" },
+    { input: `(() => { const p = {}; const o = Object.create(p); return Object.getPrototypeOf(o) === p; })()`, expected: "true", description: "Object.getPrototypeOf returns the prototype" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4: Constructor Functions and Prototypes"
+  code={`// TODO: Create a Stack data structure using a constructor function
+// Methods should be on Stack.prototype (not inside constructor)
+
+function Stack() {
+  // private-ish: uses a closure or direct property
+  this._items = [];
+}
+
+// TODO: Add push, pop, peek, isEmpty methods to Stack.prototype
+Stack.prototype.push = function(item) { this._items.push(item); };
+Stack.prototype.pop = function() { return this._items.pop(); };
+Stack.prototype.peek = function() { return this._items[this._items.length - 1]; };
+Stack.prototype.isEmpty = function() { return this._items.length === 0; };
+Stack.prototype.size = function() { return this._items.length; };
+
+const s = new Stack();
+s.push(1);
+s.push(2);
+s.push(3);
+console.log(s.peek());    // 3
+console.log(s.pop());     // 3
+console.log(s.size());    // 2
+console.log(s.isEmpty()); // false
+`}
+  testCases={[
+    { input: `(() => { const s = new Stack(); s.push('a'); s.push('b'); return s.peek(); })()`, expected: "b", description: "peek returns last item" },
+    { input: `(() => { const s = new Stack(); return s.isEmpty(); })()`, expected: "true", description: "Empty stack returns true for isEmpty" },
+    { input: `(() => { const s = new Stack(); s.push(1); s.push(2); s.pop(); return s.size(); })()`, expected: "1", description: "size decreases after pop" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5: ES6 Classes — Shape Hierarchy"
+  code={`class Shape {
+  constructor(color = 'black') {
+    this.color = color;
+  }
+
+  area() {
+    throw new Error('area() not implemented');
+  }
+
+  toString() {
+    return \`\${this.constructor.name}: area=\${this.area().toFixed(2)}, color=\${this.color}\`;
+  }
+}
+
+class Circle extends Shape {
+  // TODO: constructor takes radius and color
+  // TODO: override area() → Math.PI * r^2
+  constructor(radius, color) {
+    super(color);
+    this.radius = radius;
+  }
+
+  area() {
+    return Math.PI * this.radius ** 2;
+  }
+}
+
+class Rectangle extends Shape {
+  // TODO: constructor takes width, height, color
+  // TODO: override area() → w * h
+  constructor(width, height, color) {
+    super(color);
+    this.width = width;
+    this.height = height;
+  }
+
+  area() {
+    return this.width * this.height;
+  }
+}
+
+const c = new Circle(5, 'red');
+const r = new Rectangle(4, 6, 'blue');
+
+console.log(c.area().toFixed(2)); // 78.54
+console.log(r.area());            // 24
+console.log(c instanceof Shape);  // true
+console.log(r instanceof Shape);  // true
+`}
+  testCases={[
+    { input: "new Circle(5, 'red').area().toFixed(2)", expected: "78.54", description: "Circle area = π * 5² ≈ 78.54" },
+    { input: "new Rectangle(4, 6, 'blue').area()", expected: "24", description: "Rectangle area = 4 * 6 = 24" },
+    { input: "new Circle(3, 'green') instanceof Shape", expected: "true", description: "Circle is instanceof Shape" },
+    { input: "new Rectangle(2, 3, 'white').color", expected: "white", description: "Color is set by super()" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6: Private Fields and Static Methods"
+  code={`class Temperature {
+  #celsius; // private field
+
+  constructor(celsius) {
+    this.#celsius = celsius;
+  }
+
+  // TODO: getter for fahrenheit (F = C * 9/5 + 32)
+  get fahrenheit() {
+    return this.#celsius * 9 / 5 + 32;
+  }
+
+  // TODO: getter for celsius (return the private field)
+  get celsius() {
+    return this.#celsius;
+  }
+
+  // TODO: static factory methods
+  static fromFahrenheit(f) {
+    return new Temperature((f - 32) * 5 / 9);
+  }
+
+  toString() {
+    return \`\${this.#celsius}°C / \${this.fahrenheit.toFixed(1)}°F\`;
+  }
+}
+
+const boiling = new Temperature(100);
+console.log(boiling.fahrenheit.toFixed(1)); // 212.0
+console.log(boiling.celsius);               // 100
+
+const body = Temperature.fromFahrenheit(98.6);
+console.log(body.celsius.toFixed(1));       // 37.0
+`}
+  testCases={[
+    { input: "new Temperature(0).fahrenheit", expected: "32", description: "0°C = 32°F" },
+    { input: "new Temperature(100).fahrenheit", expected: "212", description: "100°C = 212°F" },
+    { input: "Temperature.fromFahrenheit(32).celsius", expected: "0", description: "32°F = 0°C" },
+    { input: `(() => { try { const t = new Temperature(20); return t['#celsius']; } catch(e) { return undefined; } })()`, expected: "undefined", description: "Private fields are not accessible from outside" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 7: Prototypal Inheritance Chain"
+  code={`// Build a three-level prototype chain WITHOUT using class syntax
+// Vehicle → Car → ElectricCar
+
+function Vehicle(make, model) {
+  this.make = make;
+  this.model = model;
+}
+Vehicle.prototype.describe = function() {
+  return \`\${this.make} \${this.model}\`;
+};
+
+function Car(make, model, doors) {
+  Vehicle.call(this, make, model); // inherit instance properties
+  this.doors = doors;
+}
+// TODO: Set up the prototype chain
+Car.prototype = Object.create(Vehicle.prototype);
+Car.prototype.constructor = Car;
+Car.prototype.honk = function() { return "Beep!"; };
+
+function ElectricCar(make, model, doors, range) {
+  Car.call(this, make, model, doors);
+  this.range = range;
+}
+ElectricCar.prototype = Object.create(Car.prototype);
+ElectricCar.prototype.constructor = ElectricCar;
+ElectricCar.prototype.charge = function() { return "Charging..."; };
+
+const tesla = new ElectricCar("Tesla", "Model 3", 4, 350);
+console.log(tesla.describe()); // "Tesla Model 3"
+console.log(tesla.honk());     // "Beep!"
+console.log(tesla.charge());   // "Charging..."
+console.log(tesla instanceof Vehicle); // true
+console.log(tesla instanceof Car);     // true
+`}
+  testCases={[
+    { input: `(() => { function V(m) { this.make = m; } V.prototype.d = function() { return this.make; }; function C(m, d) { V.call(this, m); this.doors = d; } C.prototype = Object.create(V.prototype); C.prototype.constructor = C; const c = new C('Ford', 4); return c.d(); })()`, expected: "Ford", description: "Inherited describe method works" },
+    { input: `(() => { function V() {} function C() { V.call(this); } C.prototype = Object.create(V.prototype); const c = new C(); return c instanceof V; })()`, expected: "true", description: "instanceof works across prototype chain" }
+  ]}
+/>
+
+---
+
+## Projeto: Jogo da Velha
+
+Este projeto demonstra vinculação de `this`, classes e herança prototípica em uma aplicação interativa real. O tabuleiro do jogo, os jogadores e o estado do jogo são todos modelados como instâncias de classe.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/tic-tac-toe/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Tic-Tac-Toe Demo"
+/>
+
+### Visão Geral da Arquitetura
+
+```js
+class Player {
+  #name;
+  #symbol;
+  #score;
+
+  constructor(name, symbol) {
+    this.#name = name;
+    this.#symbol = symbol;
+    this.#score = 0;
+  }
+
+  get name() { return this.#name; }
+  get symbol() { return this.#symbol; }
+  get score() { return this.#score; }
+
+  addWin() { this.#score++; }
+}
+
+class Board {
+  #cells;
+
+  constructor() {
+    this.#cells = Array(9).fill(null);
+  }
+
+  mark(index, symbol) {
+    if (this.#cells[index] !== null) throw new Error("Cell taken");
+    this.#cells[index] = symbol;
+  }
+
+  checkWinner() {
+    const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    return lines.some(([a,b,c]) =>
+      this.#cells[a] && this.#cells[a] === this.#cells[b] && this.#cells[a] === this.#cells[c]
+    );
+  }
+}
+```
+
+Observe como `this` dentro de métodos de classe sempre refere-se à instância, porque handlers de eventos devem sempre usar arrow functions ou `bind` para preservar a referência da instância do jogo.
+
+### Desafio 1
+
+Refatore o jogo para suportar um **oponente de IA** estendendo `Player` com uma subclasse `ComputerPlayer`. A subclasse deve sobrescrever um método `chooseMove(board)` que escolhe uma célula disponível aleatória.
+
+### Desafio 2
+
+Adicione um sistema de **rastreamento de pontuação** usando campos de classe privados. A contagem de vitórias de cada jogador deve ser armazenada como um campo privado e acessível apenas por um getter. Persista a pontuação no `localStorage` entre recarregamentos de página.
+
+---
+
+## Resumo
+
+- `this` é determinado **no momento da chamada** por quatro regras: padrão, implícita, explícita (`call`/`apply`/`bind`) e `new`.
+- Arrow functions **não têm seu próprio `this`** — elas o herdam lexicamente do escopo envolvente.
+- O padrão `that = this` era a solução pré-arrow.
+- Todo objeto tem um `[[Prototype]]` — um link para outro objeto. Buscas de propriedades percorrem essa **cadeia de protótipos**.
+- `Object.create(proto)` cria um objeto com um protótipo específico.
+- Funções construtoras + propriedade `prototype` é a abordagem clássica para métodos compartilhados.
+- `class` é açúcar sintático: sintaxe mais limpa, mesma mecânica baseada em protótipo.
+- Membros `static` pertencem à classe, não às instâncias.
+- Campos privados `#campo` são aplicados pela linguagem — não apenas uma convenção de nomenclatura.
+- `extends` + `super` habilitam herança limpa e legível.
+
+### Leitura Adicional
+
+- [MDN: this](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this)
+- [MDN: Inheritance and the prototype chain](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain)
+- [MDN: Classes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes)
+- [MDN: Object.create](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create)
+- [MDN: Private class features](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields)
+- [MDN: extends](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/extends)
+- [MDN: Function.prototype.bind](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind)

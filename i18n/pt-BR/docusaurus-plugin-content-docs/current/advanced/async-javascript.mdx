@@ -1,0 +1,861 @@
+---
+sidebar_position: 3
+---
+
+# JavaScript Assíncrono
+
+## JavaScript É Single-Threaded
+
+JavaScript possui uma **única pilha de chamadas**. Isso significa que ele pode fazer apenas uma coisa de cada vez — processa uma expressão, uma chamada de função, uma linha de código de cada vez, em sequência. Não há execução paralela de código JavaScript em uma única thread.
+
+Isso levanta uma questão óbvia: como um navegador web pode baixar um arquivo, animar um spinner e responder à entrada do usuário ao mesmo tempo?
+
+A resposta é o **Event Loop** — um dos mecanismos mais importantes em todo o runtime JavaScript. Entendê-lo profundamente vai tornar você um desenvolvedor JavaScript significativamente melhor.
+
+> "JavaScript tem um modelo de concorrência baseado em um event loop, que é responsável por executar o código, coletar e processar eventos, e executar subtarefas enfileiradas."
+>
+> — [MDN: Event Loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop)
+
+---
+
+## A Pilha de Chamadas
+
+A **pilha de chamadas** é uma estrutura de dados LIFO (último a entrar, primeiro a sair) que rastreia o contexto de execução atual. Toda vez que uma função é chamada, um novo frame é empurrado para a pilha. Quando a função retorna, seu frame é retirado.
+
+```js
+function c() { console.log("c"); }
+function b() { c(); }
+function a() { b(); }
+
+a();
+```
+
+Progressão da pilha de chamadas:
+
+```
+[a]          → a chama b
+[b, a]       → b chama c
+[c, b, a]    → c chama console.log
+[b, a]       → c retorna
+[a]          → b retorna
+[]           → a retorna
+```
+
+Quando a pilha está vazia, o runtime está ocioso e o Event Loop pode pegar a próxima tarefa.
+
+> Leitura adicional: [MDN: Call stack](https://developer.mozilla.org/en-US/docs/Glossary/Call_stack)
+
+---
+
+## Web APIs e o Ambiente do Navegador
+
+JavaScript por si só não sabe como fazer I/O, timers ou requisições de rede. Essas capacidades são fornecidas pelo **navegador** (ou runtime Node.js) como **Web APIs**:
+
+- `setTimeout` / `setInterval`
+- `fetch`
+- Listeners de eventos DOM
+- `XMLHttpRequest`
+- `requestAnimationFrame`
+
+Quando você chama `setTimeout(callback, 1000)`, você está entregando o callback à API de timer do navegador. O navegador executa um timer em uma thread separada (fora do motor JS). Após 1000ms, o navegador coloca o callback na **fila de callbacks**. A thread JS nunca bloqueia.
+
+---
+
+## A Fila de Callbacks e a Fila de Microtarefas
+
+Existem duas filas que alimentam tarefas de volta ao motor JS:
+
+### Fila de Callbacks (Fila de Tarefas / Fila de Macrotarefas)
+
+Contém callbacks agendados por:
+- `setTimeout` / `setInterval`
+- Eventos DOM (`click`, `input`, etc.)
+- `setImmediate` (Node.js)
+- Callbacks de I/O
+
+### Fila de Microtarefas
+
+Contém callbacks agendados por:
+- Callbacks de **Promise `.then` / `.catch` / `.finally`**
+- `queueMicrotask()`
+- Callbacks de `MutationObserver`
+- Continuações de `async/await`
+
+**Diferença crítica:** A fila de microtarefas é **sempre completamente drenada** antes de o Event Loop pegar a próxima macrotarefa. Microtarefas têm prioridade maior.
+
+> Leitura adicional: [MDN: Microtask guide](https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide)
+
+---
+
+## O Event Loop — Passo a Passo
+
+O Event Loop pode ser descrito por este pseudoalgoritmo:
+
+```
+while (true) {
+  if (callStack is empty) {
+    drain entire microtask queue (run all microtasks)
+    if (callbackQueue is not empty) {
+      pick ONE callback from callbackQueue
+      push it onto callStack
+      run it to completion
+    }
+  }
+}
+```
+
+### Uma Famosa Pergunta de Entrevista
+
+```js
+console.log("1");
+
+setTimeout(() => console.log("2"), 0);
+
+Promise.resolve().then(() => console.log("3"));
+
+console.log("4");
+```
+
+Ordem de saída: `1`, `4`, `3`, `2`
+
+- `1` e `4` são síncronos → executam imediatamente na pilha de chamadas
+- O callback `.then` da Promise → vai para a **fila de microtarefas**
+- O callback do `setTimeout` (mesmo com 0ms!) → vai para a **fila de callbacks** (macrotarefa)
+- Após o código síncrono terminar, o Event Loop drena microtarefas → `3`
+- Então pega uma macrotarefa → `2`
+
+---
+
+## Callbacks e Callback Hell
+
+Antes das Promises, operações assíncronas eram coordenadas usando callbacks. Quando múltiplas operações assíncronas dependem umas das outras, o código fica profundamente aninhado — um padrão chamado de **callback hell** ou **pirâmide da perdição**:
+
+```js
+getUser(userId, function (err, user) {
+  if (err) return handleError(err);
+
+  getOrders(user.id, function (err, orders) {
+    if (err) return handleError(err);
+
+    getOrderDetails(orders[0].id, function (err, details) {
+      if (err) return handleError(err);
+
+      getShipping(details.shippingId, function (err, shipping) {
+        if (err) return handleError(err);
+
+        // Finalmente fazer algo...
+        console.log(shipping);
+      });
+    });
+  });
+});
+```
+
+Problemas com callback hell:
+- Difícil de ler e raciocinar
+- Tratamento de erros é repetitivo e fácil de esquecer
+- O fluxo de controle é invertido (você entrega o controle ao callback)
+- Muito difícil de compor ou reutilizar
+
+As Promises foram introduzidas para resolver isso.
+
+---
+
+## Promises
+
+Uma **Promise** é um objeto que representa a eventual conclusão (ou falha) de uma operação assíncrona e seu valor resultante.
+
+Uma Promise está sempre em um de três estados:
+- **Pendente**: estado inicial, operação em andamento
+- **Cumprida**: operação concluída com sucesso, tem um valor
+- **Rejeitada**: operação falhou, tem um motivo (erro)
+
+Uma vez resolvida (cumprida ou rejeitada), uma Promise **não pode mudar de estado**. Ela é imutável.
+
+> Leitura adicional: [MDN: Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+
+### Criando uma Promise
+
+```js
+const myPromise = new Promise((resolve, reject) => {
+  // Função executor: executa de forma síncrona
+  const success = true;
+
+  if (success) {
+    resolve("Operation succeeded!"); // cumprir com um valor
+  } else {
+    reject(new Error("Operation failed!")); // rejeitar com um erro
+  }
+});
+```
+
+### `.then`, `.catch`, `.finally`
+
+```js
+myPromise
+  .then((value) => {
+    console.log(value); // "Operation succeeded!"
+    return value.toUpperCase(); // valor retornado passa para o próximo .then
+  })
+  .then((upper) => {
+    console.log(upper); // "OPERATION SUCCEEDED!"
+  })
+  .catch((error) => {
+    console.error(error.message); // trata qualquer rejeição na cadeia
+  })
+  .finally(() => {
+    console.log("Always runs, regardless of outcome");
+  });
+```
+
+`.then` sempre retorna uma nova Promise, o que permite o **encadeamento**.
+
+> Leitura adicional: [MDN: Promise.prototype.then](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then)
+
+---
+
+## Encadeamento de Promises
+
+O encadeamento de Promises transforma o exemplo de callback hell em código plano e legível:
+
+```js
+getUser(userId)
+  .then((user) => getOrders(user.id))
+  .then((orders) => getOrderDetails(orders[0].id))
+  .then((details) => getShipping(details.shippingId))
+  .then((shipping) => console.log(shipping))
+  .catch((err) => handleError(err)); // um handler captura qualquer erro na cadeia
+```
+
+### Como o Encadeamento Funciona Internamente
+
+Quando `.then(handler)` é chamado:
+1. Uma nova Promise é retornada.
+2. Se `handler` retorna um valor simples, a nova Promise se cumpre com esse valor.
+3. Se `handler` retorna uma Promise, a nova Promise "adota" o estado dessa Promise.
+4. Se `handler` lança uma exceção, a nova Promise é rejeitada.
+
+---
+
+## Combinadores de Promise
+
+Para executar múltiplas operações assíncronas simultaneamente ou em corrida:
+
+### `Promise.all` — Tudo ou Nada
+
+Resolve quando **todas** as promises se cumprem; rejeita imediatamente se **qualquer uma** rejeitar.
+
+```js
+const [users, products, orders] = await Promise.all([
+  fetch("/api/users").then((r) => r.json()),
+  fetch("/api/products").then((r) => r.json()),
+  fetch("/api/orders").then((r) => r.json()),
+]);
+```
+
+> Leitura adicional: [MDN: Promise.all](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all)
+
+### `Promise.race` — Primeiro a Resolver
+
+Resolve ou rejeita com o valor da **primeira promise a se resolver** (em qualquer direção):
+
+```js
+const result = await Promise.race([
+  fetch("/api/data"),
+  new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000)),
+]);
+```
+
+Esse padrão é útil para implementar timeouts.
+
+> Leitura adicional: [MDN: Promise.race](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/race)
+
+### `Promise.allSettled` — Esperar por Todas, Independente
+
+Resolve quando **todas** as promises se resolvem (cumpridas ou rejeitadas). Nunca rejeita. Cada resultado tem `{ status: 'fulfilled', value }` ou `{ status: 'rejected', reason }`:
+
+```js
+const results = await Promise.allSettled([
+  Promise.resolve("ok"),
+  Promise.reject("fail"),
+  Promise.resolve("also ok"),
+]);
+
+results.forEach(({ status, value, reason }) => {
+  if (status === "fulfilled") console.log("Success:", value);
+  else console.log("Failed:", reason);
+});
+```
+
+> Leitura adicional: [MDN: Promise.allSettled](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled)
+
+### `Promise.any` — Primeiro a Cumprir
+
+Resolve com o primeiro valor **cumprido**. Só rejeita se **todas** as promises rejeitarem (lança `AggregateError`):
+
+```js
+const fastest = await Promise.any([
+  fetch("https://server1.example.com/data"),
+  fetch("https://server2.example.com/data"),
+  fetch("https://server3.example.com/data"),
+]);
+```
+
+> Leitura adicional: [MDN: Promise.any](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/any)
+
+---
+
+## `async` / `await`
+
+A sintaxe `async`/`await` é **açúcar sintático sobre Promises**. Ela permite escrever código assíncrono que lê como código síncrono. Por baixo dos panos, uma função `async` retorna uma Promise, e `await` suspende a execução da função até que a Promise aguardada se resolva.
+
+```js
+// Estilo Promise:
+function loadUserData(id) {
+  return fetch(`/api/users/${id}`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Not found");
+      return res.json();
+    })
+    .then((user) => fetch(`/api/orders?userId=${user.id}`))
+    .then((res) => res.json());
+}
+
+// Estilo async/await equivalente:
+async function loadUserData(id) {
+  const res = await fetch(`/api/users/${id}`);
+  if (!res.ok) throw new Error("Not found");
+  const user = await res.json();
+  const ordersRes = await fetch(`/api/orders?userId=${user.id}`);
+  return ordersRes.json();
+}
+```
+
+Regras de `async`/`await`:
+- `async` sempre faz uma função retornar uma Promise
+- `await` só pode ser usado dentro de funções `async` (ou no nível superior de módulos ES)
+- `await` pausa apenas a **função `async` atual** — o resto do runtime JavaScript continua executando
+- Se a Promise aguardada rejeitar, `await` **lança** o motivo da rejeição
+
+> Leitura adicional: [MDN: async function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function)
+
+---
+
+## Tratamento de Erros com `try`/`catch`
+
+Com `async`/`await`, a abordagem idiomática de tratamento de erros é `try`/`catch`:
+
+```js
+async function fetchUserProfile(username) {
+  try {
+    const res = await fetch(`https://api.github.com/users/${username}`);
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    if (error.name === "TypeError") {
+      console.error("Network failure or CORS issue:", error.message);
+    } else {
+      console.error("API error:", error.message);
+    }
+    throw error; // relançar se o chamador precisar tratar também
+  } finally {
+    console.log("Fetch attempt complete");
+  }
+}
+```
+
+### Tratando Erros Sem `try`/`catch`
+
+Um padrão alternativo que evita aninhamento de `try`/`catch`:
+
+```js
+async function safeAsync(promise) {
+  try {
+    const data = await promise;
+    return [null, data];
+  } catch (error) {
+    return [error, null];
+  }
+}
+
+const [err, user] = await safeAsync(fetchUserProfile("octocat"));
+if (err) {
+  console.error("Failed:", err.message);
+} else {
+  console.log("User:", user.login);
+}
+```
+
+---
+
+## A Fetch API
+
+`fetch` é a API moderna baseada em Promises para fazer requisições HTTP do navegador:
+
+```js
+// Requisição GET
+const response = await fetch("https://api.github.com/users/octocat");
+const user = await response.json();
+
+// Requisição POST
+const response = await fetch("https://api.example.com/items", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`,
+  },
+  body: JSON.stringify({ name: "New Item", price: 9.99 }),
+});
+
+if (!response.ok) {
+  throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+}
+
+const newItem = await response.json();
+```
+
+Importante: `fetch` só rejeita em **falhas de rede** (sem conexão, CORS bloqueado). Uma resposta `404` ou `500` ainda **resolve** — você deve verificar `response.ok` ou `response.status` manualmente.
+
+> Leitura adicional: [MDN: Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+
+---
+
+## Exercícios
+
+<CodeRunner
+  title="Exercise 1: Creating and Consuming Promises"
+  code={`// TODO: Implement delay(ms) — returns a Promise that resolves after ms milliseconds
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// TODO: Implement fetchWithTimeout(promise, ms)
+// Should race the given promise against a timeout
+function fetchWithTimeout(promise, ms) {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(\`Timed out after \${ms}ms\`)), ms)
+  );
+  return Promise.race([promise, timeout]);
+}
+
+// Test: delay should be a Promise
+const p = delay(100);
+console.log(p instanceof Promise); // true
+console.log(typeof p.then);        // "function"
+`}
+  testCases={[
+    { input: "delay(100) instanceof Promise", expected: "true", description: "delay returns a Promise" },
+    { input: "typeof delay(100).then", expected: "function", description: "Promise has a .then method" },
+    { input: "fetchWithTimeout(Promise.resolve(42), 1000) instanceof Promise", expected: "true", description: "fetchWithTimeout returns a Promise" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2: Promise Chaining"
+  code={`// Simulate async operations that return Promises
+function getUser(id) {
+  return Promise.resolve({ id, name: "Alice", planId: 5 });
+}
+
+function getPlan(planId) {
+  return Promise.resolve({ id: planId, name: "Pro", price: 29.99 });
+}
+
+function getFeatures(planName) {
+  const features = {
+    Pro: ["unlimited", "priority support", "custom domain"],
+    Free: ["5 projects", "community support"],
+  };
+  return Promise.resolve(features[planName] || []);
+}
+
+// TODO: Chain these three operations:
+// 1. getUser(1) → get user
+// 2. getPlan(user.planId) → get plan
+// 3. getFeatures(plan.name) → get features
+// 4. Log the features array
+
+getUser(1)
+  .then(user => getPlan(user.planId))
+  .then(plan => getFeatures(plan.name))
+  .then(features => console.log("Features:", features))
+  .catch(err => console.error("Error:", err.message));
+`}
+  testCases={[
+    { input: `getUser(1).then(u => getPlan(u.planId)).then(p => p.name)`, expected: "Pro", description: "Chaining resolves plan name" },
+    { input: `getUser(1).then(u => getPlan(u.planId)).then(p => getFeatures(p.name)).then(f => f.length)`, expected: "3", description: "Pro plan has 3 features" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3: Promise Combinators"
+  code={`function fetchPrice(item) {
+  const prices = { apple: 1.2, banana: 0.5, cherry: 3.0 };
+  return new Promise((resolve, reject) => {
+    if (prices[item] === undefined) reject(new Error(\`Unknown item: \${item}\`));
+    else resolve({ item, price: prices[item] });
+  });
+}
+
+// TODO: Use Promise.all to fetch prices for ['apple', 'banana', 'cherry'] at once
+async function getAllPrices() {
+  const results = await Promise.all(['apple', 'banana', 'cherry'].map(fetchPrice));
+  return results;
+}
+
+// TODO: Use Promise.allSettled to handle a mix of success and failure
+async function getMixedPrices() {
+  const results = await Promise.allSettled(
+    ['apple', 'mango', 'cherry'].map(fetchPrice)
+  );
+  return results.map(r => r.status === 'fulfilled' ? r.value.item : 'failed');
+}
+
+getAllPrices().then(r => console.log(r.map(x => x.item)));
+getMixedPrices().then(r => console.log(r));
+`}
+  testCases={[
+    { input: `getAllPrices().then(r => r.map(x => x.price).reduce((a,b) => a+b, 0).toFixed(1))`, expected: "4.7", description: "Total price of apple+banana+cherry = 4.7" },
+    { input: `getMixedPrices().then(r => r[1])`, expected: "failed", description: "Unknown item returns 'failed' in allSettled" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4: async/await Syntax"
+  code={`// Rewrite this Promise chain using async/await
+
+function getUserPromise(id) {
+  return Promise.resolve({ id, name: "Bob", role: "admin" });
+}
+
+function getPermissions(role) {
+  const perms = {
+    admin: ["read", "write", "delete"],
+    user: ["read"],
+  };
+  return Promise.resolve(perms[role] || []);
+}
+
+// TODO: Write an async function loadDashboard(userId) that:
+// 1. Gets the user
+// 2. Gets their permissions
+// 3. Returns an object { user, permissions }
+
+async function loadDashboard(userId) {
+  const user = await getUserPromise(userId);
+  const permissions = await getPermissions(user.role);
+  return { user, permissions };
+}
+
+loadDashboard(1).then(({ user, permissions }) => {
+  console.log(\`\${user.name} has \${permissions.length} permissions\`);
+});
+`}
+  testCases={[
+    { input: "loadDashboard(1).then(d => d.user.name)", expected: "Bob", description: "User name is resolved" },
+    { input: "loadDashboard(1).then(d => d.permissions.length)", expected: "3", description: "Admin has 3 permissions" },
+    { input: "loadDashboard(1) instanceof Promise", expected: "true", description: "async function returns a Promise" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5: Error Handling with try/catch"
+  code={`function riskyOperation(value) {
+  return new Promise((resolve, reject) => {
+    if (value < 0) reject(new Error("Value cannot be negative"));
+    else if (value === 0) reject(new Error("Value cannot be zero"));
+    else resolve(Math.sqrt(value));
+  });
+}
+
+// TODO: Write async function safeSqrt(value) that:
+// - Uses try/catch to handle errors
+// - Returns { ok: true, result } on success
+// - Returns { ok: false, error: errorMessage } on failure
+
+async function safeSqrt(value) {
+  try {
+    const result = await riskyOperation(value);
+    return { ok: true, result };
+  } catch (error) {
+    return { ok: false, error: error.message };
+  }
+}
+
+safeSqrt(16).then(r => console.log(r)); // { ok: true, result: 4 }
+safeSqrt(-1).then(r => console.log(r)); // { ok: false, error: "..." }
+safeSqrt(0).then(r => console.log(r));  // { ok: false, error: "..." }
+`}
+  testCases={[
+    { input: "safeSqrt(16).then(r => r.result)", expected: "4", description: "safeSqrt(16) = 4" },
+    { input: "safeSqrt(16).then(r => r.ok)", expected: "true", description: "Successful result has ok: true" },
+    { input: "safeSqrt(-1).then(r => r.ok)", expected: "false", description: "Failed result has ok: false" },
+    { input: `safeSqrt(0).then(r => r.error)`, expected: "Value cannot be zero", description: "Error message is captured" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6: Sequential vs. Parallel Execution"
+  code={`function simulateFetch(id, delay) {
+  return new Promise(resolve =>
+    setTimeout(() => resolve(\`data-\${id}\`), delay)
+  );
+}
+
+// Sequential: each awaits the previous
+async function sequential() {
+  const start = Date.now();
+  const a = await simulateFetch(1, 50);
+  const b = await simulateFetch(2, 50);
+  const c = await simulateFetch(3, 50);
+  return { results: [a, b, c], ms: Date.now() - start };
+}
+
+// Parallel: all start at once
+async function parallel() {
+  const start = Date.now();
+  const [a, b, c] = await Promise.all([
+    simulateFetch(1, 50),
+    simulateFetch(2, 50),
+    simulateFetch(3, 50),
+  ]);
+  return { results: [a, b, c], ms: Date.now() - start };
+}
+
+sequential().then(r => console.log("Sequential ms:", r.ms, "results:", r.results));
+parallel().then(r => console.log("Parallel ms:", r.ms, "results:", r.results));
+// Sequential takes ~150ms, Parallel takes ~50ms
+`}
+  testCases={[
+    { input: `sequential().then(r => JSON.stringify(r.results))`, expected: `'["data-1","data-2","data-3"]'`, description: "Sequential returns all three results" },
+    { input: `parallel().then(r => JSON.stringify(r.results))`, expected: `'["data-1","data-2","data-3"]'`, description: "Parallel also returns all three results" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 7: Implementing a Retry Mechanism"
+  code={`// TODO: Implement retry(fn, attempts, delayMs)
+// fn: an async function that may fail
+// attempts: max number of tries
+// delayMs: wait between retries
+// Returns the result of fn on success, throws if all attempts fail
+
+async function retry(fn, attempts, delayMs = 0) {
+  let lastError;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      if (i < attempts - 1 && delayMs > 0) {
+        await new Promise(r => setTimeout(r, delayMs));
+      }
+    }
+  }
+  throw lastError;
+}
+
+// Test: function that fails twice then succeeds
+let callCount = 0;
+const unstable = () => new Promise((resolve, reject) => {
+  callCount++;
+  if (callCount < 3) reject(new Error(\`Fail \${callCount}\`));
+  else resolve("Success!");
+});
+
+retry(unstable, 5, 0).then(result => {
+  console.log(result);      // "Success!"
+  console.log(callCount);   // 3
+});
+`}
+  testCases={[
+    { input: `(() => { let n = 0; const fn = () => new Promise((res, rej) => { n++; if (n < 3) rej(new Error('fail')); else res('ok'); }); return retry(fn, 5, 0); })()`, expected: "ok", description: "Retry succeeds after 2 failures" },
+    { input: `retry(() => Promise.reject(new Error('always fails')), 3, 0).catch(e => e.message)`, expected: "always fails", description: "Throws after all attempts exhausted" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 8: Fetch API Pattern"
+  code={`// This exercise simulates the Fetch API pattern with a mock
+// In a real browser you would use actual fetch()
+
+function mockFetch(url) {
+  const data = {
+    "/api/users/1": { id: 1, name: "Alice", email: "alice@example.com" },
+    "/api/users/2": { id: 2, name: "Bob", email: "bob@example.com" },
+  };
+
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (data[url]) {
+        resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(data[url]),
+        });
+      } else {
+        resolve({
+          ok: false,
+          status: 404,
+          json: () => Promise.resolve({ error: "Not found" }),
+        });
+      }
+    }, 10);
+  });
+}
+
+// TODO: Implement fetchUser(id) using the mockFetch above
+// Should throw an error if response.ok is false
+// Should return the parsed JSON data on success
+
+async function fetchUser(id) {
+  const res = await mockFetch(\`/api/users/\${id}\`);
+  if (!res.ok) {
+    throw new Error(\`HTTP \${res.status}: Not found\`);
+  }
+  return res.json();
+}
+
+fetchUser(1).then(user => console.log(user.name)); // "Alice"
+fetchUser(999).catch(err => console.error(err.message)); // "HTTP 404: Not found"
+`}
+  testCases={[
+    { input: "fetchUser(1).then(u => u.name)", expected: "Alice", description: "fetchUser(1) returns Alice" },
+    { input: "fetchUser(2).then(u => u.email)", expected: "bob@example.com", description: "fetchUser(2) returns Bob's email" },
+    { input: `fetchUser(999).catch(e => e.message)`, expected: "HTTP 404: Not found", description: "fetchUser with unknown id throws" }
+  ]}
+/>
+
+---
+
+## Projeto: Perfis do GitHub
+
+Este projeto busca dados reais de usuário da API do GitHub e renderiza um cartão de perfil. Demonstra `async/await`, tratamento de erros e a Fetch API em um contexto real.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/github-profiles/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="GitHub Profiles Demo"
+/>
+
+### Desafio 1
+
+Adicione um **estado de carregamento**: mostre um spinner enquanto o fetch está em andamento e esconda-o quando completo (sucesso ou falha). Use um bloco `finally`.
+
+### Desafio 2
+
+Adicione **histórico de pesquisa**: armazene os últimos 5 nomes de usuário pesquisados no `localStorage` e exiba-os como chips clicáveis. Clicar em um chip rebusca o perfil daquele usuário.
+
+---
+
+## Projeto: Pokédex
+
+Busca dados de Pokémon da PokéAPI e exibe uma lista pesquisável. Usa `Promise.all` para buscar dados de múltiplos Pokémon simultaneamente.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/pokedex/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Pokédex Demo"
+/>
+
+### Desafio 1
+
+Implemente **rolagem infinita**: à medida que o usuário rola até o final da lista, busque o próximo lote de Pokémon usando os parâmetros de consulta `limit` e `offset` da PokéAPI.
+
+---
+
+## Projeto: Encurtador de URL
+
+Usa uma API de terceiros para encurtar URLs. Demonstra requisições POST com `fetch`, serialização JSON e API de clipboard.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/url-shortener/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="URL Shortener Demo"
+/>
+
+### Desafio 1
+
+Adicione **validação de URL** antes de fazer a chamada à API. Use uma regex ou o construtor `URL` para verificar se a entrada é uma URL válida. Mostre uma mensagem de erro inline para entrada inválida.
+
+### Desafio 2
+
+Armazene o histórico de URLs encurtadas no `localStorage` e renderize um painel de histórico. Adicione um botão para limpar o histórico.
+
+---
+
+## Projeto: Gerador de QR Code
+
+Gera QR codes a partir da entrada do usuário usando uma API externa. Demonstra carregamento dinâmico de imagens e tratamento de erros assíncronos.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/qr-code-generator/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="QR Code Generator Demo"
+/>
+
+### Desafio 1
+
+Adicione uma **pré-visualização ao vivo com debounce**: gere o QR code automaticamente enquanto o usuário digita, com um debounce de 500ms para evitar chamadas excessivas à API. (Combine closures + async!)
+
+### Desafio 2
+
+Adicione um **botão de download** que permite aos usuários salvar o QR code como arquivo PNG. Use `fetch` para obter a imagem como blob, depois crie um link de download temporário.
+
+---
+
+## Projeto: Feed de Imagens Aleatórias
+
+Busca imagens de uma API pública (ex.: Unsplash) e renderiza uma galeria de imagens com rolagem infinita. Usa `Promise.allSettled` para tratar graciosamente qualquer falha no carregamento de imagens.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/random-image-feed/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Random Image Feed Demo"
+/>
+
+### Desafio 1
+
+Implemente **filtragem por categoria**: adicione uma linha de botões de filtro (natureza, animais, arquitetura, etc.) que rebuscam imagens com o parâmetro de consulta de categoria selecionado. Mostre um skeleton de carregamento enquanto busca.
+
+---
+
+## Resumo
+
+- JavaScript é **single-threaded**: uma pilha de chamadas, uma operação de cada vez.
+- O **ambiente do navegador** fornece Web APIs (timers, fetch, eventos) que operam fora do motor JS.
+- O **Event Loop** coordena a pilha de chamadas com duas filas: a fila de macrotarefas e a **fila de microtarefas** (que é sempre drenada primeiro e contém callbacks de Promise).
+- **Callbacks** eram o padrão assíncrono original, mas levam a código profundamente aninhado e difícil de manter.
+- Uma **Promise** é um objeto que representa um valor futuro. Está sempre em um de três estados: pendente, cumprida ou rejeitada. Uma vez resolvida, é imutável.
+- **Encadeamento de Promises** achata o código assíncrono retornando valores (ou novas Promises) dos handlers `.then`.
+- **Combinadores de Promise**: `Promise.all` (tudo ou nada), `Promise.race` (primeiro a resolver), `Promise.allSettled` (todos, independente), `Promise.any` (primeiro a cumprir).
+- `async`/`await` é açúcar sintático sobre Promises, fazendo o código assíncrono parecer código síncrono.
+- Use `try`/`catch`/`finally` com `async`/`await` para tratamento limpo de erros.
+- A **Fetch API** é baseada em Promises; verifique `response.ok` explicitamente já que respostas 4xx/5xx não fazem o fetch rejeitar.
+
+### Leitura Adicional
+
+- [MDN: Event Loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop)
+- [MDN: Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+- [MDN: async function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function)
+- [MDN: await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)
+- [MDN: Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+- [MDN: Microtask guide](https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide)
+- [MDN: Promise.all](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all)
+- [MDN: Promise.allSettled](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled)
+- [MDN: Using the Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)

@@ -1,0 +1,656 @@
+---
+sidebar_position: 1
+---
+
+# Closures
+
+## ¿Qué Son los Closures?
+
+Un **closure** es uno de los conceptos más fundamentales — y más incomprendidos — en JavaScript. En esencia, un closure es la combinación de una función y su **entorno léxico**: el conjunto de variables que estaban en el alcance cuando se creó la función, a las cuales retiene acceso incluso después de que el alcance externo haya terminado de ejecutarse.
+
+MDN lo define así:
+
+> "Un closure es la combinación de una función empaquetada (encerrada) con referencias a su estado circundante (el entorno léxico). En otras palabras, un closure te da acceso al alcance de una función externa desde una función interna."
+>
+> — [MDN: Closures](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures)
+
+Para entender los closures, primero necesitas un conocimiento sólido del **alcance léxico** y cómo funciona la **cadena de alcance**.
+
+---
+
+## Alcance Léxico y la Cadena de Alcance
+
+JavaScript usa **alcance léxico** (también llamado **alcance estático**): el alcance de una función está determinado por dónde está **escrita** la función en el código fuente, no desde dónde **se llama**.
+
+```js
+const x = 10;
+
+function outer() {
+  const y = 20;
+
+  function inner() {
+    const z = 30;
+    console.log(x, y, z); // 10, 20, 30
+  }
+
+  inner();
+}
+
+outer();
+```
+
+Cuando `inner` se ejecuta, el motor de JavaScript busca la variable `x` recorriendo la **cadena de alcance**:
+
+1. Verificar el propio alcance de `inner` → no encontrado
+2. Verificar el alcance de `outer` → no encontrado
+3. Verificar el alcance global → encontrado: `x = 10`
+
+Esta cadena se establece **en el momento en que se define la función**, no cuando se llama. Esa es la esencia del alcance léxico.
+
+### El Slot Interno [[scope]]
+
+Cada objeto función en JavaScript tiene una propiedad interna llamada `[[scope]]` (a veces escrita como `[[Environment]]`). Este slot oculto contiene una referencia al **registro de entorno** — el alcance real — en el que se creó la función.
+
+Cuando se invoca una función, se crea un nuevo contexto de ejecución. El puntero de **entorno externo** de ese contexto se establece con lo que estaba almacenado en `[[scope]]`. Esto es lo que forma la cadena de alcance en tiempo de ejecución.
+
+> Lectura adicional: [MDN: Scope](https://developer.mozilla.org/en-US/docs/Glossary/Scope)
+
+---
+
+## El Modelo Mental de la "Mochila"
+
+Un modelo mental útil para los closures es la **mochila** (o "entorno de variable cerrado", COVE):
+
+> Cuando se crea una función dentro de otra función, la función interna "empaca" una copia de las variables circundantes en una mochila invisible atada a su espalda. Sin importar a dónde viaje la función — incluso después de que la función externa haya retornado y su contexto de ejecución haya sido eliminado de la pila de llamadas — la mochila siempre está ahí.
+
+```js
+function makeCounter() {
+  let count = 0; // esto se empaca en la mochila del closure
+
+  return function () {
+    count++;
+    return count;
+  };
+}
+
+const counter = makeCounter();
+console.log(counter()); // 1
+console.log(counter()); // 2
+console.log(counter()); // 3
+```
+
+`makeCounter` retornó hace mucho, sin embargo `count` todavía está vivo. ¿Por qué? Porque la función retornada tiene una referencia viva a la variable `count` dentro de su closure. El recolector de basura no puede reclamar `count` mientras esa referencia exista.
+
+---
+
+## Cómo JavaScript Gestiona la Memoria de los Closures
+
+Cuando el motor JavaScript crea una función que cierra sobre variables, esas variables se almacenan en el **heap** en lugar de la pila. Los frames de la pila se eliminan cuando una función retorna, pero las asignaciones en el heap persisten mientras algo tenga una referencia a ellas.
+
+El entorno de variables cerrado es esencialmente un objeto en el heap:
+
+```
+Heap:
+  ClosureEnv { count: 3 }
+      ↑
+  El [[scope]] de la función counter apunta aquí
+```
+
+Esto significa que los closures consumen memoria. Para aplicaciones de larga duración, es importante no retener accidentalmente objetos grandes en closures cuando ya no son necesarios.
+
+> Lectura adicional: [MDN: Memory Management](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management)
+
+---
+
+## Patrones Prácticos con Closures
+
+### 1. Funciones Fábrica
+
+Una **función fábrica** es una función que retorna una nueva función personalizada. Los closures hacen esto poderoso:
+
+```js
+function multiplier(factor) {
+  return (number) => number * factor; // factor está cerrado
+}
+
+const double = multiplier(2);
+const triple = multiplier(3);
+
+console.log(double(5));  // 10
+console.log(triple(5));  // 15
+```
+
+Cada llamada a `multiplier` crea un nuevo closure con su propio `factor`. `double` y `triple` son completamente independientes.
+
+### 2. Variables Privadas (Patrón Módulo)
+
+JavaScript no tenía campos de clase privados nativos hasta ES2022. Antes, los closures eran la forma idiomática de lograr encapsulamiento de datos:
+
+```js
+function createBankAccount(initialBalance) {
+  let balance = initialBalance; // verdaderamente privado — no accesible desde afuera
+
+  return {
+    deposit(amount) {
+      balance += amount;
+      return balance;
+    },
+    withdraw(amount) {
+      if (amount > balance) throw new Error("Insufficient funds");
+      balance -= amount;
+      return balance;
+    },
+    getBalance() {
+      return balance;
+    },
+  };
+}
+
+const account = createBankAccount(100);
+account.deposit(50);       // 150
+account.withdraw(30);      // 120
+console.log(account.balance); // undefined — ¡no accesible directamente!
+```
+
+### 3. Memoización
+
+La **memoización** es una técnica de optimización que almacena en caché los resultados de llamadas a funciones costosas. Los closures son perfectos para almacenar el caché:
+
+```js
+function memoize(fn) {
+  const cache = new Map(); // cerrado — vive tanto como la función memoizada
+
+  return function (...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      console.log("Cache hit!");
+      return cache.get(key);
+    }
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+function slowFibonacci(n) {
+  if (n <= 1) return n;
+  return slowFibonacci(n - 1) + slowFibonacci(n - 2);
+}
+
+const fastFibonacci = memoize(slowFibonacci);
+console.log(fastFibonacci(40)); // calculado
+console.log(fastFibonacci(40)); // Cache hit! — instantáneo
+```
+
+### 4. Debounce
+
+El **debounce** retrasa la ejecución de una función hasta después de un período de inactividad especificado. Es esencial para el rendimiento al manejar eventos de alta frecuencia como `input`, `resize` o `scroll`:
+
+```js
+function debounce(fn, delay) {
+  let timeoutId; // cerrado — persiste entre llamadas
+
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      fn.apply(this, args);
+    }, delay);
+  };
+}
+
+const handleSearch = debounce((query) => {
+  console.log("Searching for:", query);
+}, 300);
+
+// Solo se dispara una vez, 300ms después de que el usuario deje de escribir
+document.querySelector("input")?.addEventListener("input", (e) => {
+  handleSearch(e.target.value);
+});
+```
+
+`timeoutId` es una variable privada que vive dentro del closure. Cada llamada a la función rebotada comparte el mismo `timeoutId`, permitiendo cancelar el timeout anterior.
+
+> Lectura adicional: [MDN: setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout)
+
+### 5. Iteradores
+
+Los closures pueden crear iteradores con estado sin clases:
+
+```js
+function range(start, end, step = 1) {
+  let current = start;
+
+  return {
+    next() {
+      if (current <= end) {
+        const value = current;
+        current += step;
+        return { value, done: false };
+      }
+      return { value: undefined, done: true };
+    },
+  };
+}
+
+const iter = range(1, 5);
+console.log(iter.next()); // { value: 1, done: false }
+console.log(iter.next()); // { value: 2, done: false }
+console.log(iter.next()); // { value: 3, done: false }
+```
+
+> Lectura adicional: [MDN: Iterators and Generators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_generators)
+
+---
+
+## La Trampa Clásica del Bucle
+
+Uno de los bugs de closures más infames en JavaScript:
+
+```js
+// ROTO: usando var
+for (var i = 0; i < 3; i++) {
+  setTimeout(function () {
+    console.log(i); // imprime 3, 3, 3 — ¡no 0, 1, 2!
+  }, 1000);
+}
+```
+
+¿Por qué? Porque `var` tiene **alcance de función**, no de bloque. Los tres callbacks cierran sobre la **misma** variable `i`. Para cuando los timeouts se disparan, el bucle ha terminado e `i` es `3`.
+
+**Solución 1: Usar `let`**
+
+```js
+for (let i = 0; i < 3; i++) {
+  setTimeout(function () {
+    console.log(i); // 0, 1, 2 ✓
+  }, 1000);
+}
+```
+
+`let` tiene alcance de bloque. Cada iteración del bucle crea un **nuevo binding** de `i`, por lo que cada callback cierra sobre una variable diferente.
+
+**Solución 2: IIFE (para bases de código más antiguas)**
+
+```js
+for (var i = 0; i < 3; i++) {
+  (function (j) {
+    setTimeout(function () {
+      console.log(j); // 0, 1, 2 ✓
+    }, 1000);
+  })(i);
+}
+```
+
+El IIFE crea un nuevo alcance en cada iteración, capturando el valor actual de `i` como el parámetro `j`.
+
+> Lectura adicional: [MDN: let](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let)
+
+---
+
+## El Patrón IIFE
+
+Una **Expresión de Función Inmediatamente Invocada** (IIFE) es una función que se define y se llama al mismo tiempo:
+
+```js
+(function () {
+  const privateData = "I am not global";
+  console.log(privateData);
+})();
+
+// privateData no es accesible aquí
+```
+
+Los IIFE fueron la base del **patrón módulo** antes de que existieran los módulos ES. Permitían a las bibliotecas exponer solo una API pública manteniendo el estado interno privado:
+
+```js
+const Calculator = (function () {
+  let history = []; // privado
+
+  function add(a, b) {
+    const result = a + b;
+    history.push(`${a} + ${b} = ${result}`);
+    return result;
+  }
+
+  function getHistory() {
+    return [...history]; // retornar una copia para prevenir mutación
+  }
+
+  return { add, getHistory }; // API pública
+})();
+
+Calculator.add(2, 3); // 5
+Calculator.getHistory(); // ["2 + 3 = 5"]
+```
+
+> Lectura adicional: [MDN: IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE)
+
+---
+
+## Ejercicios
+
+<CodeRunner
+  title="Exercise 1: Basic Closure — Counter Factory"
+  code={`function makeCounter(start = 0) {
+  // TODO: return an object with increment, decrement, and reset methods
+  // All methods should use a closed-over 'count' variable
+  let count = start;
+
+  return {
+    increment() { /* your code */ },
+    decrement() { /* your code */ },
+    reset() { /* your code */ },
+    value() { return count; }
+  };
+}
+
+const c = makeCounter(10);
+c.increment();
+c.increment();
+c.decrement();
+console.log(c.value()); // should be 11
+c.reset();
+console.log(c.value()); // should be 10
+`}
+  testCases={[
+    { input: `(() => { const c = makeCounter(10); c.increment(); c.increment(); c.decrement(); return c.value(); })()`, expected: "11", description: "Counter starts at 10, increments twice, decrements once → 11" },
+    { input: `(() => { const c = makeCounter(10); c.increment(); c.reset(); return c.value(); })()`, expected: "10", description: "After reset, value returns to start value" },
+    { input: `(() => { const c = makeCounter(0); c.decrement(); return c.value(); })()`, expected: "-1", description: "Counter can go negative" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2: Factory Functions — Power Generator"
+  code={`function makePower(exponent) {
+  // TODO: Return a function that raises its argument to 'exponent'
+  // 'exponent' should be closed over
+}
+
+const square = makePower(2);
+const cube = makePower(3);
+
+console.log(square(4));  // 16
+console.log(cube(3));    // 27
+console.log(square(10)); // 100
+`}
+  testCases={[
+    { input: "makePower(2)(4)", expected: "16", description: "square(4) = 16" },
+    { input: "makePower(3)(3)", expected: "27", description: "cube(3) = 27" },
+    { input: "makePower(0)(999)", expected: "1", description: "Any number to the power of 0 is 1" },
+    { input: "makePower(2)(10)", expected: "100", description: "square(10) = 100" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3: Private State — Secure Vault"
+  code={`function createVault(secret) {
+  // TODO: Return an object with:
+  //   - check(guess): returns true if guess === secret, false otherwise
+  //   - changeSecret(oldSecret, newSecret): changes secret only if oldSecret matches
+  // 'secret' should NEVER be directly readable from outside
+}
+
+const vault = createVault("openSesame");
+console.log(vault.check("wrong"));       // false
+console.log(vault.check("openSesame")); // true
+vault.changeSecret("openSesame", "newPassword");
+console.log(vault.check("openSesame")); // false
+console.log(vault.check("newPassword")); // true
+`}
+  testCases={[
+    { input: `(() => { const v = createVault("abc"); return v.check("abc"); })()`, expected: "true", description: "Correct secret returns true" },
+    { input: `(() => { const v = createVault("abc"); return v.check("xyz"); })()`, expected: "false", description: "Wrong guess returns false" },
+    { input: `(() => { const v = createVault("abc"); v.changeSecret("abc", "def"); return v.check("def"); })()`, expected: "true", description: "After successful change, new secret works" },
+    { input: `(() => { const v = createVault("abc"); v.changeSecret("wrong", "def"); return v.check("abc"); })()`, expected: "true", description: "Failed change leaves original secret intact" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4: Memoization"
+  code={`function memoize(fn) {
+  // TODO: Return a memoized version of fn
+  // Cache results by stringifying the arguments
+  // Return the cached value if it exists
+}
+
+let callCount = 0;
+
+function expensiveOp(n) {
+  callCount++;
+  return n * n * n;
+}
+
+const memoizedOp = memoize(expensiveOp);
+
+memoizedOp(5); // computed
+memoizedOp(5); // should be cached
+memoizedOp(5); // should be cached
+memoizedOp(6); // computed
+
+console.log("callCount:", callCount); // should be 2 (called for 5 and 6 only)
+`}
+  testCases={[
+    { input: `(() => { let calls = 0; const fn = memoize(n => { calls++; return n * 2; }); fn(3); fn(3); fn(3); return calls; })()`, expected: "1", description: "Function is only called once for the same input" },
+    { input: `(() => { const fn = memoize(n => n * n); return fn(7); })()`, expected: "49", description: "Memoized function returns correct result" },
+    { input: `(() => { let calls = 0; const fn = memoize(n => { calls++; return n; }); fn(1); fn(2); fn(1); return calls; })()`, expected: "2", description: "Different inputs are computed separately" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5: Debounce"
+  code={`function debounce(fn, delay) {
+  // TODO: Implement debounce
+  // Clear previous timeout and set a new one each time
+  // The function should only fire after 'delay' ms of inactivity
+}
+
+// Testing debounce with fake timers
+let fireCount = 0;
+const debounced = debounce(() => { fireCount++; }, 100);
+
+// Simulate rapid calls (in real use these would be events)
+// For this exercise, we test the logic manually
+debounced();
+debounced();
+debounced();
+// Only one call should have been scheduled
+
+console.log("Debounce function created successfully");
+console.log(typeof debounce(() => {}, 100) === 'function'); // true
+`}
+  testCases={[
+    { input: "typeof debounce(() => {}, 100)", expected: "function", description: "debounce returns a function" },
+    { input: `(() => { let id = null; const db = debounce(() => {}, 200); const result = db(); return result === undefined; })()`, expected: "true", description: "Debounced function returns undefined" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6: The Loop Trap Fix"
+  code={`// Fix this code so it prints 0, 1, 2, 3, 4 after 100ms each
+// Currently it prints 5, 5, 5, 5, 5
+
+function brokenVersion() {
+  const results = [];
+  for (var i = 0; i < 5; i++) {
+    // BUG: all callbacks close over the same 'i'
+    setTimeout(function() {
+      results.push(i);
+    }, i * 10);
+  }
+  return results;
+}
+
+function fixedVersion() {
+  const results = [];
+  // TODO: Fix using 'let' (or IIFE if you want extra credit)
+  for (let i = 0; i < 5; i++) {
+    // your code here
+  }
+  return results; // This is a simplified sync test
+}
+
+// Synchronous test: prove you understand the issue
+function syncTest() {
+  const closures = [];
+  for (let i = 0; i < 5; i++) {
+    closures.push(() => i);
+  }
+  return closures.map(fn => fn()); // should be [0, 1, 2, 3, 4]
+}
+
+console.log(JSON.stringify(syncTest())); // [0,1,2,3,4]
+`}
+  testCases={[
+    { input: "JSON.stringify((() => { const fns = []; for (let i = 0; i < 5; i++) { fns.push(() => i); } return fns.map(f => f()); })())", expected: `"[0,1,2,3,4]"`, description: "Using let creates a new binding per iteration" },
+    { input: "JSON.stringify((() => { const fns = []; for (var i = 0; i < 3; i++) { (function(j) { fns.push(() => j); })(i); } return fns.map(f => f()); })())", expected: `"[0,1,2]"`, description: "IIFE approach also fixes the loop trap" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 7: Currying with Closures"
+  code={`// Currying transforms a function with multiple args into a chain
+// of functions each taking one argument: add(1)(2)(3) instead of add(1,2,3)
+
+function curry(fn) {
+  // TODO: Return a curried version of fn
+  // Hint: if enough arguments have been collected, call fn
+  // Otherwise, return a function that collects more arguments
+
+  return function curried(...args) {
+    if (args.length >= fn.length) {
+      return fn.apply(this, args);
+    }
+    return function(...more) {
+      return curried.apply(this, args.concat(more));
+    };
+  };
+}
+
+const add = curry((a, b, c) => a + b + c);
+
+console.log(add(1)(2)(3));    // 6
+console.log(add(1, 2)(3));    // 6
+console.log(add(1)(2, 3));    // 6
+console.log(add(1, 2, 3));    // 6
+`}
+  testCases={[
+    { input: "curry((a, b) => a + b)(3)(4)", expected: "7", description: "Curried function: add(3)(4) = 7" },
+    { input: "curry((a, b, c) => a * b * c)(2)(3)(4)", expected: "24", description: "Three-argument curry: 2*3*4 = 24" },
+    { input: "curry((a, b) => a + b)(10, 20)", expected: "30", description: "Can still be called with multiple args at once" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 8: Once — Function That Runs Only Once"
+  code={`function once(fn) {
+  // TODO: Return a wrapper that calls fn only on the first invocation.
+  // All subsequent calls should return the result of the first call.
+  // Use a closure to track whether fn has been called.
+}
+
+let initCount = 0;
+const initialize = once(() => {
+  initCount++;
+  return "Initialized!";
+});
+
+console.log(initialize()); // "Initialized!"
+console.log(initialize()); // "Initialized!" (cached, not re-run)
+console.log(initialize()); // "Initialized!" (cached, not re-run)
+console.log("Init ran:", initCount); // Init ran: 1
+`}
+  testCases={[
+    { input: `(() => { let n = 0; const f = once(() => ++n); f(); f(); f(); return n; })()`, expected: "1", description: "Underlying function is only called once" },
+    { input: `(() => { const f = once(() => 42); f(); return f(); })()`, expected: "42", description: "Returns the cached result on subsequent calls" }
+  ]}
+/>
+
+---
+
+## Proyecto: Efecto de Texto Automático
+
+Este proyecto usa closures para gestionar el estado de animación de un efecto de escritura — cada revelación de carácter está impulsada por un callback de `setTimeout` que cierra sobre la cadena de texto completa y el índice actual.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/auto-text-effect/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Auto Text Effect Demo"
+/>
+
+### Cómo los Closures lo Impulsan
+
+El mecanismo central:
+
+```js
+function typeWriter(element, text, speed = 50) {
+  let index = 0; // cerrado por la función tick
+
+  function tick() {
+    if (index < text.length) {
+      element.textContent += text[index];
+      index++;
+      setTimeout(tick, speed); // tick cierra sobre index y text
+    }
+  }
+
+  tick();
+}
+```
+
+`tick` es una función recursiva que cierra sobre `index` y `text`. Cada llamada a `typeWriter` crea un closure independiente, por lo que múltiples animaciones pueden ejecutarse simultáneamente sin interferir.
+
+### Desafío 1
+
+Extiende `typeWriter` para soportar un **callback** que se dispare cuando la animación termine.
+
+```js
+typeWriter(el, "Hello!", 50, () => console.log("Done!"));
+```
+
+### Desafío 2
+
+Implementa una función `typeAndDelete` que escriba texto hacia adelante, luego lo elimine carácter por carácter, y se repita indefinidamente. Usa closures para rastrear la dirección y el índice actual.
+
+---
+
+## Proyecto: Juego de Atrapar Insectos
+
+Este juego usa closures para rastrear la puntuación del jugador y el estado de aparición de los insectos. El handler de clic de cada elemento de insecto cierra sobre el valor de puntos del insecto.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/insect-catch-game/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Insect Catch Game Demo"
+/>
+
+### Desafío 1
+
+Refactoriza el sistema de puntuación para usar una **función fábrica** que retorne un objeto gestor de puntuación con métodos `add`, `subtract` y `getScore`, con la puntuación mantenida privada mediante closure.
+
+### Desafío 2
+
+Agrega un rastreador de **puntuación máxima** usando un closure. La puntuación máxima debe persistir entre reinicios del juego (es decir, NO debe reiniciarse cuando el juego se reinicia, solo cuando la página se recarga).
+
+---
+
+## Resumen
+
+- Un **closure** es una función emparejada con su **entorno léxico** — las variables en alcance cuando se definió.
+- Las funciones JavaScript llevan su `[[scope]]` consigo dondequiera que vayan a través de un slot interno.
+- Las variables cerradas viven en el **heap**, no en la pila, por lo que sobreviven la ejecución de su función envolvente.
+- El **modelo mental de la mochila**: las funciones internas llevan sus variables circundantes como una mochila invisible.
+- Patrones clave habilitados por closures: funciones fábrica, estado privado, memoización, debounce, iteradores y currying.
+- La **trampa clásica del bucle** ocurre porque `var` comparte un binding en todas las iteraciones del bucle; corrígela con `let` o un IIFE.
+- Los **IIFE** fueron el patrón módulo original — crean un alcance privado y exponen solo una API pública.
+
+### Lectura Adicional
+
+- [MDN: Closures](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures)
+- [MDN: Scope](https://developer.mozilla.org/en-US/docs/Glossary/Scope)
+- [MDN: IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE)
+- [MDN: let](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let)
+- [MDN: Garbage Collection](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management)

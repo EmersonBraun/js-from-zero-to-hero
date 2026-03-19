@@ -1,0 +1,554 @@
+---
+sidebar_position: 6
+---
+
+# Local Storage y Persistencia de Datos
+
+Los navegadores modernos proveen APIs de almacenamiento integradas que permiten que tus aplicaciones JavaScript recuerden datos entre recargas de página y sesiones del navegador — sin necesitar un servidor o base de datos. En este módulo dominarás `localStorage`, `sessionStorage` y los patrones de serialización JSON necesarios para almacenar datos complejos.
+
+**Referencias MDN:**
+- [Window.localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
+- [Window.sessionStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage)
+- [JSON.stringify()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)
+- [JSON.parse()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
+- [Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Storage)
+
+---
+
+## Teoría
+
+### La API localStorage
+
+`localStorage` es un almacén clave-valor vinculado al origen actual (protocolo + nombre de host + puerto). Los datos persisten indefinidamente hasta que se borran explícitamente.
+
+```js
+// Almacenar un valor
+localStorage.setItem('username', 'Alice');
+
+// Recuperar un valor (devuelve null si la clave no existe)
+const name = localStorage.getItem('username'); // 'Alice'
+
+// Eliminar una clave específica
+localStorage.removeItem('username');
+
+// Borrar TODAS las claves de este origen
+localStorage.clear();
+
+// Verificar cuántas claves están almacenadas
+console.log(localStorage.length);
+
+// Iterar sobre todas las claves
+for (let i = 0; i < localStorage.length; i++) {
+  const key = localStorage.key(i);
+  const value = localStorage.getItem(key);
+  console.log(key, value);
+}
+```
+
+> **Importante:** `localStorage` solo almacena cadenas de texto. Para almacenar objetos o arrays, debes serializarlos.
+
+---
+
+### JSON.stringify y JSON.parse
+
+Como `localStorage` solo acepta cadenas, `JSON.stringify` convierte objetos/arrays a cadenas JSON, y `JSON.parse` los convierte de vuelta:
+
+```js
+// Almacenar un objeto
+const user = { name: 'Alice', age: 30, hobbies: ['coding', 'reading'] };
+localStorage.setItem('user', JSON.stringify(user));
+
+// Recuperar y analizar
+const stored = localStorage.getItem('user');
+const parsed = JSON.parse(stored);
+console.log(parsed.name); // 'Alice'
+
+// Análisis seguro (maneja null y JSON malformado)
+function safeGet(key, defaultValue = null) {
+  try {
+    const item = localStorage.getItem(key);
+    return item !== null ? JSON.parse(item) : defaultValue;
+  } catch (e) {
+    return defaultValue;
+  }
+}
+```
+
+---
+
+### Patrones CRUD
+
+Un patrón estándar para gestionar una colección en `localStorage`:
+
+```js
+const STORAGE_KEY = 'my-todos';
+
+// Crear — agregar un nuevo elemento
+function createItem(text) {
+  const items = readAll();
+  const newItem = { id: Date.now(), text, done: false, createdAt: new Date().toISOString() };
+  items.push(newItem);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  return newItem;
+}
+
+// Leer — obtener todos los elementos
+function readAll() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+
+// Actualizar — cambiar estado completado
+function updateItem(id, changes) {
+  const items = readAll();
+  const updated = items.map(item => item.id === id ? { ...item, ...changes } : item);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+}
+
+// Eliminar — remover por id
+function deleteItem(id) {
+  const items = readAll().filter(item => item.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
+```
+
+---
+
+### Estrategias de Persistencia de Datos
+
+Al diseñar aplicaciones respaldadas por localStorage, considera:
+
+- **Versionado:** Almacena una clave `_version` junto con tus datos. Si la versión almacenada difiere de la versión de la app, migra o restablece los datos.
+- **Cuota:** `localStorage` está típicamente limitado a ~5MB por origen. Almacena solo lo necesario.
+- **Expiración:** `localStorage` no tiene TTL integrado. Si necesitas expiración, almacena una marca de tiempo y verifícala al leer.
+
+```js
+function setWithExpiry(key, value, ttlMs) {
+  const item = { value, expiry: Date.now() + ttlMs };
+  localStorage.setItem(key, JSON.stringify(item));
+}
+
+function getWithExpiry(key) {
+  const raw = localStorage.getItem(key);
+  if (!raw) return null;
+  const item = JSON.parse(raw);
+  if (Date.now() > item.expiry) {
+    localStorage.removeItem(key);
+    return null;
+  }
+  return item.value;
+}
+```
+
+---
+
+### sessionStorage vs localStorage
+
+| Característica | `localStorage` | `sessionStorage` |
+|---|---|---|
+| Persistencia | Hasta que se borre explícitamente | Hasta que se cierre la pestaña/ventana |
+| Alcance | Todas las pestañas del mismo origen | Solo una pestaña |
+| Capacidad | ~5MB | ~5MB |
+| API | Idéntica | Idéntica |
+
+Usa `sessionStorage` para estado temporal como borradores de formularios o pasos de un asistente donde no quieres que los datos persistan entre sesiones.
+
+---
+
+## Ejercicios
+
+<CodeRunner
+  title="Exercise 1: Basic localStorage CRUD"
+  code={`// Simulate localStorage with a plain object for testing
+const store = {};
+
+const mockStorage = {
+  setItem(key, value) { store[key] = String(value); },
+  getItem(key) { return store[key] !== undefined ? store[key] : null; },
+  removeItem(key) { delete store[key]; },
+  clear() { Object.keys(store).forEach(k => delete store[k]); },
+  get length() { return Object.keys(store).length; }
+};
+
+function saveValue(key, value) {
+  mockStorage.setItem(key, value);
+}
+
+function loadValue(key) {
+  return mockStorage.getItem(key);
+}
+
+function deleteValue(key) {
+  mockStorage.removeItem(key);
+  return mockStorage.getItem(key);
+}
+
+function countKeys() {
+  return mockStorage.length;
+}
+`}
+  testCases={[
+    { input: "saveValue('name', 'Alice'); loadValue('name')", expected: "Alice", description: "Save and load a string value" },
+    { input: "saveValue('score', 42); loadValue('score')", expected: "42", description: "Values are stored as strings" },
+    { input: "deleteValue('score')", expected: "null", description: "After removal, getItem returns null" },
+    { input: "saveValue('a', 1); saveValue('b', 2); countKeys()", expected: "2", description: "Count stored keys correctly" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2: JSON Serialization"
+  code={`function serialize(value) {
+  return JSON.stringify(value);
+}
+
+function deserialize(str) {
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return null;
+  }
+}
+
+function roundTrip(value) {
+  return deserialize(serialize(value));
+}
+
+function safeDeserialize(str) {
+  if (str === null || str === undefined) return null;
+  try {
+    return JSON.parse(str);
+  } catch {
+    return null;
+  }
+}
+`}
+  testCases={[
+    { input: "serialize({ name: 'Bob', age: 25 })", expected: '{"name":"Bob","age":25}', description: "Serialize an object to JSON string" },
+    { input: "JSON.stringify(roundTrip([1, 2, 3]))", expected: "[1,2,3]", description: "Array survives a round-trip" },
+    { input: "roundTrip({ active: true }).active", expected: "true", description: "Boolean value preserved after round-trip" },
+    { input: "safeDeserialize('not valid json')", expected: "null", description: "Safe parse returns null on invalid JSON" },
+    { input: "safeDeserialize(null)", expected: "null", description: "Safe parse handles null input" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3: Todo List Storage Logic"
+  code={`// In-memory store simulating localStorage
+let storage = {};
+
+function getTodos() {
+  const raw = storage['todos'];
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveTodos(todos) {
+  storage['todos'] = JSON.stringify(todos);
+}
+
+function addTodo(text) {
+  const todos = getTodos();
+  const todo = { id: todos.length + 1, text, done: false };
+  todos.push(todo);
+  saveTodos(todos);
+  return todo;
+}
+
+function toggleTodo(id) {
+  const todos = getTodos().map(t =>
+    t.id === id ? { ...t, done: !t.done } : t
+  );
+  saveTodos(todos);
+  return todos.find(t => t.id === id);
+}
+
+function deleteTodo(id) {
+  const todos = getTodos().filter(t => t.id !== id);
+  saveTodos(todos);
+  return getTodos().length;
+}
+
+function getActiveTodos() {
+  return getTodos().filter(t => !t.done);
+}
+`}
+  testCases={[
+    { input: "addTodo('Buy milk'); getTodos().length", expected: "1", description: "Adding a todo increases count" },
+    { input: "addTodo('Read book'); getTodos()[1].text", expected: "Read book", description: "Second todo text is correct" },
+    { input: "toggleTodo(1).done", expected: "true", description: "Toggle marks first todo as done" },
+    { input: "getActiveTodos().length", expected: "1", description: "Only one active todo remains" },
+    { input: "deleteTodo(2)", expected: "1", description: "Deleting one todo leaves 1 remaining" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4: Expiry-Based Storage"
+  code={`// TTL (time-to-live) storage simulation
+
+function setWithExpiry(store, key, value, ttlMs, nowFn = Date.now) {
+  const item = { value, expiry: nowFn() + ttlMs };
+  store[key] = JSON.stringify(item);
+}
+
+function getWithExpiry(store, key, nowFn = Date.now) {
+  const raw = store[key];
+  if (!raw) return null;
+  const item = JSON.parse(raw);
+  if (nowFn() > item.expiry) {
+    delete store[key];
+    return null;
+  }
+  return item.value;
+}
+
+// Test using a fake clock
+const fakeStore = {};
+const baseTime = 1000000;
+
+setWithExpiry(fakeStore, 'token', 'abc123', 5000, () => baseTime);
+`}
+  testCases={[
+    { input: "getWithExpiry(fakeStore, 'token', () => baseTime + 1000)", expected: "abc123", description: "Value accessible before expiry" },
+    { input: "getWithExpiry(fakeStore, 'token', () => baseTime + 6000)", expected: "null", description: "Value expired after TTL" },
+    { input: "fakeStore['token']", expected: "undefined", description: "Expired key removed from store" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5: Data Migration Pattern"
+  code={`// Versioned storage with migration support
+
+function migrateData(raw, currentVersion) {
+  if (!raw) return { version: currentVersion, items: [] };
+
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return { version: currentVersion, items: [] };
+  }
+
+  // Version 1 had no 'done' field on items
+  if (data.version === 1) {
+    data.items = data.items.map(item => ({
+      ...item,
+      done: item.completed ?? false
+    }));
+    data.version = 2;
+  }
+
+  return data;
+}
+
+const v1Data = JSON.stringify({
+  version: 1,
+  items: [
+    { id: 1, text: 'Old task', completed: true }
+  ]
+});
+`}
+  testCases={[
+    { input: "migrateData(null, 2).version", expected: "2", description: "Null raw data returns current version" },
+    { input: "migrateData(null, 2).items.length", expected: "0", description: "Null raw data returns empty items" },
+    { input: "migrateData(v1Data, 2).version", expected: "2", description: "V1 data migrated to version 2" },
+    { input: "migrateData(v1Data, 2).items[0].done", expected: "true", description: "V1 'completed' field migrated to 'done'" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6: sessionStorage vs localStorage Behavior"
+  code={`// Simulate the scoping difference between session and local storage
+
+function createStorageManager() {
+  const local = {};   // persists across tabs
+  const session = {}; // cleared on tab close
+
+  return {
+    setLocal(key, val) { local[key] = val; },
+    getLocal(key) { return local[key] !== undefined ? local[key] : null; },
+    setSession(key, val) { session[key] = val; },
+    getSession(key) { return session[key] !== undefined ? session[key] : null; },
+    simulateTabClose() {
+      Object.keys(session).forEach(k => delete session[k]);
+    },
+    localKeys() { return Object.keys(local); },
+    sessionKeys() { return Object.keys(session); }
+  };
+}
+
+const manager = createStorageManager();
+manager.setLocal('theme', 'dark');
+manager.setSession('draft', 'Hello world');
+`}
+  testCases={[
+    { input: "manager.getLocal('theme')", expected: "dark", description: "localStorage value accessible" },
+    { input: "manager.getSession('draft')", expected: "Hello world", description: "sessionStorage value accessible" },
+    { input: "manager.simulateTabClose(); manager.getSession('draft')", expected: "null", description: "sessionStorage cleared after tab close" },
+    { input: "manager.getLocal('theme')", expected: "dark", description: "localStorage persists after tab close simulation" },
+    { input: "manager.sessionKeys().length", expected: "0", description: "No session keys remain after tab close" }
+  ]}
+/>
+
+---
+
+## Proyectos
+
+### Proyecto 1: Lista de Tareas con Persistencia
+
+Una aplicación de lista de tareas completa que recuerda tus tareas entre recargas de página usando `localStorage`.
+
+**Conceptos clave:** Operaciones CRUD, serialización JSON, delegación de eventos, renderizado dinámico del DOM desde el estado almacenado.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/todo-list/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Todo List with Persistence Demo"
+/>
+
+#### Cómo Funciona
+
+Al cargar la página, las tareas se leen de `localStorage` y se renderizan en el DOM. Cada mutación (agregar, alternar, eliminar) actualiza tanto el DOM como `localStorage` inmediatamente.
+
+```js
+const STORAGE_KEY = 'js-hero-todos';
+
+function loadTodos() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+}
+
+function saveTodos(todos) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+}
+
+function renderTodo(todo, listEl) {
+  const li = document.createElement('li');
+  li.dataset.id = todo.id;
+  if (todo.done) li.classList.add('done');
+
+  const span = document.createElement('span');
+  span.textContent = todo.text;
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'toggle';
+  toggleBtn.textContent = 'Done';
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'delete';
+  deleteBtn.textContent = 'Remove';
+
+  li.append(span, toggleBtn, deleteBtn);
+  listEl.appendChild(li);
+}
+
+function renderTodos(todos, listEl) {
+  listEl.replaceChildren(); // limpiar elementos existentes de forma segura
+  todos.forEach(todo => renderTodo(todo, listEl));
+}
+```
+
+#### Desafío 1
+
+Agrega pestañas de filtro — "Todas", "Activas" y "Completadas" — que filtren las tareas visibles sin tocar `localStorage`. También agrega un botón "Eliminar completadas" que remueva todas las tareas terminadas del almacenamiento.
+
+---
+
+### Proyecto 2: Juego de Memoria con Cartas
+
+Un juego de memoria tipo concentración donde las mejores puntuaciones y tiempos de finalización se guardan en `localStorage`.
+
+**Conceptos clave:** Persistencia del estado del juego, algoritmo de mezcla, lógica de volteo de cartas, seguimiento de puntuaciones máximas.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/memory/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Memory Card Game Demo"
+/>
+
+#### Cómo Funciona
+
+Los datos de las cartas y el estado de coincidencia se mantienen en un objeto `gameState`. Después de cada movimiento, el estado se serializa y guarda. Al cargar la página, el estado almacenado (si es válido) se restaura, permitiendo al jugador continuar una partida en curso.
+
+```js
+function shuffle(array) {
+  return [...array].sort(() => Math.random() - 0.5);
+}
+
+function saveGame(state) {
+  localStorage.setItem('memory-game', JSON.stringify(state));
+}
+
+function loadGame() {
+  try {
+    return JSON.parse(localStorage.getItem('memory-game'));
+  } catch {
+    return null;
+  }
+}
+
+let gameState = loadGame() || initNewGame();
+```
+
+#### Desafío 1
+
+Agrega una tabla de líderes de **puntuaciones máximas** almacenada en `localStorage`. Registra los 5 mejores tiempos de finalización. Muestra la tabla de líderes en la pantalla de fin de juego.
+
+#### Desafío 2
+
+Agrega niveles de dificultad (Fácil: 4x3, Medio: 4x4, Difícil: 6x4). Almacena la dificultad seleccionada en `localStorage` para que persista entre sesiones. Cada dificultad tiene su propia lista de puntuaciones máximas.
+
+---
+
+### Proyecto Bonus: Rastreador de Agua
+
+Un rastreador de hidratación que guarda tu consumo diario de agua y se reinicia automáticamente a medianoche.
+
+**Conceptos clave:** Claves de almacenamiento basadas en fecha, actualizaciones de barra de progreso, lógica de reinicio automático.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/drink-water/index.html"
+  width="100%"
+  height="400"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Drink Water Tracker Demo"
+/>
+
+#### Cómo Funciona
+
+Cada día obtiene su propia clave de `localStorage` basada en la fecha actual (ej.: `water-2024-03-15`). Las claves antiguas se limpian automáticamente al cargar.
+
+```js
+function getTodayKey() {
+  return `water-${new Date().toISOString().split('T')[0]}`;
+}
+
+function getIntake() {
+  return parseInt(localStorage.getItem(getTodayKey()) || '0', 10);
+}
+
+function addCup(ml) {
+  const current = getIntake();
+  localStorage.setItem(getTodayKey(), String(current + ml));
+  updateUI();
+}
+```
+
+#### Desafío 1
+
+Agrega una vista de **resumen semanal** que lea las claves de los últimos 7 días de `localStorage` y muestre un gráfico de barras simple con el consumo diario. Resalta los días en que se cumplió la meta.
+
+---
+
+## Resumen
+
+En este módulo aprendiste:
+
+- Las APIs `localStorage` y `sessionStorage`: `setItem`, `getItem`, `removeItem`, `clear`.
+- Por qué se requiere la serialización JSON y cómo usar `JSON.stringify` y `JSON.parse` de forma segura.
+- Un patrón **CRUD completo** para gestionar colecciones en almacenamiento del lado del cliente.
+- Estrategias para manejar la cuota de almacenamiento, expiración de datos con TTL y migraciones de esquema.
+- Las diferencias clave entre `localStorage` (persistente, entre pestañas) y `sessionStorage` (por pestaña, efímero).
+
+La persistencia de datos es la puerta de entrada a aplicaciones reales. La Lista de Tareas, el Juego de Memoria y el Rastreador de Agua demuestran cómo la misma API simple puede potenciar una amplia variedad de proyectos prácticos.

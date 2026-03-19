@@ -1,0 +1,617 @@
+---
+sidebar_position: 6
+---
+
+# Seguridad y Mejores Prácticas de Rendimiento
+
+Escribir JavaScript correcto no es suficiente — el código de producción también debe ser seguro, eficiente y libre de fugas de recursos sutiles. Este módulo cubre las amenazas de seguridad frontend más impactantes, técnicas prácticas de mitigación y los patrones de rendimiento que todo desarrollador JavaScript debe interiorizar.
+
+---
+
+## 1. Cross-Site Scripting (XSS)
+
+XSS es la vulnerabilidad web más prevalente. Un atacante inyecta scripts maliciosos en una página que luego se ejecutan en el navegador de otro usuario, en el contexto de la sesión de la víctima.
+
+### Tipos de XSS
+
+**XSS Almacenado** — El payload malicioso se almacena en el servidor (ej.: en una base de datos) y se sirve a todos los visitantes. Un comentario que contiene `alert` de script que se guarda y renderiza es el ejemplo clásico.
+
+**XSS Reflejado** — El payload se refleja desde el servidor en una respuesta inmediata (ej.: una página de resultados de búsqueda que hace eco del parámetro de consulta como HTML crudo). El atacante crea una URL y engaña a la víctima para que haga clic.
+
+**XSS Basado en DOM** — La vulnerabilidad vive completamente en el JavaScript del lado del cliente. El script lee datos controlados por el atacante (hash de URL, `postMessage`, `localStorage`) y los pasa de forma insegura a `innerHTML`.
+
+### Prevención
+
+1. **Nunca establezcas `innerHTML` con datos no confiables.** Usa `textContent` para texto, `createElement` + `appendChild` para construcción DOM estructurada.
+2. **Sanitiza antes de renderizar HTML.** Cuando debes permitir entrada formateada, usa una biblioteca confiable como [DOMPurify](https://github.com/cure53/DOMPurify).
+3. **Evita sumideros de evaluación peligrosos:** pasar cadenas de usuario a `setTimeout` con strings, construcción dinámica de funciones, o `element.outerHTML`.
+4. **Codifica la salida** en el contexto donde aparece (codificación de entidades HTML, codificación URL, codificación de cadenas JS).
+
+```js
+// INSEGURO
+element.innerHTML = userInput;
+
+// SEGURO para texto plano
+element.textContent = userInput;
+
+// SEGURO para HTML estructurado (con DOMPurify)
+element.innerHTML = DOMPurify.sanitize(userInput);
+```
+
+Referencia MDN: [Types of attacks — XSS](https://developer.mozilla.org/en-US/docs/Web/Security/Types_of_attacks#cross-site_scripting_xss)
+
+---
+
+## 2. CSRF (Cross-Site Request Forgery)
+
+CSRF explota el adjunto automático de cookies del navegador. Cuando una víctima visita la página de un atacante, esa página envía silenciosamente una solicitud a un sitio donde la víctima está autenticada — y el navegador envía su cookie de sesión junto con ella.
+
+Defensas del frontend:
+
+- **Verificar headers `Origin` / `Referer`** del lado del servidor.
+- **Atributo SameSite de cookie**: `SameSite=Strict` o `SameSite=Lax` evita que las cookies se envíen con solicitudes entre sitios.
+- **Tokens CSRF**: Un valor secreto incrustado en formularios y verificado del lado del servidor.
+- **Headers de solicitud personalizados**: Las solicitudes fetch con headers como `X-Requested-With: XMLHttpRequest` no pueden ser falsificadas por formularios HTML simples (CORS preflight los bloquea para origenes cruzados).
+
+```js
+// Incluir un token CSRF en solicitudes fetch
+async function securePost(url, data) {
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+  return fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': csrfToken,
+    },
+    body: JSON.stringify(data),
+  });
+}
+```
+
+---
+
+## 3. Content Security Policy (CSP)
+
+CSP es un header de respuesta HTTP que le dice al navegador qué orígenes de recursos son confiables. Las violaciones son bloqueadas (y opcionalmente reportadas).
+
+```http
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' https://cdn.example.com;
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: https:;
+  connect-src 'self' https://api.example.com;
+  frame-ancestors 'none';
+  report-uri /csp-report
+```
+
+Directivas clave:
+
+| Directiva | Controla |
+|---|---|
+| `default-src` | Respaldo para todos los tipos de recursos |
+| `script-src` | Fuentes de JavaScript |
+| `style-src` | Fuentes de CSS |
+| `img-src` | Fuentes de imágenes |
+| `connect-src` | `fetch`, XHR, WebSocket |
+| `frame-ancestors` | Qué páginas pueden incrustar esta página (reemplaza `X-Frame-Options`) |
+
+Un CSP estricto bloquea scripts inline y evaluación dinámica de código, lo que neutraliza la gran mayoría de los payloads XSS incluso si existe una inyección.
+
+Referencia MDN: [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
+
+---
+
+## 4. Fugas de Memoria en JavaScript
+
+JavaScript usa recolección de basura — la memoria se libera cuando no hay más referencias a un objeto. Una fuga de memoria ocurre cuando las referencias se retienen sin intención, evitando que el GC reclame memoria.
+
+### Causas Comunes
+
+**Event listeners olvidados** — Agregar un listener a un elemento de larga duración desde un componente de corta duración sin eliminarlo.
+
+```js
+// Fuga: el listener retiene una referencia al closure/datos incluso después de desmontar el componente
+window.addEventListener('resize', handler);
+
+// Corrección: siempre eliminar cuando ya no sea necesario
+window.removeEventListener('resize', handler);
+// O: usar AbortController
+const controller = new AbortController();
+window.addEventListener('resize', handler, { signal: controller.signal });
+// Más tarde:
+controller.abort();
+```
+
+**Closures que retienen objetos grandes** — Un callback de temporizador que cierra sobre una estructura de datos grande la mantiene viva mientras el temporizador se ejecuta.
+
+```js
+// Fuga: largeData se mantiene viva por el closure del intervalo
+let largeData = new Array(1_000_000).fill('x');
+const id = setInterval(() => {
+  console.log(largeData.length);
+}, 1000);
+// Corrección: clearInterval(id) cuando termine, y establecer largeData = null
+```
+
+**Nodos DOM desconectados** — Un elemento DOM se elimina del documento pero una referencia JavaScript lo mantiene (y todos sus hijos) en memoria.
+
+```js
+// Fuga
+let detachedNode;
+function createAndDetach() {
+  const el = document.createElement('div');
+  document.body.appendChild(el);
+  document.body.removeChild(el);
+  detachedNode = el; // ¡todavía referenciado!
+}
+// Corrección: establecer detachedNode = null cuando termine
+```
+
+**Variables globales** — La asignación global accidental (falta `let`/`const`/`var`) adjunta datos a `window`.
+
+```js
+function leak() {
+  accidentalGlobal = 'still alive'; // global implícita
+}
+// Corrección: el modo estricto lanza ReferenceError en asignación no declarada
+```
+
+**WeakMap** — Usa `WeakMap` para asociar datos con objetos sin evitar el GC.
+
+```js
+const cache = new WeakMap();
+
+function process(obj) {
+  if (cache.has(obj)) return cache.get(obj);
+  const result = expensiveCompute(obj);
+  cache.set(obj, result); // no evitará que obj sea recolectado
+  return result;
+}
+```
+
+Referencia MDN: [Memory management](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management)
+
+---
+
+## 5. Patrón de Delegación de Eventos
+
+La delegación de eventos adjunta un **único listener a un elemento padre** y maneja eventos de muchos hijos a través de la propagación de eventos. Esto es más eficiente (menos listeners, sin re-registro para hijos dinámicos) y evita naturalmente una categoría de fugas de memoria.
+
+```js
+// Sin delegación — un listener por elemento
+document.querySelectorAll('.item').forEach(item => {
+  item.addEventListener('click', handleClick);
+});
+
+// Con delegación — un listener, funciona también para hijos dinámicos
+document.getElementById('list').addEventListener('click', (event) => {
+  const item = event.target.closest('.item');
+  if (!item) return;
+  handleClick(item);
+});
+```
+
+Beneficios:
+- Funciona para hijos añadidos dinámicamente (sin re-registro necesario).
+- Drásticamente menos listeners para listas grandes o dinámicas.
+- Una sola llamada `removeEventListener` para limpiar.
+
+Referencia MDN: [Event delegation](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Event_bubbling#event_delegation)
+
+---
+
+## 6. Patrón Debounce
+
+Debounce retrasa la ejecución hasta que una función **ha dejado de ser llamada** durante un período de espera especificado. Si la función se llama de nuevo antes de que expire la espera, el temporizador se reinicia.
+
+Casos de uso: búsqueda mientras se escribe, validación de formularios en input, manejo del resize de ventana.
+
+```js
+function debounce(fn, wait) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, wait);
+  };
+}
+
+const debouncedSearch = debounce((query) => {
+  fetch(`/api/search?q=${encodeURIComponent(query)}`);
+}, 300);
+
+searchInput.addEventListener('input', (e) => debouncedSearch(e.target.value));
+```
+
+**Debounce de borde inicial** — se dispara inmediatamente en la primera llamada, luego bloquea hasta que haya silencio:
+
+```js
+function debounceLeading(fn, wait) {
+  let timer;
+  return function(...args) {
+    if (!timer) fn.apply(this, args);
+    clearTimeout(timer);
+    timer = setTimeout(() => { timer = null; }, wait);
+  };
+}
+```
+
+Referencia MDN: [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout)
+
+---
+
+## 7. Patrón Throttle
+
+Throttle asegura que una función se llame **como máximo una vez por intervalo**, independientemente de cuántas veces se dispare. A diferencia de debounce, garantiza ejecución periódica durante actividad sostenida.
+
+Casos de uso: handlers de eventos scroll, seguimiento del movimiento del mouse, limitación de llamadas a API.
+
+```js
+function throttle(fn, interval) {
+  let lastCall = 0;
+  return function(...args) {
+    const now = Date.now();
+    if (now - lastCall >= interval) {
+      lastCall = now;
+      return fn.apply(this, args);
+    }
+  };
+}
+
+const throttledScroll = throttle(() => {
+  updateScrollProgress();
+}, 100); // como máximo 10 veces por segundo
+
+window.addEventListener('scroll', throttledScroll);
+```
+
+| Patrón | Se dispara cuando | Mejor para |
+|---|---|---|
+| Debounce | La actividad se detiene | Entrada de búsqueda, finalización de resize |
+| Throttle | A intervalos regulares | Scroll, mousemove, game loops |
+
+---
+
+## 8. Sanitización de Entrada
+
+Nunca confíes en la entrada del usuario. Sanitiza en cada límite.
+
+```js
+// Codificación de entidades HTML — segura para insertar texto en contextos HTML
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+// Sanitización de parámetros URL
+function buildSearchURL(query) {
+  const url = new URL('https://example.com/search');
+  url.searchParams.set('q', query); // la API URL maneja la codificación
+  return url.toString();
+}
+
+// Validación de entrada numérica
+function sanitizeAge(input) {
+  const n = parseInt(input, 10);
+  if (Number.isNaN(n) || n < 0 || n > 150) return null;
+  return n;
+}
+```
+
+Reglas clave:
+- Sanitiza **en el punto de uso**, no solo en la entrada.
+- Usa la **codificación correcta para el contexto** (HTML, URL, JSON — cada uno es diferente).
+- Prefiere APIs estructuradas (`URLSearchParams`, `JSON.stringify`) sobre construcción manual de cadenas.
+- Usa listas de permitidos de valores válidos cuando sea posible en lugar de intentar bloquear los inválidos.
+
+---
+
+## 9. Prácticas de Codificación Segura
+
+**Evita la ejecución dinámica de código** — Pasar cadenas controladas por el usuario a mecanismos de evaluación dinámica ejecuta código arbitrario y evita todas las protecciones de CSP y análisis estático. Usa funciones callback en lugar de argumentos de cadena.
+
+**Usa modo estricto** — Detecta variables no declaradas, previene la coerción de `this` y desactiva características heredadas peligrosas.
+
+**Valida la forma de los datos** — Al consumir datos externos (APIs, `postMessage`, `localStorage`), valida la estructura antes de usar.
+
+```js
+window.addEventListener('message', (event) => {
+  // Siempre verificar el origen
+  if (event.origin !== 'https://trusted.example.com') return;
+
+  // Validar forma
+  const { type, payload } = event.data ?? {};
+  if (typeof type !== 'string' || !payload) return;
+
+  handleMessage(type, payload);
+});
+```
+
+**Integridad de Subrecurso (SRI)** — Verifica que los scripts de terceros no hayan sido manipulados:
+
+```html
+<script
+  src="https://cdn.example.com/lib.js"
+  integrity="sha384-<hash>"
+  crossorigin="anonymous"
+></script>
+```
+
+**Evita almacenar datos sensibles en `localStorage`** — Es accesible para cualquier JavaScript en la página. Prefiere cookies `HttpOnly` para tokens de sesión.
+
+Referencia MDN: [Web security](https://developer.mozilla.org/en-US/docs/Web/Security)
+
+---
+
+## Ejercicios
+
+<CodeRunner
+  title="HTML Sanitization (escapeHTML)"
+  code={`function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+function renderUserComment(rawInput) {
+  return \`<p class="comment">\${escapeHTML(rawInput)}</p>\`;
+}
+`}
+  testCases={[
+    { input: "escapeHTML('<script>alert(1)</script>')", expected: "&lt;script&gt;alert(1)&lt;/script&gt;", description: "Script tags are escaped" },
+    { input: "escapeHTML('Hello & \"World\"')", expected: "Hello &amp; &quot;World&quot;", description: "Ampersand and quotes are escaped" },
+    { input: "escapeHTML(\"it's fine\")", expected: "it&#x27;s fine", description: "Single quote is escaped" },
+    { input: "escapeHTML('safe text')", expected: "safe text", description: "Safe text is unchanged" }
+  ]}
+/>
+
+<CodeRunner
+  title="Debounce Implementation"
+  code={`function debounce(fn, wait) {
+  let timer = null;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = null;
+      fn.apply(this, args);
+    }, wait);
+  };
+}
+
+function testDebounce() {
+  const calls = [];
+  const record = (val) => calls.push(val);
+  const debounced = debounce(record, 100);
+
+  // Rapid calls — only the last should fire
+  debounced(1);
+  debounced(2);
+  debounced(3);
+
+  return new Promise(resolve => {
+    setTimeout(() => resolve(calls), 150);
+  });
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(await testDebounce())", expected: "[3]", description: "Only the last call fires after wait period" }
+  ]}
+/>
+
+<CodeRunner
+  title="Throttle Implementation"
+  code={`function throttle(fn, interval) {
+  let lastCall = -Infinity;
+  let result;
+  return function(...args) {
+    const now = Date.now();
+    if (now - lastCall >= interval) {
+      lastCall = now;
+      result = fn.apply(this, args);
+    }
+    return result;
+  };
+}
+
+function testThrottle() {
+  return new Promise(resolve => {
+    const calls = [];
+    const record = (val) => { calls.push(val); return val; };
+    const throttled = throttle(record, 50);
+
+    throttled('a'); // fires immediately (first call)
+    throttled('b'); // blocked (< 50ms)
+    throttled('c'); // blocked
+
+    setTimeout(() => {
+      throttled('d'); // fires after interval
+    }, 60);
+
+    setTimeout(() => resolve(calls), 120);
+  });
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(await testThrottle())", expected: "[\"a\",\"d\"]", description: "Only first and post-interval calls fire" }
+  ]}
+/>
+
+<CodeRunner
+  title="Event Delegation"
+  code={`function simulateDelegation(items, selectorClass, clickedIndex) {
+  // In a real browser, the parent's single listener would call closest(selector)
+  // Here we simulate the same filtering logic
+  const clicked = items[clickedIndex];
+  if (!clicked) return null;
+  if (clicked.className && clicked.className.includes(selectorClass)) {
+    return { id: clicked.id, text: clicked.text };
+  }
+  return null;
+}
+
+function testDelegation() {
+  const items = [
+    { id: '1', text: 'Item One', className: 'item' },
+    { id: '2', text: 'Item Two', className: 'item' },
+    { id: '3', text: 'Item Three', className: 'item' },
+  ];
+  return {
+    clickFirst: simulateDelegation(items, 'item', 0),
+    clickLast: simulateDelegation(items, 'item', 2),
+    clickNone: simulateDelegation(items, 'item', 99),
+  };
+}
+`}
+  testCases={[
+    { input: "testDelegation().clickFirst.id", expected: "1", description: "Delegation identifies clicked item by id" },
+    { input: "testDelegation().clickLast.text", expected: "Item Three", description: "Last item identified correctly" },
+    { input: "testDelegation().clickNone", expected: "null", description: "Out-of-range click returns null" }
+  ]}
+/>
+
+<CodeRunner
+  title="Input Validation and Sanitization"
+  code={`function sanitizeUsername(input) {
+  if (typeof input !== 'string') return null;
+  const trimmed = input.trim();
+  if (trimmed.length < 3 || trimmed.length > 20) return null;
+  if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) return null;
+  return trimmed.toLowerCase();
+}
+
+function sanitizeAge(input) {
+  const n = Number(input);
+  if (!Number.isInteger(n) || n < 0 || n > 120) return null;
+  return n;
+}
+
+function sanitizeURL(input) {
+  try {
+    const url = new URL(input);
+    if (!['http:', 'https:'].includes(url.protocol)) return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+`}
+  testCases={[
+    { input: "sanitizeUsername('  Alice_99  ')", expected: "alice_99", description: "Trims and lowercases valid username" },
+    { input: "sanitizeUsername('a')", expected: "null", description: "Too short username returns null" },
+    { input: "sanitizeUsername('<script>')", expected: "null", description: "Username with special chars returns null" },
+    { input: "sanitizeAge('25')", expected: "25", description: "Valid age string returns number" },
+    { input: "sanitizeAge('200')", expected: "null", description: "Age > 120 returns null" },
+    { input: "sanitizeURL('https://example.com/path?q=1')", expected: "https://example.com/path?q=1", description: "Valid HTTPS URL passes through" },
+    { input: "sanitizeURL('javascript:alert(1)')", expected: "null", description: "javascript: protocol is blocked" }
+  ]}
+/>
+
+<CodeRunner
+  title="Memory Leak Prevention with WeakMap"
+  code={`const metaStore = new WeakMap();
+
+function attachMeta(obj, meta) {
+  metaStore.set(obj, meta);
+}
+
+function getMeta(obj) {
+  return metaStore.get(obj) ?? null;
+}
+
+function hasMeta(obj) {
+  return metaStore.has(obj);
+}
+
+function testWeakMap() {
+  let component = { id: 'comp-1', name: 'Header' };
+  attachMeta(component, { createdAt: 1000, renderCount: 0 });
+
+  const meta = getMeta(component);
+  meta.renderCount++;
+
+  const snapshot = {
+    name: component.name,
+    renderCount: getMeta(component).renderCount,
+    hasMeta: hasMeta(component),
+  };
+
+  // When component reference is dropped, WeakMap entry becomes eligible for GC
+  component = null;
+
+  return snapshot;
+}
+`}
+  testCases={[
+    { input: "testWeakMap().name", expected: "Header", description: "Component name accessible via object key" },
+    { input: "testWeakMap().renderCount", expected: "1", description: "Render count incremented via WeakMap meta" },
+    { input: "testWeakMap().hasMeta", expected: "true", description: "hasMeta returns true while reference exists" }
+  ]}
+/>
+
+<CodeRunner
+  title="Secure postMessage Validation"
+  code={`function createMessageValidator(trustedOrigins) {
+  return function validateMessage(eventData, origin) {
+    if (!trustedOrigins.includes(origin)) {
+      return { valid: false, reason: 'untrusted origin' };
+    }
+
+    if (!eventData || typeof eventData !== 'object') {
+      return { valid: false, reason: 'invalid payload type' };
+    }
+
+    const { type, payload } = eventData;
+
+    if (typeof type !== 'string' || type.trim() === '') {
+      return { valid: false, reason: 'missing type' };
+    }
+
+    if (payload === undefined || payload === null) {
+      return { valid: false, reason: 'missing payload' };
+    }
+
+    return { valid: true, type, payload };
+  };
+}
+
+function testValidator() {
+  const validate = createMessageValidator(['https://trusted.example.com']);
+
+  return {
+    valid: validate({ type: 'USER_UPDATE', payload: { id: 1 } }, 'https://trusted.example.com'),
+    badOrigin: validate({ type: 'TEST', payload: {} }, 'https://evil.com'),
+    missingType: validate({ payload: 'data' }, 'https://trusted.example.com'),
+    noPayload: validate({ type: 'PING' }, 'https://trusted.example.com'),
+  };
+}
+`}
+  testCases={[
+    { input: "testValidator().valid.valid", expected: "true", description: "Valid message from trusted origin passes" },
+    { input: "testValidator().badOrigin.reason", expected: "untrusted origin", description: "Message from untrusted origin is rejected" },
+    { input: "testValidator().missingType.reason", expected: "missing type", description: "Message without type is rejected" },
+    { input: "testValidator().noPayload.reason", expected: "missing payload", description: "Message without payload is rejected" }
+  ]}
+/>
+
+---
+
+## Resumen
+
+- **XSS** se previene evitando sumideros inseguros (`innerHTML`, ejecución dinámica de código), sanitizando HTML no confiable con DOMPurify y usando `textContent` para salida de texto plano.
+- **CSRF** se mitiga con cookies `SameSite`, tokens CSRF y verificando los orígenes de las solicitudes del lado del servidor.
+- **Content Security Policy** es una lista de permitidos declarativa que bloquea fuentes de scripts no autorizadas y neutraliza la mayoría de los payloads XSS a nivel del navegador.
+- Las **fugas de memoria** surgen de event listeners olvidados, closures de temporizadores, nodos DOM desconectados y globales accidentales. Usa `removeEventListener`, `AbortController`, `clearInterval` y `WeakMap` para prevenirlas.
+- La **delegación de eventos** adjunta un listener a un padre en lugar de muchos listeners a los hijos — más eficiente e intrínsecamente correcto para contenido dinámico.
+- **Debounce** retrasa la ejecución hasta que la actividad se detiene; **throttle** limita la tasa de ejecución durante actividad sostenida. Ambos son esenciales para handlers de eventos de alta frecuencia.
+- La **sanitización de entrada** debe ser consciente del contexto: la codificación de entidades HTML, la codificación URL y la validación estructural sirven propósitos diferentes y no son intercambiables.
+- La **codificación segura** significa validar orígenes de `postMessage`, evitar la evaluación dinámica de código con entrada del usuario, usar modo estricto, preferir cookies `HttpOnly` para tokens y aplicar Integridad de Subrecurso para scripts de terceros.

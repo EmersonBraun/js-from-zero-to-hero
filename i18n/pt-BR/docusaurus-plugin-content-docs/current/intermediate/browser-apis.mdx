@@ -1,0 +1,687 @@
+---
+sidebar_position: 7
+---
+
+# APIs do Navegador
+
+Além do DOM, navegadores modernos expõem uma rica coleção de APIs JavaScript que desbloqueiam capacidades poderosas: interfaces de arrastar e soltar, geração e controle de áudio, tratamento aprofundado de eventos de teclado, acesso à área de transferência e muito mais. Neste módulo você vai trabalhar praticamente com as mais úteis dessas APIs.
+
+**Referências MDN:**
+- [HTML Drag and Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API)
+- [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+- [KeyboardEvent](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)
+- [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)
+- [Vibration API](https://developer.mozilla.org/en-US/docs/Web/API/Vibration_API)
+
+---
+
+## Teoria
+
+### API HTML5 de Arrastar e Soltar
+
+Qualquer elemento pode ser tornado arrastável adicionando o atributo `draggable="true"` e escutando eventos de arrasto:
+
+```js
+// O elemento sendo arrastado dispara estes eventos:
+// dragstart  → arrasto começa
+// drag       → arrasto está em andamento
+// dragend    → arrasto terminou (sucesso ou falha)
+
+// O alvo de soltar dispara estes eventos:
+// dragenter  → arrastável entra no alvo
+// dragover   → arrastável está sobre o alvo (deve chamar preventDefault para permitir soltar)
+// dragleave  → arrastável sai do alvo
+// drop       → arrastável é solto no alvo
+
+draggable.addEventListener('dragstart', (e) => {
+  e.dataTransfer.setData('text/plain', draggable.id);
+  e.dataTransfer.effectAllowed = 'move';
+});
+
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault(); // Obrigatório para permitir soltar
+  e.dataTransfer.dropEffect = 'move';
+});
+
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const id = e.dataTransfer.getData('text/plain');
+  const el = document.getElementById(id);
+  dropZone.appendChild(el);
+});
+```
+
+O objeto `dataTransfer` é a ponte entre dragstart e drop — ele carrega qualquer dado que você queira passar entre eles.
+
+---
+
+### Fundamentos da Web Audio API
+
+A Web Audio API permite gerar, processar e reproduzir áudio inteiramente em JavaScript usando um grafo de áudio de nós conectados:
+
+```js
+const audioCtx = new AudioContext();
+
+// Criar um nó oscilador (gera um tom)
+const oscillator = audioCtx.createOscillator();
+oscillator.type = 'sine'; // 'sine' | 'square' | 'sawtooth' | 'triangle'
+oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // nota A4
+
+// Criar um nó de ganho (controla o volume)
+const gainNode = audioCtx.createGain();
+gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+
+// Conectar: oscilador -> ganho -> alto-falantes
+oscillator.connect(gainNode);
+gainNode.connect(audioCtx.destination);
+
+// Iniciar e parar
+oscillator.start();
+oscillator.stop(audioCtx.currentTime + 0.5); // parar após 0,5 segundos
+```
+
+Para um sound board, você tipicamente carrega arquivos de áudio com `fetch` e os decodifica:
+
+```js
+async function loadSound(url) {
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  return audioCtx.decodeAudioData(arrayBuffer);
+}
+
+function playBuffer(buffer) {
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(audioCtx.destination);
+  source.start();
+}
+```
+
+---
+
+### Eventos de Teclado em Profundidade
+
+Eventos de teclado disparam nesta ordem: `keydown` → `keypress` (obsoleto) → `keyup`.
+
+```js
+document.addEventListener('keydown', (e) => {
+  console.log(e.key);      // Nome da tecla legível: 'a', 'Enter', 'ArrowLeft'
+  console.log(e.code);     // Tecla física: 'KeyA', 'Enter', 'ArrowLeft'
+  console.log(e.keyCode);  // Código numérico legado (obsoleto, evite)
+
+  // Teclas modificadoras
+  console.log(e.ctrlKey, e.shiftKey, e.altKey, e.metaKey);
+
+  // Detectar combinações
+  if (e.ctrlKey && e.key === 'z') {
+    e.preventDefault(); // Impedir o desfazer padrão do navegador
+    handleUndo();
+  }
+
+  // Impedir comportamento padrão do navegador
+  if (e.key === ' ') e.preventDefault(); // Impedir rolagem da página
+});
+```
+
+A diferença entre `e.key` e `e.code`:
+- `e.key` = o que a tecla produz (dependente do layout): `'a'` no QWERTY, `'q'` no AZERTY
+- `e.code` = o local físico da tecla: sempre `'KeyA'` independente do layout
+
+---
+
+### Clipboard API
+
+A API moderna `navigator.clipboard` é baseada em Promises e requer permissão do usuário:
+
+```js
+// Copiar texto para a área de transferência
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    console.log('Copiado!');
+  } catch (err) {
+    console.error('Cópia falhou:', err);
+  }
+}
+
+// Ler texto da área de transferência
+async function pasteText() {
+  try {
+    const text = await navigator.clipboard.readText();
+    console.log('Colado:', text);
+    return text;
+  } catch (err) {
+    console.error('Colagem falhou:', err);
+  }
+}
+
+// Copiar conteúdo rico (HTML, imagens)
+async function copyHtml(html, plainText) {
+  const item = new ClipboardItem({
+    'text/html': new Blob([html], { type: 'text/html' }),
+    'text/plain': new Blob([plainText], { type: 'text/plain' })
+  });
+  await navigator.clipboard.write([item]);
+}
+```
+
+> A Clipboard API requer um contexto seguro (HTTPS ou localhost) e permissão do usuário.
+
+---
+
+### Visão Geral de Outras APIs do Navegador
+
+| API | Propósito | Método Principal |
+|---|---|---|
+| `Geolocation` | Obter localização do usuário | `navigator.geolocation.getCurrentPosition()` |
+| `Vibration` | Vibrar o dispositivo | `navigator.vibrate(200)` |
+| `Notification` | Notificações do sistema | `new Notification('Title', { body: '...' })` |
+| `IntersectionObserver` | Detectar visibilidade de elemento | `new IntersectionObserver(callback, options)` |
+| `ResizeObserver` | Detectar redimensionamento de elemento | `new ResizeObserver(callback)` |
+| `History API` | Manipular histórico do navegador | `history.pushState(state, '', '/path')` |
+| `BroadcastChannel` | Comunicar entre abas | `new BroadcastChannel('channel-name')` |
+
+---
+
+## Exercícios
+
+<CodeRunner
+  title="Exercise 1: Drag and Drop Data Transfer"
+  code={`// Simulate the drag-and-drop data transfer mechanism
+
+function createDataTransfer() {
+  const data = {};
+  let effectAllowed = 'all';
+  let dropEffect = 'none';
+
+  return {
+    setData(type, value) { data[type] = value; },
+    getData(type) { return data[type] || ''; },
+    clearData(type) {
+      if (type) delete data[type];
+      else Object.keys(data).forEach(k => delete data[k]);
+    },
+    get types() { return Object.keys(data); },
+    get effectAllowed() { return effectAllowed; },
+    set effectAllowed(val) { effectAllowed = val; },
+    get dropEffect() { return dropEffect; },
+    set dropEffect(val) { dropEffect = val; }
+  };
+}
+
+const dt = createDataTransfer();
+`}
+  testCases={[
+    { input: "dt.setData('text/plain', 'hello'); dt.getData('text/plain')", expected: "hello", description: "setData and getData work for text/plain" },
+    { input: "dt.setData('text/html', '<b>bold</b>'); dt.types.length", expected: "2", description: "Two types stored after two setData calls" },
+    { input: "dt.clearData('text/plain'); dt.getData('text/plain')", expected: "", description: "clearData removes specific type" },
+    { input: "dt.effectAllowed = 'move'; dt.effectAllowed", expected: "move", description: "effectAllowed can be set and read" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2: Drag Order Manager"
+  code={`// Logic for reordering items via drag and drop
+
+function createDragList(items) {
+  let list = [...items];
+
+  function moveItem(fromIndex, toIndex) {
+    if (fromIndex === toIndex) return list;
+    const item = list[fromIndex];
+    const newList = list.filter((_, i) => i !== fromIndex);
+    newList.splice(toIndex, 0, item);
+    list = newList;
+    return list;
+  }
+
+  function getList() { return [...list]; }
+
+  function findIndex(id) {
+    return list.findIndex(item => item.id === id);
+  }
+
+  return { moveItem, getList, findIndex };
+}
+
+const dragList = createDragList([
+  { id: 1, label: 'Item A' },
+  { id: 2, label: 'Item B' },
+  { id: 3, label: 'Item C' }
+]);
+`}
+  testCases={[
+    { input: "dragList.getList()[0].label", expected: "Item A", description: "Initial order correct" },
+    { input: "dragList.moveItem(0, 2)[2].label", expected: "Item A", description: "Moving first item to end" },
+    { input: "dragList.getList()[0].label", expected: "Item B", description: "After move, B is now first" },
+    { input: "dragList.findIndex(3)", expected: "1", description: "Item C is now at index 1" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3: Keyboard Event Handler"
+  code={`// Keyboard shortcut manager
+
+function createShortcutManager() {
+  const shortcuts = new Map();
+
+  function register(combo, handler) {
+    // combo format: 'ctrl+z', 'shift+enter', 'escape'
+    shortcuts.set(combo.toLowerCase(), handler);
+  }
+
+  function handleKeyEvent(event) {
+    const parts = [];
+    if (event.ctrlKey) parts.push('ctrl');
+    if (event.shiftKey) parts.push('shift');
+    if (event.altKey) parts.push('alt');
+    if (event.metaKey) parts.push('meta');
+    parts.push(event.key.toLowerCase());
+    const combo = parts.join('+');
+    const handler = shortcuts.get(combo);
+    return handler ? handler() : null;
+  }
+
+  function listShortcuts() {
+    return Array.from(shortcuts.keys());
+  }
+
+  return { register, handleKeyEvent, listShortcuts };
+}
+
+const manager = createShortcutManager();
+let undoCount = 0;
+let saveCount = 0;
+
+manager.register('ctrl+z', () => { undoCount++; return 'undo'; });
+manager.register('ctrl+s', () => { saveCount++; return 'save'; });
+manager.register('escape', () => 'close');
+`}
+  testCases={[
+    { input: "manager.handleKeyEvent({ ctrlKey: true, shiftKey: false, altKey: false, metaKey: false, key: 'z' })", expected: "undo", description: "Ctrl+Z triggers undo handler" },
+    { input: "manager.handleKeyEvent({ ctrlKey: true, shiftKey: false, altKey: false, metaKey: false, key: 's' })", expected: "save", description: "Ctrl+S triggers save handler" },
+    { input: "manager.handleKeyEvent({ ctrlKey: false, shiftKey: false, altKey: false, metaKey: false, key: 'Escape' })", expected: "close", description: "Escape key triggers close handler" },
+    { input: "manager.handleKeyEvent({ ctrlKey: false, shiftKey: false, altKey: false, metaKey: false, key: 'a' })", expected: "null", description: "Unregistered key returns null" },
+    { input: "manager.listShortcuts().includes('ctrl+z')", expected: "true", description: "Ctrl+Z is in the shortcuts list" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4: Web Audio Frequency Calculator"
+  code={`// Musical frequency calculations for Web Audio API
+
+// Equal temperament: each semitone = 2^(1/12) ratio
+const A4_FREQ = 440; // Hz
+const SEMITONE_RATIO = Math.pow(2, 1 / 12);
+
+function noteToFrequency(semitones) {
+  // semitones from A4 (0 = A4, 12 = A5, -12 = A3)
+  return A4_FREQ * Math.pow(SEMITONE_RATIO, semitones);
+}
+
+function frequencyToNote(freq) {
+  // Returns semitone offset from A4
+  return Math.round(12 * Math.log2(freq / A4_FREQ));
+}
+
+const NOTE_NAMES = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+
+function semitoneToName(semitones) {
+  const index = ((semitones % 12) + 12) % 12;
+  return NOTE_NAMES[index];
+}
+
+function createToneSchedule(notes, bpm) {
+  const beatDuration = 60 / bpm;
+  return notes.map((semitones, i) => ({
+    time: i * beatDuration,
+    frequency: noteToFrequency(semitones),
+    duration: beatDuration * 0.9
+  }));
+}
+`}
+  testCases={[
+    { input: "Math.round(noteToFrequency(0))", expected: "440", description: "A4 is 440Hz (0 semitones from A4)" },
+    { input: "Math.round(noteToFrequency(12))", expected: "880", description: "A5 is 880Hz (12 semitones up)" },
+    { input: "frequencyToNote(440)", expected: "0", description: "440Hz is 0 semitones from A4" },
+    { input: "frequencyToNote(880)", expected: "12", description: "880Hz is 12 semitones from A4" },
+    { input: "semitoneToName(0)", expected: "A", description: "0 semitones from A4 is A" },
+    { input: "createToneSchedule([0, 2, 4], 60).length", expected: "3", description: "Schedule has 3 notes" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5: Clipboard Utility"
+  code={`// Clipboard operation helpers (pure logic, no browser dependency)
+
+function sanitizeForClipboard(text) {
+  // Normalize whitespace and trim
+  return text.replace(/\\s+/g, ' ').trim();
+}
+
+function formatAsMarkdownLink(url, label) {
+  return \`[\${label}](\${url})\`;
+}
+
+function formatAsHtmlLink(url, label) {
+  return \`<a href="\${url}">\${label}</a>\`;
+}
+
+function extractUrlsFromText(text) {
+  const urlRegex = /https?:\\/\\/[^\\s]+/g;
+  return text.match(urlRegex) || [];
+}
+
+function buildCopyPayload(text) {
+  const trimmed = sanitizeForClipboard(text);
+  const urls = extractUrlsFromText(trimmed);
+  return {
+    plain: trimmed,
+    wordCount: trimmed.split(' ').filter(Boolean).length,
+    hasUrls: urls.length > 0,
+    urls
+  };
+}
+`}
+  testCases={[
+    { input: "sanitizeForClipboard('  hello   world  ')", expected: "hello world", description: "Trims and normalizes whitespace" },
+    { input: "formatAsMarkdownLink('https://example.com', 'Example')", expected: "[Example](https://example.com)", description: "Creates a markdown link" },
+    { input: "formatAsHtmlLink('https://example.com', 'Click')", expected: '<a href="https://example.com">Click</a>', description: "Creates an HTML link" },
+    { input: "extractUrlsFromText('Visit https://foo.com and https://bar.com').length", expected: "2", description: "Extracts two URLs from text" },
+    { input: "buildCopyPayload('Hello world https://example.com').wordCount", expected: "3", description: "Word count is correct" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6: Hangman Game Logic"
+  code={`// Core game logic for the Hangman project
+
+function createHangmanGame(word) {
+  const target = word.toLowerCase();
+  const guessed = new Set();
+  const maxWrong = 6;
+
+  function guess(letter) {
+    letter = letter.toLowerCase();
+    if (guessed.has(letter)) return 'already-guessed';
+    guessed.add(letter);
+    return target.includes(letter) ? 'correct' : 'wrong';
+  }
+
+  function getMasked() {
+    return target.split('').map(ch => guessed.has(ch) ? ch : '_').join('');
+  }
+
+  function getWrongCount() {
+    return [...guessed].filter(l => !target.includes(l)).length;
+  }
+
+  function isWon() {
+    return target.split('').every(ch => guessed.has(ch));
+  }
+
+  function isLost() {
+    return getWrongCount() >= maxWrong;
+  }
+
+  function getStatus() {
+    if (isWon()) return 'won';
+    if (isLost()) return 'lost';
+    return 'playing';
+  }
+
+  return { guess, getMasked, getWrongCount, isWon, isLost, getStatus };
+}
+`}
+  testCases={[
+    { input: "createHangmanGame('hello').getMasked()", expected: "_____", description: "Initial masked word shows all blanks" },
+    { input: "const g = createHangmanGame('hello'); g.guess('h'); g.getMasked()", expected: "h____", description: "Correct guess reveals the letter" },
+    { input: "const g2 = createHangmanGame('hello'); g2.guess('h'); g2.guess('e'); g2.guess('l'); g2.guess('o'); g2.isWon()", expected: "true", description: "Game is won when all letters guessed" },
+    { input: "const g3 = createHangmanGame('hi'); ['a','b','c','d','e','f'].forEach(l => g3.guess(l)); g3.isLost()", expected: "true", description: "Game is lost after 6 wrong guesses" },
+    { input: "const g4 = createHangmanGame('hi'); g4.guess('h'); g4.guess('h')", expected: "already-guessed", description: "Duplicate guess returns already-guessed" }
+  ]}
+/>
+
+---
+
+## Projetos
+
+### Projeto 1: Lista de Arrastar e Soltar
+
+Uma lista interativa onde os itens podem ser reordenados arrastando, com feedback visual durante a operação de arrasto.
+
+**Conceitos-chave:** Eventos `dragstart`, `dragover`, `drop`, `dragleave`, `dragend`, `dataTransfer`, classes CSS de feedback visual.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/drag-drop/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Drag and Drop Demo"
+/>
+
+#### Como Funciona
+
+Cada item da lista recebe `draggable="true"`. O evento `dragover` deve chamar `e.preventDefault()` para sinalizar que o soltar é permitido. A reordenação real acontece no handler `drop`.
+
+```js
+let dragSrc = null;
+
+items.forEach(item => {
+  item.setAttribute('draggable', 'true');
+
+  item.addEventListener('dragstart', (e) => {
+    dragSrc = item;
+    e.dataTransfer.effectAllowed = 'move';
+    item.classList.add('dragging');
+  });
+
+  item.addEventListener('dragend', () => {
+    dragSrc = null;
+    item.classList.remove('dragging');
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  });
+
+  item.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    item.classList.add('drag-over');
+  });
+
+  item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+
+  item.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (dragSrc && dragSrc !== item) {
+      const list = item.parentNode;
+      const allItems = [...list.children];
+      const srcIdx = allItems.indexOf(dragSrc);
+      const tgtIdx = allItems.indexOf(item);
+      if (srcIdx < tgtIdx) {
+        list.insertBefore(dragSrc, item.nextSibling);
+      } else {
+        list.insertBefore(dragSrc, item);
+      }
+    }
+  });
+});
+```
+
+#### Desafio 1
+
+Adicione **alças de arrasto** — ícones pequenos que são a única região arrastável de cada item. O texto do item deve permanecer selecionável. Implemente isso fazendo apenas o elemento de alça o gatilho de arrasto, enquanto mantém o `<li>` completo como alvo de soltar.
+
+---
+
+### Projeto 2: Sound Board
+
+Uma grade de botões que cada um reproduz um clip de som distinto usando a Web Audio API (ou `HTMLAudioElement`).
+
+**Conceitos-chave:** `AudioContext`, `AudioBuffer`, atalhos de teclado mapeados para sons, destaque visual de tecla ao pressionar.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/sound-board/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Sound Board Demo"
+/>
+
+#### Como Funciona
+
+Cada som é pré-carregado na inicialização. Um listener `keydown` mapeia teclas do teclado para botões, para que o sound board possa ser tocado como um instrumento.
+
+```js
+const sounds = {
+  q: { label: 'Clap', src: '/sounds/clap.wav' },
+  w: { label: 'Hi-hat', src: '/sounds/hihat.wav' },
+  // ...
+};
+
+async function loadAll(ctx) {
+  const loaded = {};
+  for (const [key, sound] of Object.entries(sounds)) {
+    const res = await fetch(sound.src);
+    const buf = await res.arrayBuffer();
+    loaded[key] = await ctx.decodeAudioData(buf);
+  }
+  return loaded;
+}
+
+function play(ctx, buffer) {
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+  src.connect(ctx.destination);
+  src.start();
+}
+
+document.addEventListener('keydown', (e) => {
+  const key = e.key.toLowerCase();
+  if (loaded[key]) {
+    play(audioCtx, loaded[key]);
+    highlightButton(key);
+  }
+});
+```
+
+---
+
+### Projeto 3: Jogo da Forca
+
+Um jogo completo de adivinhação de palavras com entrada de teclado, feedback animado de tentativas incorretas e estado de vitória/derrota.
+
+**Conceitos-chave:** Tratamento de eventos de teclado, máquina de estados do jogo, desenho dinâmico SVG/canvas para a figura do enforcado.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/hangman/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Hangman Game Demo"
+/>
+
+#### Como Funciona
+
+O jogo rastreia uma palavra alvo, um conjunto de letras adivinhadas e um contador de tentativas erradas. O DOM é atualizado após cada tentativa: a palavra mascarada, o teclado na tela (marcando teclas corretas/erradas) e a figura do enforcado.
+
+```js
+const word = pickRandomWord();
+const guessed = new Set();
+
+document.addEventListener('keydown', (e) => {
+  const letter = e.key.toLowerCase();
+  if (!/^[a-z]$/.test(letter) || guessed.has(letter)) return;
+
+  guessed.add(letter);
+  updateMasked(word, guessed);
+  updateKeyboard(letter, word.includes(letter));
+  if (!word.includes(letter)) {
+    incrementWrongCount();
+    drawHangmanStep(getWrongCount());
+  }
+  checkGameOver(word, guessed, getWrongCount());
+});
+```
+
+---
+
+### Projeto Bônus: Intro do Star Wars
+
+Uma animação CSS + JavaScript da icônica abertura do Star Wars, usando perspectiva de transformação e animação de rolagem.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/star-wars-intro/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Star Wars Intro Demo"
+/>
+
+---
+
+### Projeto Bônus: Slider de Fundo
+
+Um slider de imagem de fundo em tela cheia com navegação por teclado, transições suaves e reprodução automática.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/background-slider/index.html"
+  width="100%"
+  height="400"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Background Slider Demo"
+/>
+
+#### Desafio 1
+
+Adicione suporte a **gestos de deslize** para dispositivos móveis usando eventos `touchstart` e `touchend`. Calcule a direção do deslize comparando as coordenadas X de início e fim, e navegue para frente ou para trás de acordo.
+
+---
+
+### Projeto Bônus: Relógio com Tema
+
+Um relógio analógico que atualiza em tempo real, com alternância de tema claro/escuro armazenada no `localStorage`.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/theme-clock/index.html"
+  width="100%"
+  height="400"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Theme Clock Demo"
+/>
+
+#### Como Funciona
+
+O relógio usa CSS `transform: rotate()` aplicado aos elementos de ponteiro de hora, minuto e segundo. A rotação é calculada a partir da hora atual e atualizada a cada segundo com `setInterval`.
+
+```js
+function updateClock() {
+  const now = new Date();
+  const seconds = now.getSeconds();
+  const minutes = now.getMinutes();
+  const hours = now.getHours() % 12;
+
+  const secondDeg = seconds * 6;          // 360 / 60
+  const minuteDeg = minutes * 6 + seconds * 0.1;
+  const hourDeg = hours * 30 + minutes * 0.5;
+
+  secondHand.style.transform = `rotate(${secondDeg}deg)`;
+  minuteHand.style.transform = `rotate(${minuteDeg}deg)`;
+  hourHand.style.transform   = `rotate(${hourDeg}deg)`;
+}
+
+setInterval(updateClock, 1000);
+updateClock(); // Executar imediatamente na carga
+```
+
+---
+
+## Resumo
+
+Neste módulo você aprendeu:
+
+- A **API de Arrastar e Soltar**: tornando elementos arrastáveis, transferindo dados via `dataTransfer` e tratando todos os eventos do ciclo de vida do arrasto para construir listas reordenáveis totalmente interativas.
+- Fundamentos da **Web Audio API**: o contexto de áudio, osciladores, nós de ganho, carregamento de buffers de áudio e reprodução de sons — a base de instrumentos e sound boards no navegador.
+- **Eventos de teclado em profundidade**: a distinção entre `e.key` e `e.code`, detectando combinações de teclas modificadoras, impedindo comportamentos padrão do navegador e construindo um gerenciador de atalhos reutilizável.
+- A **Clipboard API**: lendo e escrevendo texto e conteúdo rico na área de transferência do sistema de forma baseada em Promises e consciente de permissões.
+- Uma visão geral de outras APIs poderosas do navegador: Geolocation, Vibration, Notifications, IntersectionObserver, ResizeObserver e mais.
+
+Juntas, essas APIs expandem dramaticamente o que você pode construir com JavaScript no navegador — de jogos e ferramentas criativas a aplicações de produtividade que parecem verdadeiramente nativas.

@@ -1,0 +1,564 @@
+---
+sidebar_position: 5
+---
+
+# Canvas API
+
+O elemento Canvas do HTML5 fornece uma poderosa superfície de desenho 2D que você pode controlar inteiramente com JavaScript. De formas simples a animações complexas e até manipulação de pixels, a Canvas API é uma peça fundamental dos gráficos no navegador.
+
+**Referências MDN:**
+- [HTMLCanvasElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
+- [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+- [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame)
+
+---
+
+## Teoria
+
+### Primeiros Passos com Canvas
+
+O elemento `<canvas>` é apenas uma superfície de desenho em branco. Você obtém acesso ao seu contexto de desenho via `getContext('2d')`:
+
+```js
+const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');
+```
+
+O sistema de coordenadas começa no canto superior esquerdo `(0, 0)`, com `x` aumentando para a direita e `y` aumentando para baixo.
+
+---
+
+### Desenhando Retângulos
+
+Retângulos são a forma mais simples no canvas:
+
+```js
+// Retângulo preenchido
+ctx.fillStyle = 'blue';
+ctx.fillRect(x, y, width, height);
+
+// Retângulo com contorno
+ctx.strokeStyle = 'red';
+ctx.lineWidth = 2;
+ctx.strokeRect(x, y, width, height);
+
+// Limpar uma área retangular
+ctx.clearRect(x, y, width, height);
+```
+
+---
+
+### Caminhos, Linhas e Arcos
+
+A maioria das formas complexas é construída usando caminhos (paths):
+
+```js
+ctx.beginPath();
+ctx.moveTo(50, 50);       // Mover para o ponto inicial sem desenhar
+ctx.lineTo(200, 50);      // Desenhar uma linha até este ponto
+ctx.lineTo(200, 150);
+ctx.closePath();           // Fechar o caminho de volta ao início
+ctx.stroke();              // Renderizar o contorno do caminho
+
+// Círculos e arcos
+ctx.beginPath();
+ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
+// Círculo completo: startAngle = 0, endAngle = Math.PI * 2
+ctx.fill();
+```
+
+---
+
+### Estilos de Preenchimento e Contorno
+
+Você pode usar cores, gradientes e padrões como estilos de preenchimento ou contorno:
+
+```js
+// Cor sólida
+ctx.fillStyle = '#ff6347';
+
+// Gradiente linear
+const gradient = ctx.createLinearGradient(0, 0, 200, 0);
+gradient.addColorStop(0, 'red');
+gradient.addColorStop(1, 'blue');
+ctx.fillStyle = gradient;
+
+// Gradiente radial
+const radial = ctx.createRadialGradient(75, 50, 5, 75, 50, 100);
+radial.addColorStop(0, 'white');
+radial.addColorStop(1, 'black');
+ctx.fillStyle = radial;
+```
+
+---
+
+### Desenhando Texto
+
+Canvas suporta renderização de texto com controle total de estilo:
+
+```js
+ctx.font = '30px Arial';
+ctx.fillStyle = 'black';
+ctx.textAlign = 'center';    // 'left' | 'right' | 'center' | 'start' | 'end'
+ctx.textBaseline = 'middle'; // 'top' | 'middle' | 'bottom' | 'alphabetic'
+
+ctx.fillText('Hello, Canvas!', x, y);
+ctx.strokeText('Outlined Text', x, y);
+
+// Medir a largura do texto
+const metrics = ctx.measureText('Hello');
+console.log(metrics.width);
+```
+
+---
+
+### Animação com requestAnimationFrame
+
+`requestAnimationFrame` agenda uma função para executar antes do próximo repaint, permitindo animações suaves a 60fps:
+
+```js
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpar frame anterior
+  // ... desenhar cena atualizada ...
+  requestAnimationFrame(animate); // Agendar próximo frame
+}
+
+requestAnimationFrame(animate); // Iniciar o loop
+```
+
+---
+
+### Manipulação de Pixels
+
+Você pode ler e escrever pixels individuais usando `ImageData`:
+
+```js
+// Obter dados de pixels para todo o canvas
+const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const data = imageData.data; // Uint8ClampedArray: [R, G, B, A, R, G, B, A, ...]
+
+// Modificar um pixel em (x, y)
+const index = (y * canvas.width + x) * 4;
+data[index]     = 255; // Vermelho
+data[index + 1] = 0;   // Verde
+data[index + 2] = 0;   // Azul
+data[index + 3] = 255; // Alpha
+
+// Colocar os dados modificados de volta
+ctx.putImageData(imageData, 0, 0);
+```
+
+---
+
+## Exercícios
+
+<CodeRunner
+  title="Exercise 1: Draw Basic Shapes"
+  code={`// Simulate a canvas context for testing purposes
+function drawShapes() {
+  const shapes = [];
+
+  // Simulate drawing a filled rectangle
+  function fillRect(x, y, w, h, color) {
+    shapes.push({ type: 'fillRect', x, y, w, h, color });
+  }
+
+  // Simulate drawing a circle
+  function drawCircle(x, y, radius, color) {
+    shapes.push({ type: 'circle', x, y, radius, color });
+  }
+
+  fillRect(10, 10, 100, 50, 'blue');
+  fillRect(50, 80, 60, 60, 'green');
+  drawCircle(200, 100, 40, 'red');
+
+  return shapes;
+}
+
+// Return the number of shapes drawn
+function countShapes() {
+  return drawShapes().length;
+}
+`}
+  testCases={[
+    { input: "countShapes()", expected: "3", description: "Should draw 3 shapes" },
+    { input: "drawShapes()[0].type", expected: "fillRect", description: "First shape should be a fillRect" },
+    { input: "drawShapes()[2].type", expected: "circle", description: "Third shape should be a circle" },
+    { input: "drawShapes()[2].radius", expected: "40", description: "Circle should have radius 40" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 2: Color Utilities for Canvas"
+  code={`// Helper functions for canvas color manipulation
+
+function hexToRgb(hex) {
+  // Remove # if present
+  hex = hex.replace(/^#/, '');
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return { r, g, b };
+}
+
+function rgbToHex(r, g, b) {
+  return '#' + [r, g, b]
+    .map(v => v.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function getColorAtIndex(pixelData, index) {
+  // pixelData is a flat array [R, G, B, A, R, G, B, A, ...]
+  return {
+    r: pixelData[index],
+    g: pixelData[index + 1],
+    b: pixelData[index + 2],
+    a: pixelData[index + 3]
+  };
+}
+`}
+  testCases={[
+    { input: "JSON.stringify(hexToRgb('#ff0000'))", expected: '{"r":255,"g":0,"b":0}', description: "Convert red hex to RGB" },
+    { input: "JSON.stringify(hexToRgb('#00ff00'))", expected: '{"r":0,"g":255,"b":0}', description: "Convert green hex to RGB" },
+    { input: "rgbToHex(0, 0, 255)", expected: "#0000ff", description: "Convert blue RGB to hex" },
+    { input: "rgbToHex(255, 255, 0)", expected: "#ffff00", description: "Convert yellow RGB to hex" },
+    { input: "JSON.stringify(getColorAtIndex([10, 20, 30, 255], 0))", expected: '{"r":10,"g":20,"b":30,"a":255}', description: "Extract pixel color from flat array" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 3: Animation Frame Calculator"
+  code={`// Simulate requestAnimationFrame timing logic
+
+function createAnimator() {
+  let frame = 0;
+  let running = false;
+  const log = [];
+
+  function tick() {
+    if (!running) return;
+    frame++;
+    log.push(frame);
+  }
+
+  return {
+    start() { running = true; },
+    stop() { running = false; },
+    tick,
+    getFrame() { return frame; },
+    getLog() { return log; },
+    reset() { frame = 0; log.length = 0; }
+  };
+}
+
+const animator = createAnimator();
+
+function runAnimation(steps) {
+  animator.start();
+  for (let i = 0; i < steps; i++) {
+    animator.tick();
+  }
+  animator.stop();
+  return animator.getFrame();
+}
+`}
+  testCases={[
+    { input: "runAnimation(5)", expected: "5", description: "Should count 5 animation frames" },
+    { input: "runAnimation(10)", expected: "15", description: "Running 10 more frames on top of 5 = 15" },
+    { input: "animator.getLog().length", expected: "15", description: "Log should have 15 entries" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 4: Path Geometry Calculations"
+  code={`// Utility functions for canvas path geometry
+
+function distanceBetween(x1, y1, x2, y2) {
+  return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+}
+
+function degreesToRadians(degrees) {
+  return degrees * (Math.PI / 180);
+}
+
+function radiansToDegrees(radians) {
+  return radians * (180 / Math.PI);
+}
+
+function pointOnCircle(cx, cy, radius, angleDegrees) {
+  const rad = degreesToRadians(angleDegrees);
+  return {
+    x: Math.round(cx + radius * Math.cos(rad)),
+    y: Math.round(cy + radius * Math.sin(rad))
+  };
+}
+
+function isPointInRect(px, py, rx, ry, rw, rh) {
+  return px >= rx && px <= rx + rw && py >= ry && py <= ry + rh;
+}
+`}
+  testCases={[
+    { input: "Math.round(distanceBetween(0, 0, 3, 4))", expected: "5", description: "Distance of 3-4-5 right triangle" },
+    { input: "Math.round(degreesToRadians(180) * 1000) / 1000", expected: "3.142", description: "180 degrees = pi radians" },
+    { input: "Math.round(radiansToDegrees(Math.PI))", expected: "180", description: "Pi radians = 180 degrees" },
+    { input: "JSON.stringify(pointOnCircle(0, 0, 10, 0))", expected: '{"x":10,"y":0}', description: "Point on circle at 0 degrees" },
+    { input: "isPointInRect(5, 5, 0, 0, 10, 10)", expected: "true", description: "Point inside rectangle" },
+    { input: "isPointInRect(15, 5, 0, 0, 10, 10)", expected: "false", description: "Point outside rectangle" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 5: Matrix Rain Character Generator"
+  code={`// Logic for Matrix rain effect
+
+const MATRIX_CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+function getRandomChar() {
+  return MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
+}
+
+function createDrops(columns, initialY = 1) {
+  return new Array(columns).fill(initialY);
+}
+
+function updateDrops(drops, canvasHeight, fontSize, resetChance = 0.975) {
+  return drops.map(drop => {
+    if (drop * fontSize > canvasHeight && Math.random() > resetChance) {
+      return 0;
+    }
+    return drop + 1;
+  });
+}
+
+function getDropColumn(index, fontSize) {
+  return index * fontSize;
+}
+`}
+  testCases={[
+    { input: "MATRIX_CHARS.includes('A')", expected: "true", description: "Character set includes latin letters" },
+    { input: "createDrops(5).length", expected: "5", description: "Creates correct number of drops" },
+    { input: "createDrops(5)[0]", expected: "1", description: "Drops initialized at y=1" },
+    { input: "getDropColumn(3, 20)", expected: "60", description: "Column 3 with fontSize 20 = x position 60" },
+    { input: "updateDrops([1, 2, 3], 100, 10).length", expected: "3", description: "updateDrops preserves array length" }
+  ]}
+/>
+
+<CodeRunner
+  title="Exercise 6: Canvas Text Rendering Logic"
+  code={`// Text layout utilities for canvas
+
+function wrapText(text, maxWidth, charWidth) {
+  // Simple word-wrap based on estimated char width
+  const words = text.split(' ');
+  const lines = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    const testLine = currentLine ? currentLine + ' ' + word : word;
+    if (testLine.length * charWidth > maxWidth && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+  return lines;
+}
+
+function centerText(text, canvasWidth, charWidth) {
+  const textWidth = text.length * charWidth;
+  return (canvasWidth - textWidth) / 2;
+}
+
+function stackedTextPositions(lines, startY, lineHeight) {
+  return lines.map((line, i) => ({ text: line, y: startY + i * lineHeight }));
+}
+`}
+  testCases={[
+    { input: "wrapText('Hello World Foo Bar', 80, 10).length", expected: "2", description: "Should wrap into 2 lines at 80px width with 10px per char" },
+    { input: "centerText('Hello', 200, 10)", expected: "75", description: "Center 5-char text (50px) in 200px canvas = x:75" },
+    { input: "stackedTextPositions(['line1', 'line2', 'line3'], 50, 20)[1].y", expected: "70", description: "Second line y = 50 + 1*20 = 70" },
+    { input: "stackedTextPositions(['a', 'b'], 10, 15)[0].text", expected: "a", description: "First stacked text is 'a'" }
+  ]}
+/>
+
+---
+
+## Projetos
+
+### Projeto 1: Efeito Chuva Matrix
+
+Os clássicos caracteres verdes em cascata de Matrix — construídos inteiramente no canvas usando `requestAnimationFrame`.
+
+**Conceitos-chave:** Colunas no canvas, caracteres aleatórios, sobreposições semi-transparentes para o efeito de trilha, loop com `requestAnimationFrame`.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/matrix/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Matrix Rain Effect Demo"
+/>
+
+#### Como Funciona
+
+1. Criar um `<canvas>` que preenche a viewport.
+2. Dividir a largura do canvas em colunas de `fontSize` pixels cada.
+3. Rastrear um array `drops` — um valor por coluna, representando a posição y atual do caractere que cai.
+4. Em cada frame:
+   - Desenhar um retângulo preto semi-transparente sobre todo o canvas (cria a trilha de fade).
+   - Para cada drop, desenhar um caractere aleatório em `(col * fontSize, drop * fontSize)`.
+   - Resetar aleatoriamente um drop para `0` quando atingir o final.
+
+```js
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const fontSize = 16;
+const columns = Math.floor(canvas.width / fontSize);
+const drops = new Array(columns).fill(1);
+const chars = 'アイウエオ...ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+function draw() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#0F0';
+  ctx.font = `${fontSize}px monospace`;
+
+  drops.forEach((y, i) => {
+    const char = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(char, i * fontSize, y * fontSize);
+    if (y * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  });
+}
+
+setInterval(draw, 33);
+```
+
+#### Desafio 1
+
+Mude a cor do caractere de verde para um gradiente que alterna entre verde e branco dependendo da posição do drop — caracteres próximos ao topo de uma trilha devem ser branco brilhante.
+
+#### Desafio 2
+
+Adicione um modo "freeze": pressionar a barra de espaço pausa e retoma a animação. Use uma flag booleana e `cancelAnimationFrame` para implementar de forma limpa.
+
+---
+
+### Projeto 2: Ferramenta de Desenho no Canvas
+
+Uma aplicação de desenho à mão livre usando eventos de mouse e caminhos no canvas.
+
+**Conceitos-chave:** Eventos `mousedown`, `mousemove`, `mouseup`, `beginPath`/`moveTo`/`lineTo`, largura de linha e cor dinâmicas.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/drawing/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Canvas Drawing Tool Demo"
+/>
+
+#### Como Funciona
+
+1. Rastrear se o botão do mouse está pressionado (`isDrawing`).
+2. No `mousedown`: definir `isDrawing = true`, chamar `beginPath()`, `moveTo(x, y)`.
+3. No `mousemove`: se estiver desenhando, chamar `lineTo(x, y)` e `stroke()`, depois `moveTo(x, y)`.
+4. No `mouseup` / `mouseleave`: definir `isDrawing = false`.
+
+```js
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+
+canvas.addEventListener('mousedown', (e) => {
+  isDrawing = true;
+  [lastX, lastY] = [e.offsetX, e.offsetY];
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!isDrawing) return;
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+  [lastX, lastY] = [e.offsetX, e.offsetY];
+});
+
+canvas.addEventListener('mouseup', () => isDrawing = false);
+canvas.addEventListener('mouseleave', () => isDrawing = false);
+```
+
+#### Desafio 1
+
+Adicione um seletor de cor e um slider de largura de linha que atualizam `ctx.strokeStyle` e `ctx.lineWidth` em tempo real. Permita que os usuários escolham entre caps de linha redondas e quadradas (`ctx.lineCap`).
+
+#### Desafio 2
+
+Implemente uma funcionalidade de **desfazer** usando um array de snapshots `ImageData`. Salve o estado do canvas em cada `mousedown` e restaure o snapshot anterior quando o usuário pressionar `Ctrl+Z`.
+
+---
+
+### Projeto 3: Aplicativo de Pintura
+
+Uma aplicação de pintura completa combinando formas, paleta de cores, balde de preenchimento e ferramenta de texto.
+
+**Conceitos-chave:** Máquina de estados para seleção de ferramenta, algoritmo flood-fill, `ctx.save()`/`ctx.restore()` para pré-visualizações de ferramenta.
+
+<iframe
+  src="/js-from-zero-to-hero/demos/paint/index.html"
+  width="100%"
+  height="500"
+  style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px'}}
+  title="Paint App Demo"
+/>
+
+#### Como Funciona
+
+O aplicativo de pintura usa um estado de **ferramenta atual** para determinar o que acontece nos eventos de mouse:
+
+- **Lápis** — desenho à mão livre (igual à ferramenta de desenho acima).
+- **Retângulo / Círculo** — no `mousedown`, registrar o ponto inicial. No `mousemove`, limpar uma pré-visualização e desenhar a forma. No `mouseup`, confirmar a forma.
+- **Balde de preenchimento** — no clique, executar um algoritmo flood-fill usando `getImageData`/`putImageData`.
+- **Texto** — no clique, solicitar texto e renderizá-lo na posição clicada com `fillText`.
+
+```js
+let tool = 'pencil';
+let startX, startY;
+let snapshot; // ImageData taken on mousedown for shape preview
+
+canvas.addEventListener('mousedown', (e) => {
+  startX = e.offsetX;
+  startY = e.offsetY;
+  snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (tool === 'rectangle') {
+    ctx.putImageData(snapshot, 0, 0); // Restaurar antes de desenhar pré-visualização
+    ctx.strokeRect(startX, startY, e.offsetX - startX, e.offsetY - startY);
+  }
+});
+```
+
+---
+
+## Resumo
+
+Neste módulo você aprendeu:
+
+- Como obter e usar um `CanvasRenderingContext2D` via `getContext('2d')`.
+- Primitivos de desenho: retângulos, arcos e caminhos arbitrários com linhas e curvas.
+- Estilização com cores sólidas, gradientes lineares e radiais.
+- Renderização e medição de texto no canvas.
+- Criação de animações suaves usando `requestAnimationFrame` e um game loop.
+- Leitura e escrita de dados de pixels com `getImageData` e `putImageData`.
+
+A Canvas API é fundamental para jogos no navegador, visualizações de dados, editores de imagem e programação criativa. Os projetos acima — Chuva Matrix, Ferramenta de Desenho e Aplicativo de Pintura — cada um aplica uma fatia diferente dessas capacidades em um contexto real e interativo.

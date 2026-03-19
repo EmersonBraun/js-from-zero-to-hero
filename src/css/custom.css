@@ -189,3 +189,13 @@
 .footer__link-item--icon svg {
   display: block;
 }
+
+/* Responsive iframes */
+iframe {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.markdown iframe {
+  max-width: 100%;
+}

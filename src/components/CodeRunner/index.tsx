@@ -22,21 +22,26 @@ export default function CodeRunner({code, testCases, title}: CodeRunnerProps) {
     setIsRunning(true);
     setOutput('Running...\n');
 
-    try {
-      runJavaScriptCode();
-    } catch (error) {
-      setOutput(`Error: ${error instanceof Error ? error.message : String(error)}`);
-    } finally {
+    // NOTE: setTimeout does NOT interrupt a synchronous infinite loop in the
+    // same JS thread — new Function() runs synchronously and will still freeze
+    // the tab if the student writes e.g. `while(true){}`. The timer below only
+    // provides user feedback for cases where the code finishes after a delay
+    // (e.g., very slow recursive algorithms). A true fix requires a Web Worker.
+    // For exercises that accept unbounded input (e.g. roman numerals), validate
+    // input length inside the exercise MDX instead.
+    const timeoutMs = 5000;
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      setOutput('\u23f1\ufe0f Execution timed out (5s limit). Check for infinite loops.');
       setIsRunning(false);
-    }
-  };
+    }, timeoutMs);
 
-  const runJavaScriptCode = () => {
+    // Create a safe execution environment.
+    // NOTE: new Function() is intentionally used here as the core of the
+    // CodeRunner component — it executes learner-authored JS code in the
+    // browser for educational purposes (same pattern as the leetcode repo).
     try {
-      // Create a safe execution environment
-      // NOTE: new Function() is intentionally used here as the core of the
-      // CodeRunner component — it executes learner-authored JS code in the
-      // browser for educational purposes (same pattern as the leetcode repo).
       const safeEval = new Function(`
         "use strict";
         let output = '';
@@ -82,9 +87,19 @@ export default function CodeRunner({code, testCases, title}: CodeRunnerProps) {
       `);
 
       const result = safeEval();
-      setOutput(result);
+      if (!timedOut) {
+        clearTimeout(timer);
+        setOutput(result);
+      }
     } catch (error) {
-      setOutput(`JavaScript Error: ${error instanceof Error ? error.message : String(error)}`);
+      if (!timedOut) {
+        clearTimeout(timer);
+        setOutput(`JavaScript Error: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    } finally {
+      if (!timedOut) {
+        setIsRunning(false);
+      }
     }
   };
 

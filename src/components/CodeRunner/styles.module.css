@@ -71,6 +71,8 @@
   tab-size: 2;
   white-space: pre;
   overflow-x: auto;
+  overflow-wrap: break-word;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -132,7 +134,9 @@
   white-space: pre-wrap;
   min-height: 100px;
   max-height: 400px;
+  overflow-x: auto;
   overflow-y: auto;
+  word-break: break-word;
   color: var(--ifm-color-emphasis-900);
 }
 
